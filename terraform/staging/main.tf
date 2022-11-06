@@ -11,12 +11,38 @@ terraform {
 
 module "global" {
   source = "./modules/global"
+}
 
-  aws_region = var.aws_region
+module "subnet" {
+  source = "./modules/subnet"
+
+  vpc_id = module.global.sudoku_vpc_id
 }
 
 module "ecr" {
   source = "./modules/ecr"
+}
 
-  repository_name = var.aws_ecr_repository_name
+module "ecs_cloudwatch" {
+  source = "./modules/cloudwatch"
+
+  cloudwatch_log_group_name = var.ecs_cloudwatch_log_group_name
+}
+
+module "ecs_load_balancer" {
+  source = "./modules/elb"
+
+  vpc_id = module.global.sudoku_vpc_id
+  public_subnets = module.subnet.public_subnets
+  load_balancer_name = var.ecs_load_balancer_name
+}
+
+module "ecs" {
+  source = "./modules/ecs"
+
+  cloudwatch_log_group_name = var.ecs_cloudwatch_log_group_name
+  sudoku_target_group_arn = module.ecs_load_balancer.sudoku_target_group_arn
+  public_subnets = module.subnet.public_subnets
+  ecr_repository_sudoku_nginx_arn = module.ecr.sudoku_nginx_arn
+  ecr_repository_sudoku_php_arn = module.ecr.sudoku_php_arn
 }

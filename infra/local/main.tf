@@ -16,7 +16,7 @@ resource "null_resource" "docker_build" {
     always_run = "${timestamp()}"
   }
   provisioner "local-exec" {
-    command = "docker build ./../docker/nginx/ -t sudoku_nginx && docker build ./../docker/php/ -t sudoku_php"
+    command = "docker build ./../docker/nginx/ -t sudoku_nginx && docker build ./../../ -f ./../docker/php/Dockerfile -t sudoku_php"
   }
 }
 

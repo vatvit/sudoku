@@ -1,2 +1,2 @@
 <?php
-echo 'index';
+echo date('Y-m-d H:i:s');

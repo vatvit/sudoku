@@ -56,8 +56,8 @@ resource "docker_container" "php" {
   depends_on = [data.docker_image.sudoku_php]
 
   volumes {
-    host_path = abspath("${path.module}/../../src/public")
-    container_path = "/usr/src/myapp"
+    host_path = abspath("${path.module}/../../src")
+    container_path = "/var/www/html"
   }
 
   network_mode = "bridge"

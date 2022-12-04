@@ -35,6 +35,12 @@ resource "aws_ecs_service" "sudoku" {
     subnets = [for subnet in var.public_subnets : subnet.id]
     assign_public_ip = true
   }
+
+
+
+#  deployment_controller {
+#    type = "CODE_DEPLOY"
+#  }
 }
 
 resource "aws_ecs_task_definition" "sudoku" {
@@ -52,6 +58,14 @@ resource "aws_ecs_task_definition" "sudoku" {
           hostPort      = 443
         }
       ]
+      logConfiguration: {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group" = var.cloudwatch_log_group_name
+          "awslogs-region" = "eu-central-1"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
     },
     {
       name      = "sudoku_php"
@@ -63,10 +77,73 @@ resource "aws_ecs_task_definition" "sudoku" {
           hostPort      = 80
         }
       ]
+      logConfiguration: {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group" = var.cloudwatch_log_group_name
+          "awslogs-region" = "eu-central-1"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
     }
   ])
   network_mode = "awsvpc"
   requires_compatibilities = [
     "FARGATE"
   ]
+  execution_role_arn = aws_iam_role.sudoku_deploy.arn
+}
+
+
+resource "aws_iam_role" "sudoku_deploy" {
+  name = "SudokuDeployRole"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "ECSWriteAccessToCloudWatch" {
+  name = "ECSWriteAccessToCloudWatch"
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  role       = aws_iam_role.sudoku_deploy.name
+}
+
+resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatch" {
+  policy_arn = aws_iam_policy.ECSWriteAccessToCloudWatch.arn
+  role       = aws_iam_role.sudoku_deploy.name
 }

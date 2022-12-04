@@ -3,6 +3,7 @@ AWS_REGION='eu-central-1'
 AWS_REPOSITORY_NGINX='sudoku_nginx'
 AWS_REPOSITORY_PHP='sudoku_php'
 
+AWS_DEPLOY_ECS_CLUSTER='staging'
 AWS_DEPLOY_ECS_SERVICE='sudoku'
 AWS_DEPLOY_ECR_TASK_DEFINITION='sudoku'
 
@@ -25,11 +26,17 @@ aws ecr get-login-password \
 docker push ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_REPOSITORY_NGINX}:${GIT_HASH}
 docker push ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_REPOSITORY_PHP}:${GIT_HASH}
 
-echo "aws ecs deploy \
-          --service=${AWS_DEPLOY_ECS_SERVICE} \
-          --codedeploy-appspec ${AWS_DEPLOY_ECR_TASK_DEFINITION} \
-          --task-definition=./test.json"
-aws ecs deploy \
-    --service=${AWS_DEPLOY_ECS_SERVICE} \
-    --codedeploy-appspec ${AWS_DEPLOY_ECR_TASK_DEFINITION} \
-    --task-definition=./test.json
+aws ecs update-service \
+  --cluster ${AWS_DEPLOY_ECS_CLUSTER} \
+  --service ${AWS_DEPLOY_ECS_SERVICE} \
+  --force-new-deployment
+
+
+#echo "aws ecs deploy \
+#          --service=${AWS_DEPLOY_ECS_SERVICE} \
+#          --codedeploy-appspec ${AWS_DEPLOY_ECR_TASK_DEFINITION} \
+#          --task-definition=./test.json"
+#aws ecs deploy \
+#    --service=${AWS_DEPLOY_ECS_SERVICE} \
+#    --codedeploy-appspec ${AWS_DEPLOY_ECR_TASK_DEFINITION} \
+#    --task-definition=./test.json

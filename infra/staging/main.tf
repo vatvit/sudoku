@@ -47,10 +47,10 @@ module "ecs" {
   ecr_repository_sudoku_php_arn = module.ecr.sudoku_php_arn
 }
 
-module "codedeploy" {
-  source = "./modules/codedeploy"
-
-  sudoku_target_group_name = module.ecs_load_balancer.sudoku_target_group_name
-  sudoku_ecs_cluster_name = module.ecs.sudoku_ecs_cluster_name
-  sudoku_ecs_service_name = module.ecs.sudoku_ecs_service_name
-}
+#module "codedeploy" {
+#  source = "./modules/codedeploy"
+#
+#  sudoku_target_group_name = module.ecs_load_balancer.sudoku_target_group_name
+#  sudoku_ecs_cluster_name = module.ecs.sudoku_ecs_cluster_name
+#  sudoku_ecs_service_name = module.ecs.sudoku_ecs_service_name
+#}

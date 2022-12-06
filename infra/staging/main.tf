@@ -43,14 +43,6 @@ module "ecs" {
   cloudwatch_log_group_name = var.ecs_cloudwatch_log_group_name
   sudoku_target_group_arn = module.ecs_load_balancer.sudoku_target_group_arn
   public_subnets = module.subnet.public_subnets
-  ecr_repository_sudoku_nginx_arn = module.ecr.sudoku_nginx_arn
-  ecr_repository_sudoku_php_arn = module.ecr.sudoku_php_arn
+  ecr_repository_sudoku_nginx_url = module.ecr.sudoku_nginx_url
+  ecr_repository_sudoku_php_url = module.ecr.sudoku_php_url
 }
-
-#module "codedeploy" {
-#  source = "./modules/codedeploy"
-#
-#  sudoku_target_group_name = module.ecs_load_balancer.sudoku_target_group_name
-#  sudoku_ecs_cluster_name = module.ecs.sudoku_ecs_cluster_name
-#  sudoku_ecs_service_name = module.ecs.sudoku_ecs_service_name
-#}

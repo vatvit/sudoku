@@ -19,12 +19,12 @@ variable "desired_count" {
   default = 2
 }
 
-variable "ecr_repository_sudoku_nginx_arn" {
-  description = "Sudoku nginx ECR Repository ARN."
+variable "ecr_repository_sudoku_nginx_url" {
+  description = "Sudoku nginx ECR Repository URL."
   type        = string
 }
 
-variable "ecr_repository_sudoku_php_arn" {
-  description = "Sudoku php ECR Repository ARN."
+variable "ecr_repository_sudoku_php_url" {
+  description = "Sudoku php ECR Repository URL."
   type        = string
 }

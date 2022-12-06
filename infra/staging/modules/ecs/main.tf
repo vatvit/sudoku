@@ -36,11 +36,6 @@ resource "aws_ecs_service" "sudoku" {
     assign_public_ip = true
   }
 
-
-
-#  deployment_controller {
-#    type = "CODE_DEPLOY"
-#  }
 }
 
 resource "aws_ecs_task_definition" "sudoku" {
@@ -50,7 +45,7 @@ resource "aws_ecs_task_definition" "sudoku" {
   container_definitions = jsonencode([
     {
       name      = "sudoku_nginx"
-      image     = "${var.ecr_repository_sudoku_nginx_arn}:latest"
+      image     = "${var.ecr_repository_sudoku_nginx_url}:latest"
       essential = true
       portMappings = [
         {
@@ -69,7 +64,7 @@ resource "aws_ecs_task_definition" "sudoku" {
     },
     {
       name      = "sudoku_php"
-      image     = "${var.ecr_repository_sudoku_php_arn}:latest"
+      image     = "${var.ecr_repository_sudoku_php_url}:latest"
       essential = true
       portMappings = [
         {
@@ -114,6 +109,11 @@ resource "aws_iam_role" "sudoku_deploy" {
 EOF
 }
 
+resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  role       = aws_iam_role.sudoku_deploy.name
+}
+
 resource "aws_iam_policy" "ECSWriteAccessToCloudWatch" {
   name = "ECSWriteAccessToCloudWatch"
   policy = <<POLICY
@@ -138,12 +138,59 @@ resource "aws_iam_policy" "ECSWriteAccessToCloudWatch" {
 POLICY
 }
 
-resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-  role       = aws_iam_role.sudoku_deploy.name
-}
-
 resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatch" {
   policy_arn = aws_iam_policy.ECSWriteAccessToCloudWatch.arn
   role       = aws_iam_role.sudoku_deploy.name
 }
+
+resource "aws_iam_policy" "ECSReadSecrets" {
+  name = "ECSReadSecrets"
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameters",
+        "secretsmanager:*",
+        "kms:Decrypt"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "ECSReadSecrets" {
+  policy_arn = aws_iam_policy.ECSReadSecrets.arn
+  role       = aws_iam_role.sudoku_deploy.name
+}
+
+# TODO: REMOVE
+resource "aws_iam_policy" "ECSGOD" {
+  name = "ECSGOD"
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "ECSGOD" {
+  policy_arn = aws_iam_policy.ECSGOD.arn
+  role       = aws_iam_role.sudoku_deploy.name
+}
+

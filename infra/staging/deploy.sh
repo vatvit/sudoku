@@ -5,7 +5,6 @@ AWS_REPOSITORY_PHP='sudoku_php'
 
 AWS_DEPLOY_ECS_CLUSTER='staging'
 AWS_DEPLOY_ECS_SERVICE='sudoku'
-AWS_DEPLOY_ECR_TASK_DEFINITION='sudoku'
 
 GIT_HASH=$(git rev-parse --short HEAD)
 
@@ -17,6 +16,13 @@ else
   echo "skip build...\n"
 fi
 
+DESIRED_COUNT=''
+if [ -n $2 ]
+then
+  DESIRED_COUNT=" --desired-count=$2"
+  echo "${DESIRED_COUNT}"
+fi
+
 aws ecr get-login-password \
     --region ${AWS_REGION} \
 | docker login \
@@ -26,17 +32,9 @@ aws ecr get-login-password \
 docker push ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_REPOSITORY_NGINX}:${GIT_HASH}
 docker push ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_REPOSITORY_PHP}:${GIT_HASH}
 
+echo "aws ecs update-service --cluster ${AWS_DEPLOY_ECS_CLUSTER} --service ${AWS_DEPLOY_ECS_SERVICE} --force-new-deployment ${DESIRED_COUNT}"
 aws ecs update-service \
   --cluster ${AWS_DEPLOY_ECS_CLUSTER} \
   --service ${AWS_DEPLOY_ECS_SERVICE} \
-  --force-new-deployment
-
-
-#echo "aws ecs deploy \
-#          --service=${AWS_DEPLOY_ECS_SERVICE} \
-#          --codedeploy-appspec ${AWS_DEPLOY_ECR_TASK_DEFINITION} \
-#          --task-definition=./test.json"
-#aws ecs deploy \
-#    --service=${AWS_DEPLOY_ECS_SERVICE} \
-#    --codedeploy-appspec ${AWS_DEPLOY_ECR_TASK_DEFINITION} \
-#    --task-definition=./test.json
+  --force-new-deployment \
+  ${DESIRED_COUNT}

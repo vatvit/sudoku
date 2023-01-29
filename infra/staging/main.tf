@@ -9,40 +9,16 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
-module "global" {
-  source = "./modules/global"
+provider "aws" {
+  region = "eu-central-1"
+  shared_config_files = ["/Users/vatvit/.aws/config"]
+  shared_credentials_files = ["/Users/vatvit/.aws/credentials"]
 }
 
-module "subnet" {
-  source = "./modules/subnet"
-
-  vpc_id = module.global.sudoku_vpc_id
+resource "aws_vpc" "sudoku" {
+  cidr_block = "10.0.0.0/16"
 }
 
-module "ecr" {
-  source = "./modules/ecr"
-}
-
-module "ecs_cloudwatch" {
-  source = "./modules/cloudwatch"
-
-  cloudwatch_log_group_name = var.ecs_cloudwatch_log_group_name
-}
-
-module "ecs_load_balancer" {
-  source = "./modules/elb"
-
-  vpc_id = module.global.sudoku_vpc_id
-  public_subnets = module.subnet.public_subnets
-  load_balancer_name = var.ecs_load_balancer_name
-}
-
-module "ecs" {
-  source = "./modules/ecs"
-
-  cloudwatch_log_group_name = var.ecs_cloudwatch_log_group_name
-  sudoku_target_group_arn = module.ecs_load_balancer.sudoku_target_group_arn
-  public_subnets = module.subnet.public_subnets
-  ecr_repository_sudoku_nginx_url = module.ecr.sudoku_nginx_url
-  ecr_repository_sudoku_php_url = module.ecr.sudoku_php_url
+resource "aws_internet_gateway" "sudoku" {
+  vpc_id = aws_vpc.sudoku.id
 }

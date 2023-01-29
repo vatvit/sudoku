@@ -9,14 +9,16 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
-provider "docker" {}
+provider "docker" {
+  host ="unix:///Users/vatvit/.docker/run/docker.sock"
+}
 
 resource "null_resource" "docker_build" {
   triggers = {
     always_run = "${timestamp()}"
   }
   provisioner "local-exec" {
-    command = "docker build ./../docker/nginx/ -t sudoku_nginx && docker build ./../../ -f ./../docker/php/Dockerfile -t sudoku_php"
+    command = "( cd ./../../ && docker build -t sudoku_nginx -f ./infra/docker/nginx/Dockerfile ./ ) && ( cd ./../../ && docker build -t sudoku_php -f ./infra/docker/php/Dockerfile ./ )"
   }
 }
 

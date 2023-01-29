@@ -55,6 +55,8 @@ resource "aws_ecs_task_definition" "sudoku" {
       name         = "sudoku_nginx"
       image        = "${aws_ecr_repository.sudoku_nginx.repository_url}:latest"
       essential    = true
+      cpu          = 128
+      memory       = 256
 #      environment  = var.container_environment
       portMappings = [
         {
@@ -62,12 +64,23 @@ resource "aws_ecs_task_definition" "sudoku" {
           containerPort = 80
           hostPort      = 80
         }
-      ]
+      ],
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group = var.ecs_cloudwatch_log_group_name
+          awslogs-region = "eu-central-1"
+          awslogs-stream-prefix = "ecs"
+          awslogs-create-group = "true"
+        }
+      }
     },
     {
       name         = "sudoku_php"
       image        = "${aws_ecr_repository.sudoku_php.repository_url}:latest"
       essential    = true
+      cpu          = 128
+      memory       = 256
 #      environment  = var.container_environment
       portMappings = [
         {
@@ -75,7 +88,16 @@ resource "aws_ecs_task_definition" "sudoku" {
           containerPort = 9000
           hostPort      = 9000
         }
-      ]
+      ],
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group = var.ecs_cloudwatch_log_group_name
+          awslogs-region = "eu-central-1"
+          awslogs-stream-prefix = "ecs"
+          awslogs-create-group = "true"
+        }
+      }
     }
   ])
 }
@@ -177,60 +199,41 @@ resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attach
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-#
-#resource "aws_iam_role" "sudoku_deploy" {
-#  name = "SudokuDeployRole"
-#  assume_role_policy = <<EOF
-#{
-#  "Version": "2012-10-17",
-#  "Statement": [
-#    {
-#      "Sid": "",
-#      "Effect": "Allow",
-#      "Principal": {
-#        "Service": "ecs-tasks.amazonaws.com"
-#      },
-#      "Action": "sts:AssumeRole"
-#    }
-#  ]
-#}
-#EOF
-#}
-#
-#resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy" {
-#  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-#  role       = aws_iam_role.sudoku_deploy.name
-#}
-#
-#resource "aws_iam_policy" "ECSWriteAccessToCloudWatch" {
-#  name = "ECSWriteAccessToCloudWatch"
-#  policy = <<POLICY
-#{
-#  "Version": "2012-10-17",
-#  "Statement": [
-#    {
-#      "Sid": "",
-#      "Effect": "Allow",
-#      "Action": [
-#        "ecr:GetAuthorizationToken",
-#        "ecr:BatchCheckLayerAvailability",
-#        "ecr:GetDownloadUrlForLayer",
-#        "ecr:BatchGetImage",
-#        "logs:CreateLogStream",
-#        "logs:PutLogEvents"
-#      ],
-#      "Resource": "*"
-#    }
-#  ]
-#}
-#POLICY
-#}
-#
-#resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatch" {
-#  policy_arn = aws_iam_policy.ECSWriteAccessToCloudWatch.arn
-#  role       = aws_iam_role.sudoku_deploy.name
-#}
-#
+resource "aws_iam_policy" "ECSWriteAccessToCloudWatch" {
+  name = "ECSWriteAccessToCloudWatch"
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:CreateLogGroup"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatch" {
+  policy_arn = aws_iam_policy.ECSWriteAccessToCloudWatch.arn
+  role       = aws_iam_role.ecs_task_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatchExecutionRole" {
+  policy_arn = aws_iam_policy.ECSWriteAccessToCloudWatch.arn
+  role       = aws_iam_role.ecs_task_execution_role.name
+}
+
 #resource "aws_iam_policy" "ECSReadSecrets" {
 #  name = "ECSReadSecrets"
 #  policy = <<POLICY
@@ -257,30 +260,6 @@ resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attach
 #  role       = aws_iam_role.sudoku_deploy.name
 #}
 #
-## TODO: REMOVE
-#resource "aws_iam_policy" "ECSGOD" {
-#  name = "ECSGOD"
-#  policy = <<POLICY
-#{
-#  "Version": "2012-10-17",
-#  "Statement": [
-#    {
-#      "Sid": "",
-#      "Effect": "Allow",
-#      "Action": [
-#        "*"
-#      ],
-#      "Resource": "*"
-#    }
-#  ]
-#}
-#POLICY
-#}
-#
-#resource "aws_iam_role_policy_attachment" "ECSGOD" {
-#  policy_arn = aws_iam_policy.ECSGOD.arn
-#  role       = aws_iam_role.sudoku_deploy.name
-#}
 
 resource "aws_security_group" "ecs_tasks" {
   name   = "sudoku-sg-task-staging"

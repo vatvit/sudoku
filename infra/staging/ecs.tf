@@ -33,7 +33,7 @@ resource "aws_ecs_service" "sudoku" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.sudoku_load_balancer_target_group.arn
-    container_name   = "sudoku_nginx"
+    container_name   = "sudoku_php"
     container_port   = 80
   }
 
@@ -52,8 +52,8 @@ resource "aws_ecs_task_definition" "sudoku" {
   family                   = "sudoku"
   container_definitions = jsonencode([
     {
-      name         = "sudoku_nginx"
-      image        = "${aws_ecr_repository.sudoku_nginx.repository_url}:latest"
+      name         = "sudoku_php"
+      image        = "${aws_ecr_repository.sudoku_php.repository_url}:latest"
       essential    = true
       cpu          = 128
       memory       = 256
@@ -74,86 +74,10 @@ resource "aws_ecs_task_definition" "sudoku" {
           awslogs-create-group = "true"
         }
       }
-    },
-    {
-      name         = "sudoku_php"
-      image        = "${aws_ecr_repository.sudoku_php.repository_url}:latest"
-      essential    = true
-      cpu          = 128
-      memory       = 256
-#      environment  = var.container_environment
-      portMappings = [
-        {
-          protocol      = "tcp"
-          containerPort = 9000
-          hostPort      = 9000
-        }
-      ],
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group = var.ecs_cloudwatch_log_group_name
-          awslogs-region = "eu-central-1"
-          awslogs-stream-prefix = "ecs"
-          awslogs-create-group = "true"
-        }
-      }
     }
   ])
 }
 
-#
-#resource "aws_ecs_task_definition" "sudoku" {
-#  family = "sudoku"
-#  cpu       = 256
-#  memory    = 512
-#  container_definitions = jsonencode([
-#    {
-#      name      = "sudoku_nginx"
-#      image     = "${aws_ecr_repository.sudoku_nginx.repository_url}:latest"
-#      essential = true
-#      portMappings = [
-#        {
-#          containerPort = 443
-#          hostPort      = 443
-#        }
-#      ]
-#      logConfiguration: {
-#        logDriver = "awslogs"
-#        options = {
-#          "awslogs-group" = var.ecs_cloudwatch_log_group_name
-#          "awslogs-region" = "eu-central-1"
-#          "awslogs-stream-prefix" = "ecs"
-#        }
-#      }
-#    },
-#    {
-#      name      = "sudoku_php"
-#      image     = "${aws_ecr_repository.sudoku_php.repository_url}:latest"
-#      essential = true
-#      portMappings = [
-#        {
-#          containerPort = 80
-#          hostPort      = 80
-#        }
-#      ]
-#      logConfiguration: {
-#        logDriver = "awslogs"
-#        options = {
-#          "awslogs-group" = var.ecs_cloudwatch_log_group_name
-#          "awslogs-region" = "eu-central-1"
-#          "awslogs-stream-prefix" = "ecs"
-#        }
-#      }
-#    }
-#  ])
-#  network_mode = "awsvpc"
-#  requires_compatibilities = [
-#    "FARGATE"
-#  ]
-#  execution_role_arn = aws_iam_role.sudoku_deploy.arn
-#}
-#
 resource "aws_iam_role" "ecs_task_role" {
   name = "sudoku-ecsTaskRole"
 

@@ -2,8 +2,8 @@ resource "aws_lb" "sudoku_load_balancer" {
   name               = "sudoku-lb-staging"
   internal           = false
   load_balancer_type = "application"
-#  security_groups    = var.lb_security_groups
-  subnets            = aws_subnet.private.*.id
+  security_groups    = [aws_security_group.lb.id]
+  subnets            = aws_subnet.public.*.id
 
   enable_deletion_protection = false
 }

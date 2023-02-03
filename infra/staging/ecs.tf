@@ -27,7 +27,7 @@ resource "aws_ecs_service" "sudoku" {
   scheduling_strategy                = "REPLICA"
 
   network_configuration {
-    subnets          = aws_subnet.private.*.id
+    subnets          = aws_subnet.public.*.id // TODO: private?
     assign_public_ip = false
   }
 

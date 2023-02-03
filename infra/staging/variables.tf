@@ -24,3 +24,8 @@ variable "availability_zones" {
   type = list(string)
   default = ["eu-central-1a", "eu-central-1b"]
 }
+
+variable "security_group_default" {
+  type = string
+  default = "sg-01b6bddfc09a78582"
+}

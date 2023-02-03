@@ -2,7 +2,7 @@ resource "aws_lb" "sudoku_load_balancer" {
   name               = "sudoku-lb-staging"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.lb.id]
+  security_groups    = [aws_security_group.lb.id, var.security_group_default]
   subnets            = aws_subnet.public.*.id
 
   enable_deletion_protection = false
@@ -15,16 +15,15 @@ resource "aws_lb_target_group" "sudoku_load_balancer_target_group" {
   vpc_id      = aws_vpc.sudoku.id
   target_type = "ip"
 
-#  health_check {
-#    healthy_threshold   = "3"
-#    interval            = "30"
-#    protocol            = "HTTP"
-#    matcher             = "200"
-#    timeout             = "3"
-#    path                = var.health_check_path
-#    unhealthy_threshold = "2"
-#  }
-
+  health_check {
+    healthy_threshold   = "3"
+    interval            = "5"
+    protocol            = "HTTP"
+    matcher             = "200"
+    timeout             = "3"
+    path                = "/status.php"
+    unhealthy_threshold = "2"
+  }
 }
 
 #resource "aws_lb_listener" "http" {

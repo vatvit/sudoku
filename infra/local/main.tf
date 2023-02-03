@@ -36,7 +36,7 @@ resource "docker_container" "php" {
 
   volumes {
     host_path = abspath("${path.module}/../../src")
-    container_path = "/var/www/html"
+    container_path = "/app"
   }
 
   ports {

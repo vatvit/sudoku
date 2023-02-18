@@ -1,7 +1,7 @@
 # Learn how to configure the Mercure.rocks Hub on https://mercure.rocks/docs/hub/config
 {
 	{$GLOBAL_OPTIONS}
-#	auto_https off
+	auto_https off
 }
 
 {$SERVER_NAME:localhost}
@@ -30,11 +30,12 @@ route {
 		# Subscriber JWT key
 		subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
 		# Permissive configuration for the development environment
-		cors_origins *
-		publish_origins *
+
+		#cors_origins *
+		#publish_origins *
 		demo
-		anonymous
-		subscriptions
+		#anonymous
+		#subscriptions
 		# Extra directives
 		{$MERCURE_EXTRA_DIRECTIVES}
 	}

@@ -63,7 +63,7 @@ resource "docker_container" "mercure" {
   depends_on = [data.docker_image.sudoku_mercure]
 
   ports {
-    internal = 2019
+    internal = 80
     external = 2019
   }
 

@@ -4,10 +4,10 @@ FROM base as production
 
 FROM base
 
-ENV MERCURE_PUBLISHER_JWT_KEY='publisher_key'
-ENV MERCURE_SUBSCRIBER_JWT_KEY='subscriber_key'
+ENV MERCURE_PUBLISHER_JWT_KEY='UkXp2s5v8y/B?E(H+MbPeShVmYq3t6w9'
+ENV MERCURE_SUBSCRIBER_JWT_KEY='UkXp2s5v8y/B?E(H+MbPeShVmYq3t6w9'
 
-ENV SERVER_NAME='localhost:2019'
+ENV SERVER_NAME='sudoku_mercure:80'
 
 COPY ./infra/docker/mercure/caddy/Caddyfile.dev /etc/caddy/Caddyfile.dev
 

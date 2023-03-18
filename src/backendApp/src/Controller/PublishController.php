@@ -20,6 +20,6 @@ class PublishController extends AbstractController
 
         $hub->publish($update);
 
-        return new Response('published! ' . date("H:i:s"));
+        return new Response('published to "my-private-topic"! ' . date("H:i:s"));
     }
 }

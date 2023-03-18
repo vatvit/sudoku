@@ -62,11 +62,6 @@ resource "docker_container" "mercure" {
 
   depends_on = [data.docker_image.sudoku_mercure]
 
-  ports {
-    internal = 80
-    external = 2019
-  }
-
   network_mode = "bridge"
   networks_advanced {
     name = "sudoku_network"

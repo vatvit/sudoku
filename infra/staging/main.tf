@@ -17,6 +17,10 @@ provider "aws" {
 
 resource "aws_vpc" "sudoku" {
   cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = "sudoku VPC"
+    CreatedAt = formatdate("YYYY-MMM-DD hh:mm:ss", timestamp())
+  }
 }
 
 resource "aws_internet_gateway" "sudoku" {

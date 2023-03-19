@@ -7,6 +7,8 @@ COPY ./infra/docker/php/nginx /opt/docker/etc/nginx/
 
 FROM base as production
 
-COPY ./src /app
+RUN rm /opt/docker/etc/nginx/vhost.common.d/10-location-mercure.conf
+
+COPY --chown=application:application ./src /app
 
 FROM base

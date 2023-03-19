@@ -18,7 +18,7 @@ resource "null_resource" "docker_build" {
     always_run = "${timestamp()}"
   }
   provisioner "local-exec" {
-    command = "( cd ./../../ && docker build -t sudoku_php -f ./infra/docker/php/Dockerfile ./ ) && ( cd ./../../ && docker build -t sudoku_mercure -f ./infra/docker/mercure/Dockerfile ./ )"
+    command = "( cd ./../../ && docker build -t sudoku_php --target=production -f ./infra/docker/php/Dockerfile ./ ) && ( cd ./../../ && docker build -t sudoku_mercure -f ./infra/docker/mercure/Dockerfile ./ )"
   }
 }
 
@@ -39,11 +39,11 @@ resource "docker_container" "php" {
   name  = "sudoku_php"
 
   depends_on = [data.docker_image.sudoku_php]
-
-  volumes {
-    host_path = abspath("${path.module}/../../src")
-    container_path = "/app"
-  }
+#
+#  volumes {
+#    host_path = abspath("${path.module}/../../src")
+#    container_path = "/app"
+#  }
 
   ports {
     internal = 80

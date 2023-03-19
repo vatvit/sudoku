@@ -19,4 +19,4 @@ aws ecs update-service \
   --cluster ${AWS_DEPLOY_ECS_CLUSTER} \
   --service ${SERVICE} \
   --force-new-deployment \
-  --desired-count=1
+  --desired-count=0

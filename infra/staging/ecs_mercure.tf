@@ -1,25 +1,7 @@
-resource "aws_ecs_cluster" "staging" {
-  name = "staging"
-
-#  setting {
-#    name  = "containerInsights"
-#    value = "disabled"
-#  }
-#
-#  configuration {
-#    execute_command_configuration {
-#      logging = "OVERRIDE"
-#      log_configuration {
-#        cloud_watch_log_group_name = var.ecs_cloudwatch_log_group_name
-#      }
-#    }
-#  }
-}
-
-resource "aws_ecs_service" "sudoku" {
-  name                               = "sudoku"
+resource "aws_ecs_service" "sudoku_mercure" {
+  name                               = "sudoku_mercure"
   cluster                            = aws_ecs_cluster.staging.id
-  task_definition                    = aws_ecs_task_definition.sudoku.arn
+  task_definition                    = aws_ecs_task_definition.sudoku_mercure.arn
   desired_count                      = 1
   deployment_minimum_healthy_percent = 50
   deployment_maximum_percent         = 200
@@ -33,7 +15,7 @@ resource "aws_ecs_service" "sudoku" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.sudoku_load_balancer_target_group.arn
-    container_name   = "sudoku_php"
+    container_name   = "sudoku_mercure"
     container_port   = 80
   }
 
@@ -42,18 +24,18 @@ resource "aws_ecs_service" "sudoku" {
   }
 }
 
-resource "aws_ecs_task_definition" "sudoku" {
+resource "aws_ecs_task_definition" "sudoku_mercure" {
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
   memory                   = 512
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_role.arn
-  family                   = "sudoku"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role_mercure.arn
+  task_role_arn            = aws_iam_role.ecs_task_role_mercure.arn
+  family                   = "sudoku_mercure"
   container_definitions = jsonencode([
     {
-      name         = "sudoku_php"
-      image        = "${aws_ecr_repository.sudoku_php.repository_url}:latest"
+      name         = "sudoku_mercure"
+      image        = "${aws_ecr_repository.sudoku_mercure.repository_url}:latest"
       essential    = true
       cpu          = 128
       memory       = 256
@@ -78,8 +60,8 @@ resource "aws_ecs_task_definition" "sudoku" {
   ])
 }
 
-resource "aws_iam_role" "ecs_task_role" {
-  name = "sudoku-ecsTaskRole"
+resource "aws_iam_role" "ecs_task_role_mercure" {
+  name = "sudoku_mercure-ecsTaskRole"
 
   assume_role_policy = <<EOF
 {
@@ -98,8 +80,8 @@ resource "aws_iam_role" "ecs_task_role" {
 EOF
 }
 
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "sudoku-ecsTaskExecutionRole"
+resource "aws_iam_role" "ecs_task_execution_role_mercure" {
+  name = "sudoku_mercure-ecsTaskExecutionRole"
 
   assume_role_policy = <<EOF
 {
@@ -118,44 +100,19 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
-  role       = aws_iam_role.ecs_task_execution_role.name
+resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment_mercure" {
+  role       = aws_iam_role.ecs_task_execution_role_mercure.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_iam_policy" "ECSWriteAccessToCloudWatch" {
-  name = "ECSWriteAccessToCloudWatch"
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Action": [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "logs:CreateLogGroup"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-POLICY
+resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatch_mercure" {
+  policy_arn = aws_iam_policy.ECSWriteAccessToCloudWatch.arn
+  role       = aws_iam_role.ecs_task_role_mercure.name
 }
 
-resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatch" {
+resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatchExecutionRole_mercure" {
   policy_arn = aws_iam_policy.ECSWriteAccessToCloudWatch.arn
-  role       = aws_iam_role.ecs_task_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatchExecutionRole" {
-  policy_arn = aws_iam_policy.ECSWriteAccessToCloudWatch.arn
-  role       = aws_iam_role.ecs_task_execution_role.name
+  role       = aws_iam_role.ecs_task_execution_role_mercure.name
 }
 
 #resource "aws_iam_policy" "ECSReadSecrets" {
@@ -185,8 +142,9 @@ resource "aws_iam_role_policy_attachment" "ECSWriteAccessToCloudWatchExecutionRo
 #}
 #
 
-resource "aws_security_group" "ecs_tasks" {
-  name   = "sudoku-sg-task-staging"
+// TODO: what is it ?
+resource "aws_security_group" "ecs_tasks_mercure" {
+  name   = "sudoku_mercure-sg-task-staging"
   vpc_id = aws_vpc.sudoku.id
 
   ingress {

@@ -2,10 +2,16 @@ resource "aws_lb" "sudoku_load_balancer" {
   name               = "sudoku-lb-staging"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.lb.id, var.security_group_default]
+  security_groups    = [aws_security_group.lb.id, data.aws_security_group.sudoku_default.id]
   subnets            = aws_subnet.public.*.id
 
   enable_deletion_protection = false
+}
+
+data "aws_security_group" "sudoku_default" {
+  name = "default"
+
+  depends_on = [aws_vpc.sudoku]
 }
 
 resource "aws_lb_target_group" "sudoku_load_balancer_target_group" {

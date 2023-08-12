@@ -31,7 +31,7 @@ class IndexController extends AbstractController
             $jwt,
             (new \DateTime('now'))->modify("+1 day"),
             '/.well-known/mercure',
-            'localhost',
+            parse_url($hub->getPublicUrl(), PHP_URL_HOST),
             null,
             true,
             true,

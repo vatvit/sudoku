@@ -13,13 +13,15 @@ class PublishController extends AbstractController
     #[Route('/mercure/publish')]
     public function publish(HubInterface $hub): Response
     {
+        $data = json_encode(['time' => date("H:i:s")]);
+
         $update = new Update(
             'my-private-topic',
-            json_encode(['time' => date("H:i:s")])
+            $data
         );
 
         $hub->publish($update);
 
-        return new Response('published to "my-private-topic"! ' . date("H:i:s"));
+        return new Response('published to "my-private-topic"! ' . $data);
     }
 }

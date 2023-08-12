@@ -18,7 +18,8 @@ resource "null_resource" "docker_build" {
     always_run = "${timestamp()}"
   }
   provisioner "local-exec" {
-    command = "( cd ./../../ && docker build -t sudoku_php --target=production -f ./infra/docker/php/Dockerfile ./ ) && ( cd ./../../ && docker build -t sudoku_mercure -f ./infra/docker/mercure/Dockerfile ./ )"
+    command = "( cd ./../../ && docker build -t sudoku_php -f ./infra/docker/php/Dockerfile ./ ) && ( cd ./../../ && docker build -t sudoku_mercure -f ./infra/docker/mercure/Dockerfile ./ )"
+#    command = "( cd ./../../ && docker build -t sudoku_php --target=production -f ./infra/docker/php/Dockerfile ./ ) && ( cd ./../../ && docker build -t sudoku_mercure -f ./infra/docker/mercure/Dockerfile ./ )"
   }
 }
 

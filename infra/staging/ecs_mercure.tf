@@ -14,7 +14,7 @@ resource "aws_ecs_service" "sudoku_mercure" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.sudoku_load_balancer_target_group.arn
+    target_group_arn = aws_lb_target_group.sudoku_mercure_load_balancer_target_group.arn
     container_name   = "sudoku_mercure"
     container_port   = 80
   }
@@ -39,7 +39,10 @@ resource "aws_ecs_task_definition" "sudoku_mercure" {
       essential    = true
       cpu          = 128
       memory       = 256
-#      environment  = var.container_environment
+      environment  = [
+        {"name": "HOST", "value": aws_lb.sudoku_load_balancer.dns_name},
+        {"name": "SERVER_NAME", "value": format("%s://%s:80", "http", aws_lb.sudoku_load_balancer.dns_name)}
+      ]
       portMappings = [
         {
           protocol      = "tcp"

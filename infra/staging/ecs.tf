@@ -42,6 +42,7 @@ resource "aws_ecs_service" "sudoku" {
   }
 }
 
+
 resource "aws_ecs_task_definition" "sudoku" {
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -57,7 +58,11 @@ resource "aws_ecs_task_definition" "sudoku" {
       essential    = true
       cpu          = 128
       memory       = 256
-#      environment  = var.container_environment
+      environment  = [
+        {"name": "HOST", "value": aws_lb.sudoku_load_balancer.dns_name},
+        {"name": "MERCURE_URL", "value": format("%s://%s/.well-known/mercure", "http", aws_lb.sudoku_load_balancer.dns_name)},
+        {"name": "MERCURE_PUBLIC_URL", "value": format("%s://%s/.well-known/mercure", "http", aws_lb.sudoku_load_balancer.dns_name)}
+      ]
       portMappings = [
         {
           protocol      = "tcp"

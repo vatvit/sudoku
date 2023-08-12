@@ -2,6 +2,7 @@
 {
 	{$GLOBAL_OPTIONS}
 	auto_https off
+	http_port 80
 }
 
 {$SERVER_NAME:localhost}
@@ -33,7 +34,7 @@ route {
 
 		#cors_origins *
 		#publish_origins *
-		demo
+		#demo
 		#anonymous
 		#subscriptions
 		# Extra directives

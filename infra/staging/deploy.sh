@@ -14,9 +14,13 @@ aws ecr get-login-password \
     --username AWS \
     --password-stdin ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
-echo "aws ecs update-service --cluster ${AWS_DEPLOY_ECS_CLUSTER} --service ${SERVICE} --force-new-deployment --desired-count=0"
-aws ecs update-service \
-  --cluster ${AWS_DEPLOY_ECS_CLUSTER} \
-  --service ${SERVICE} \
-  --force-new-deployment \
-  --desired-count=1
+COMMAND="aws ecs update-service --cluster ${AWS_DEPLOY_ECS_CLUSTER} --service ${SERVICE} --force-new-deployment --desired-count 1  --task-definition ${SERVICE}"
+echo "${COMMAND}"
+${COMMAND}
+
+#aws ecs update-service \
+#  --cluster ${AWS_DEPLOY_ECS_CLUSTER} \
+#  --service ${SERVICE} \
+#  --force-new-deployment \
+#  --desired-count=1 \
+#  --task-definition=${SERVICE}

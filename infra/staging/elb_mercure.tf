@@ -9,9 +9,10 @@ resource "aws_lb_target_group" "sudoku_mercure_load_balancer_target_group" {
     healthy_threshold   = "3"
     interval            = "5"
     protocol            = "HTTP"
+    port                = "80"
     matcher             = "200"
     timeout             = "3"
-    path                = "/healthz"
+    path                = "/.well-known/mercure/healthz"
     unhealthy_threshold = "2"
   }
 }
@@ -26,7 +27,7 @@ resource "aws_lb_listener_rule" "mercure_https" {
 
   condition {
     path_pattern {
-      values = ["/.well-known/mercure/*"]
+      values = ["/.well-known/mercure*"]
     }
   }
 }

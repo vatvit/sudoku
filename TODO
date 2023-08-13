@@ -1,4 +1,3 @@
 Create basic Home page
-Add RDS resource and connection
-Add Redis/Cache resource and connection
-Create Secure Backend page
+Add Cache to Staging env
+Run DB migration on Deployment to Staging

@@ -61,7 +61,8 @@ resource "aws_ecs_task_definition" "sudoku" {
       environment  = [
         {"name": "HOST", "value": aws_lb.sudoku_load_balancer.dns_name},
         {"name": "MERCURE_URL", "value": format("%s://%s/.well-known/mercure", "http", aws_lb.sudoku_load_balancer.dns_name)},
-        {"name": "MERCURE_PUBLIC_URL", "value": format("%s://%s/.well-known/mercure", "http", aws_lb.sudoku_load_balancer.dns_name)}
+        {"name": "MERCURE_PUBLIC_URL", "value": format("%s://%s/.well-known/mercure", "http", aws_lb.sudoku_load_balancer.dns_name)},
+        {"name": "DATABASE_URL", "value": format("mysql://%s:%s@%s:3306/%s?serverVersion=8.1", aws_rds_cluster.sudoku.master_username, aws_rds_cluster.sudoku.master_password, aws_rds_cluster.sudoku.endpoint, aws_rds_cluster.sudoku.database_name)}
       ]
       portMappings = [
         {

@@ -5,9 +5,9 @@ ENV WEB_DOCUMENT_ROOT=/app/backendApp/public
 
 COPY ./infra/docker/php/nginx /opt/docker/etc/nginx/
 
-COPY --chown=application:application ./src /app
-
 FROM base as production
+
+COPY --chown=application:application ./src /app
 
 RUN rm /opt/docker/etc/nginx/vhost.common.d/10-location-mercure.conf
 
@@ -26,3 +26,6 @@ ENV MERCURE_PUBLIC_URL=http://localhost/.well-known/mercure
 # The secret used to sign the JWTs
 ENV MERCURE_JWT_SECRET="UkXp2s5v8y/B?E(H+MbPeShVmYq3t6w9"
 ###< symfony/mercure-bundle ###
+
+ENV CACHE_HOST=sudoku_cache
+ENV CACHE_PORT=6379

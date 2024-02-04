@@ -10,7 +10,8 @@ terraform {
 }
 
 provider "docker" {
-  host ="unix:///Users/vatvit/.docker/run/docker.sock"
+  host ="unix:///Users/vatvit/.orbstack/run/docker.sock"
+#  host ="unix:///Users/vatvit/.docker/run/docker.sock"
 }
 
 resource "docker_network" "sudoku_network" {

@@ -21,3 +21,7 @@ ENV MERCURE_JWT_SECRET="UkXp2s5v8y/B?E(H+MbPeShVmYq3t6w9"
 
 ENV CACHE_HOST=sudoku_cache
 ENV CACHE_PORT=6379
+
+RUN apk add --no-cache bash
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.alpine.sh' | bash
+RUN apk add symfony-cli

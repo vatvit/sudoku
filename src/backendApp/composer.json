@@ -21,7 +21,6 @@
         "symfony/yaml": "6.2.*"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
         "symfony/maker-bundle": "^1.50"
     },
     "config": {
@@ -57,10 +56,12 @@
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
-            "@auto-scripts"
+            "@auto-scripts",
+            "symfony security:check"
         ],
         "post-update-cmd": [
-            "@auto-scripts"
+            "@auto-scripts",
+            "symfony security:check"
         ]
     },
     "conflict": {

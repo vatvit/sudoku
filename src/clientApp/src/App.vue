@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
-import MercureSubscribe from "components/MercureSubscribe.vue";
+// import MercureSubscribe from './components/MercureSubscribe.vue'
 </script>
 
 <template>
@@ -12,7 +12,7 @@ import MercureSubscribe from "components/MercureSubscribe.vue";
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
   </div>
-  <MercureSubscribe />
+<!--  <MercureSubscribe />-->
   <HelloWorld msg="Vite + Vue" />
 </template>
 

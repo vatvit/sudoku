@@ -33,13 +33,17 @@ class IndexController extends AbstractController
 
         // DB
         $allUsers = $userRepository->findAll(); // no Exception? and good
+        foreach ($allUsers as $key => $user) {
+            $allUsers[$key] = ['email' => $user->getEmail()];
+        }
 
         // Cache
-        $cachedDatetime = $cache->get('cachedDatetime', function (ItemInterface $item) use ($allUsers) {
+        $cachedDatetime = $cache->get('cachedDatetime', function (ItemInterface $item) {
             $item->expiresAfter(10);
             return date('Y-m-d H:i:s');
-        }); //
+        });
 
+        //
         $config = [
             'mercurePublicUrl' => $hub->getPublicUrl(),
             'allUsers' => $allUsers,

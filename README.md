@@ -47,3 +47,15 @@ Enable Debug Listening in PHPStorm
 * XDebug configuration key in container `client_host` MUST be `host.docker.internal` to communicate with Host machine. Use `XDEBUG_CLIENT_HOST` env var in the Container.
 * (additionally can be configured, but should work without it) XDebug configuration key in container `ide_key` MUST be the same as `PHPSTORM`. Use `XDEBUG_IDE_KEY` env var in the Container.
 * PHPStorm MUST NOT ignore external connections. Disable checkbox in `Settings -> PHP -> Debug`.
+
+# Security
+
+## PHP
+**For Local env only**
+
+The script `symfony security:check` runs after `composer install` or `update` command.
+
+## JS
+**For Local env only**
+
+Node.js and NPM available in PHP container. `npm audit` command is available and automatically run after `npm install` and `update`.

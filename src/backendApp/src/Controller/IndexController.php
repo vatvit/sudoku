@@ -17,6 +17,18 @@ class IndexController extends AbstractController
     #[Route('/')]
     public function index(HubInterface $hub, UserRepository $userRepository, CacheInterface $cache)
     {
+        // DB
+        $allUsers = $userRepository->findAll(); // no Exception? and good
+        foreach ($allUsers as $key => $user) {
+            $allUsers[$key] = ['email' => $user->getEmail()];
+        }
+
+        // Cache
+        $cachedDatetime = $cache->get('cachedDatetime', function (ItemInterface $item) {
+            $item->expiresAfter(10);
+            return date('Y-m-d H:i:s');
+        });
+
         // Mercure
         $jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.dTeuPHTe_h_4E_D6xOJerk4__cG2YmhfI3BfyaGsHQ0';
         $mercureAuthCookie = new Cookie(
@@ -30,18 +42,6 @@ class IndexController extends AbstractController
             true,
             Cookie::SAMESITE_STRICT
         );
-
-        // DB
-        $allUsers = $userRepository->findAll(); // no Exception? and good
-        foreach ($allUsers as $key => $user) {
-            $allUsers[$key] = ['email' => $user->getEmail()];
-        }
-
-        // Cache
-        $cachedDatetime = $cache->get('cachedDatetime', function (ItemInterface $item) {
-            $item->expiresAfter(10);
-            return date('Y-m-d H:i:s');
-        });
 
         //
         $config = [

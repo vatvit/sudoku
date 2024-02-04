@@ -1,6 +1,6 @@
 <script>
   import './MercureMessageItem.vue';
-  import MercureMessageItem from "@/components/MercureMessageItem.vue";
+  import MercureMessageItem from "components/MercureMessageItem.vue";
 
   let mercureSubscription;
 

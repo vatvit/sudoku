@@ -10,5 +10,4 @@ declare global {
 
 const app = createApp(App)
 app.provide('$sudoku', window.sudoku || {})
-// app.config.globalProperties.$sudoku = window.sudoku || {};
 app.mount('#app')

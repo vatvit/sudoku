@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "build": "vue-tsc && vite build",
+    "build": "vue-tsc && vite build && cp ./dist/index.html ./../backendApp/templates/index.html.twig\n",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,6 +15,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.6.2",
     "@vue/test-utils": "^2.4.4",
+    "eventsourcemock": "^2.0.0",
     "jsdom": "^24.0.0",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",

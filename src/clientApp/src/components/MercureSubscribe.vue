@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
 import MercureMessageItem from "./MercureMessageItem.vue"
+import * as event from './../modules/event/index.ts'
 
 type Sudoku = {config: {mercurePublicUrl: string}};
 const config = inject<Sudoku>('$sudoku') as Sudoku
@@ -25,7 +26,7 @@ function subscribe() {
   if (mercureSubscription) {
     mercureSubscription.close();
   }
-  mercureSubscription = new EventSource(url);
+  mercureSubscription = event.buildEventSource(url);
   mercureSubscription.onmessage = onMessage;
 }
 function unsubscribe() {

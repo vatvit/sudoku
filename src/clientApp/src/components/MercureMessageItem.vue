@@ -1,21 +1,18 @@
-<!--<script setup lang="ts">-->
-<!--export default {-->
-<!--  props: {-->
-<!--    id: String,-->
-<!--    data: Object,-->
-<!--  },-->
-<!--}-->
-<!--</script>-->
-<!--<template>-->
-<!--  <div class="message-item">-->
-<!--    ID: {{ id }}<br />-->
-<!--    Data: {{ data }}-->
-<!--  </div>-->
-<!--</template>-->
+<script setup lang="ts">
 
-<!--<style>-->
-<!--.message-item {-->
-<!--  border: 1px red;-->
-<!--  padding: 5px;-->
-<!--}-->
-<!--</style>-->
+defineProps(['id', 'data'])
+
+</script>
+<template>
+  <div class="message-item">
+    ID: {{ id }}<br />
+    Data: {{ data }}
+  </div>
+</template>
+
+<style>
+.message-item {
+  border: 1px red;
+  padding: 5px;
+}
+</style>

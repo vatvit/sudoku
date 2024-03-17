@@ -49,13 +49,11 @@ class IndexController extends AbstractController
             'allUsers' => $allUsers,
             'cachedDatetime' => $cachedDatetime,
         ];
-        $response = new Response(
-            $this->render(
-                'index.html.twig',
-                [
-                    'config' => $config,
-                ],
-            ),
+        $response = $this->render(
+            'index.html.twig',
+            [
+                'config' => $config,
+            ],
         );
         $response->headers->setCookie($mercureAuthCookie);
 

@@ -1,38 +1,40 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import SudokuTable from './components/Sudoku/Table.vue'
 import MercureSubscribe from './components/MercureSubscribe.vue'
+import {CellDTO as SudokuCellDTO, TableStateDTO as SudokuTableStateDTO} from "./components/Sudoku/DTO.ts";
 
 declare module 'vue' {
   interface ComponentCustomProperties {
     $sudoku: object
   }
 }
+
+const sudokuTableStateDTO: SudokuTableStateDTO = {
+  cells: []
+};
+
+for (let col = 0; col < 9; col++) {
+  if (typeof sudokuTableStateDTO.cells[col] === 'undefined') {
+    sudokuTableStateDTO.cells[col] = []
+  }
+
+  for (let row = 0; row < 9; row++) {
+    const cell: SudokuCellDTO = {
+      col: col + 1,
+      row: row + 1,
+      groups: [],
+      value: (col + 1) * 10 + row + 1
+    }
+    sudokuTableStateDTO.cells[col][row] = cell
+  }
+}
+
 </script>
 
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="./assets/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
+  <SudokuTable :stateDTO="sudokuTableStateDTO"/>
   <MercureSubscribe />
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
 </style>

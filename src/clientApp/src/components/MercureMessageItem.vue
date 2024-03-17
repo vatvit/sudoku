@@ -10,9 +10,10 @@ defineProps(['id', 'data'])
   </div>
 </template>
 
-<style>
+<style scoped>
 .message-item {
-  border: 1px red;
+  border: 1px red solid;
   padding: 5px;
+  margin: 5px;
 }
 </style>

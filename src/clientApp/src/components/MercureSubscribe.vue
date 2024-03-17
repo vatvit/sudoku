@@ -11,7 +11,7 @@ let mercureSubscription: any
 const messages = ref<{id: number; data: object}[]>([])
 const subscribedTopic = ref('')
 
-const subscriptionTopicName = ref('')
+const subscriptionTopicName = ref('*')
 
 onMounted(() => {
   subscribe()
@@ -47,13 +47,29 @@ function onMessage(message: {lastEventId: number; data: object}) {
 </script>
 
 <template>
-  <div id="status">Subscribed topic: <b>{{ subscribedTopic || 'no subscription' }}</b></div>
-  <input id="subscriptionTopicName" v-model="subscriptionTopicName" name="topic" placeholder="topic name e.g. 'my-private-topic'" value="*">
-  <button id="subscribe" @click="subscribe">Subscribe</button>
-  <button id="unsubscribe" @click="unsubscribe">Unsubscribe</button>
-  <button id="clear" @click="clearLog">Clear log</button>
-  <div id="messages" style="border: 1px red; padding: 5px;">
-    Messages:
-    <MercureMessageItem v-for="message in messages" :key="message.id" :id="message.id" :data="message.data" />
+  <div class="container">
+    <div id="status">
+      Subscribed topic: <b>{{ subscribedTopic || 'no subscription' }}</b>
+    </div>
+    <input id="subscriptionTopicName" v-model="subscriptionTopicName" name="topic" placeholder="topic name e.g. 'my-private-topic'" value="*">
+    <button id="subscribe" @click="subscribe">Subscribe</button>
+    <button id="unsubscribe" @click="unsubscribe">Unsubscribe</button>
+    <button id="clear" @click="clearLog">Clear log</button>
+    <div id="messages" style="border: 1px red; padding: 5px;">
+      Messages:
+      <MercureMessageItem v-for="message in messages" :key="message.id" :id="message.id" :data="message.data" />
+    </div>
   </div>
 </template>
+
+<style scoped>
+.container {
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid #000;
+}
+button {
+  margin: 5px;
+  border: red solid 1px;
+}
+</style>

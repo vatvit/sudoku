@@ -1,11 +1,13 @@
 import { mount } from '@vue/test-utils'
 import MercureSubscribe from './MercureSubscribe.vue'
 // @ts-ignore
-import { sources, EventSource } from 'eventsourcemock'
-import * as event from '../modules/event';
+import * as eventsourcemock from 'eventsourcemock'
+import * as event from '../modules/event'
+
+const EventSource = eventsourcemock.default
+const sources = eventsourcemock.sources
 
 const buildEventSourceSpy = vi.spyOn(event, 'buildEventSource')
-buildEventSourceSpy.mockReturnValue(EventSource)
 
 const messageEvent = new MessageEvent('foo', {
     data: '1',
@@ -17,6 +19,8 @@ test('mount component', async () => {
 
     expect(MercureSubscribe).toBeTruthy()
 
+    buildEventSourceSpy.mockReturnValue(new EventSource(mercurePublicUrl))
+
     const wrapper = mount(MercureSubscribe, {
         global: {
             provide: {
@@ -24,8 +28,6 @@ test('mount component', async () => {
             }
         }
     })
-
-    console.log(wrapper.text());
 
     sources[mercurePublicUrl].emit(
         messageEvent.type,

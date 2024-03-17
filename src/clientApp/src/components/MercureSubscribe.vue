@@ -26,7 +26,7 @@ function subscribe() {
   if (mercureSubscription) {
     mercureSubscription.close();
   }
-  mercureSubscription = event.buildEventSource(url);
+  mercureSubscription = event.buildEventSource(url.toString());
   mercureSubscription.onmessage = onMessage;
 }
 function unsubscribe() {

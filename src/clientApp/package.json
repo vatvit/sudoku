@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "build": "vue-tsc && vite build && cp ./dist/index.html ./../backendApp/templates/index.html.twig\n",
+    "build": "vue-tsc && vite build --mode development && cp ./dist/index.html ./../backendApp/templates/index.html.twig\n",
     "preview": "vite preview"
   },
   "dependencies": {

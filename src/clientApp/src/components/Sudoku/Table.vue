@@ -22,7 +22,7 @@ function getColor(col: number, row: number): boolean {
   <table>
     <tr v-for="row, colIndex in tableCellsRef">
       <td v-for="cell, rowIndex in row" :class="[getColor(colIndex, rowIndex) ? '' : 'grey' ]">
-        {{ cell.value }}
+        {{cell.coords.row}}:{{cell.coords.col}} [{{ cell.groups[0].id }}] {{cell.value}}
       </td>
     </tr>
   </table>

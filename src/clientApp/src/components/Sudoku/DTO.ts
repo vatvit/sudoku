@@ -5,8 +5,8 @@ export interface TableStateDTO {
 }
 
 export interface CellDTO {
-    col: number
     row: number
+    col: number
     value: number | undefined
     groups: CellGroupDTO[]
 }

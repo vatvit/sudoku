@@ -2,41 +2,42 @@ import {CellGroup} from "./CellGroup.ts";
 import {Cell, CellFactory} from "./Cell.ts";
 import {CellDTO, TableStateDTO} from "./DTO.ts";
 
-export interface TableInterface {
-    groups: CellGroup[]
-    cells: Cell[][]
-
-    setState(tableStateDTO: TableStateDTO): void
-}
-
-export class Table implements TableInterface {
-    groups: CellGroup[]
-    cells: Cell[][]
+export class Table {
+    private _groups: CellGroup[]
+    private _cells: Cell[][]
 
     constructor(state?: TableStateDTO | undefined) {
-        this.groups = []
-        this.cells = []
+        this._groups = []
+        this._cells = []
 
         if (state) {
             this.setState(state)
         }
     }
 
+    get groups(): CellGroup[] {
+        return this._groups;
+    }
+
+    get cells(): Cell[][] {
+        return this._cells;
+    }
+
     setState(tableStateDTO: TableStateDTO): void {
         const allCellGroups: CellGroup[] = []
 
-        tableStateDTO.cells.forEach((col, colIndex) => {
-            if (typeof this.cells[colIndex] === "undefined") {
-                this.cells[colIndex] = []
+        tableStateDTO.cells.forEach((row, rowIndex) => {
+            if (typeof this._cells[rowIndex] === "undefined") {
+                this._cells[rowIndex] = []
             }
 
-            col.forEach((cellDTO: CellDTO, rowIndex) => {
+            row.forEach((cellDTO: CellDTO, colIndex) => {
                 const cell = CellFactory(cellDTO, allCellGroups)
-                this.cells[colIndex][rowIndex] = cell
+                this._cells[rowIndex][colIndex] = cell
             })
         })
 
-        this.groups = allCellGroups
+        this._groups = allCellGroups
     }
 
 

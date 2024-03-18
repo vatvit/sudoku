@@ -27,12 +27,10 @@ export class Cell {
     }
 
     fulfillGroups() {
-        console.log(this)
         this._groups.forEach((cellGroup) => {
             if (!cellGroup.cells.find((cell) => {
                 return cell === this
             })) {
-                console.log('push')
                 cellGroup.cells.push(this)
             }
         })

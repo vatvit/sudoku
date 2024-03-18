@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import {ref, onMounted} from 'vue'
+import axios from "axios"
 import SudokuTable from './components/Sudoku/Table.vue'
 import MercureSubscribe from './components/MercureSubscribe.vue'
-import {CellDTO as SudokuCellDTO, TableStateDTO as SudokuTableStateDTO} from "./components/Sudoku/DTO.ts";
-import {CellGroupTypes} from "./components/Sudoku/CellGroup.ts";
+import {TableStateDTO as SudokuTableStateDTO} from "./components/Sudoku/DTO.ts";
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -10,30 +11,22 @@ declare module 'vue' {
   }
 }
 
-const sudokuTableStateDTO: SudokuTableStateDTO = {
-  cells: []
-};
+const sudokuTableStateDTO = ref<SudokuTableStateDTO>({cells: []})
 
-for (let row = 0; row < 9; row++) {
-  if (typeof sudokuTableStateDTO.cells[row] === 'undefined') {
-    sudokuTableStateDTO.cells[row] = []
-  }
+onMounted(async () => {
+  await loadSudokuTable()
+})
 
-  for (let col = 0; col < 9; col++) {
-    const squareId = (Math.floor(col / 3) + 1) + (Math.floor(row / 3) * 3)
-    const cell: SudokuCellDTO = {
-      row: row + 1,
-      col: col + 1,
-      groups: [
-        // {id: col + 1, type: CellGroupTypes.COL},
-        // {id: row + 1, type: CellGroupTypes.ROW},
-        {id: squareId, type: CellGroupTypes.SQR},
-      ],
-      value: col + 1
-    }
-    sudokuTableStateDTO.cells[row][col] = cell
-  }
+async function loadSudokuTable() {
+  const response = await axios.get('/api/sudoku/table/load')
+  sudokuTableStateDTO.value = response.data as SudokuTableStateDTO
+  console.log('ajax response')
+  console.log(response.data as SudokuTableStateDTO)
 }
+
+// const sudokuTableStateDTO: SudokuTableStateDTO = {
+//   cells: []
+// };
 
 </script>
 

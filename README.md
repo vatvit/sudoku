@@ -1,10 +1,33 @@
 # How to run Local:
 
+## First time:
+
 ```shell
 cd ./infra/local
-terraform apply -auto-approve
+terraform init
+./docker_exec_php.sh
 ```
+
+Run inside the Docker container
+
+```shell
+cd /app/backendApp
+composer install
+./bin/console doctrine:migrations:migrate
+cd /app/clientApp
+npm install
+cd /app
+./build.sh
+```
+
 open http://localhost
+
+## Not a first time:
+
+```shell
+cd ./infra/local
+terraform init
+```
 
 # How to run Staging
 
@@ -19,7 +42,7 @@ terraform apply
 # How to apply changes to Local
 
 ```shell
-terraform apply
+terraform apply -auto-approve
 ```
 
 # How to apply changes to Staging

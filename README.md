@@ -30,6 +30,15 @@ cd ./infra/local
 terraform init
 ```
 
+# How to build ClientApp automatically on updates
+
+Run inside the Docker container (use two console tabs)
+```shell
+cd /app
+./vueBuildAndWatch.sh
+./indexHtmlWatchAndCopy.sh 
+```
+
 # How to run Staging
 
 ```shell

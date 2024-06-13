@@ -38,7 +38,6 @@ function clearLog() {
   messages.value = [];
 }
 function onMessage(message: {lastEventId: number; data: object}) {
-  console.log(message);
   messages.value.unshift({
     id: message.lastEventId,
     data: message.data,

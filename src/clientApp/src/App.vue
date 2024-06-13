@@ -20,13 +20,7 @@ onMounted(async () => {
 async function loadSudokuTable() {
   const response = await axios.get('/api/sudoku/table/load')
   sudokuTableStateDTO.value = response.data as SudokuTableStateDTO
-  console.log('ajax response')
-  console.log(response.data as SudokuTableStateDTO)
 }
-
-// const sudokuTableStateDTO: SudokuTableStateDTO = {
-//   cells: []
-// };
 
 </script>
 

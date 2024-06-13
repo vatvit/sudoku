@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { Table } from "./Table.ts";
 import {TableStateDTO} from "./DTO.ts";
+import {Cell} from "./Cell.ts";
 
 const props = withDefaults(defineProps<{
   stateDTO: TableStateDTO,
@@ -12,12 +13,22 @@ const props = withDefaults(defineProps<{
 const table = ref(new Table(props.stateDTO))
 
 watch( () => props.stateDTO, (newVal) => {
-  table.value = new Table(newVal);
-  console.log('updated');
+  table.value = new Table(newVal)
 });
 
 function getColor(col: number, row: number): boolean {
-  return !!((Math.floor(col / 3) + Math.floor(row / 3)) % 2)
+  return !!((Math.floor((col - 1) / 3) + Math.floor((row - 1) / 3)) % 2)
+}
+
+function getCellClasses(cell: Cell): string[] {
+  const classes = []
+
+  const groupColor = getColor(cell.coords.col, cell.coords.row) ? '' : 'grey'
+  const colClass = 'col-' + cell.coords.col
+  const rowClass = 'row-' + cell.coords.row
+
+  classes.push([groupColor, colClass, rowClass])
+  return classes;
 }
 
 </script>
@@ -25,9 +36,11 @@ function getColor(col: number, row: number): boolean {
 <template>
 <div class="sudoku-table">
   <table>
-    <tr v-for="row, colIndex in table.cells">
-      <td v-for="cell, rowIndex in row" :class="[getColor(colIndex, rowIndex) ? '' : 'grey' ]">
-        {{cell.coords.row}}:{{cell.coords.col}} [{{ cell.groups[0].id }}] {{cell.value}}
+    <tr v-for="row in table.cells">
+      <td v-for="cell in row"
+          :class="getCellClasses(cell)"
+      >
+        {{cell.value}}
       </td>
     </tr>
   </table>

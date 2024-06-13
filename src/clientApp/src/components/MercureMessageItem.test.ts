@@ -13,8 +13,6 @@ test('mount component', async () => {
         }
     })
 
-    console.log(wrapper.text());
-
     expect(wrapper.text()).toContain('ID: someID')
     expect(wrapper.text()).toContain('"key": "someKey"')
     expect(wrapper.text()).toMatchSnapshot()

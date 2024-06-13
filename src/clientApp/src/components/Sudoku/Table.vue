@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Table } from "./Table.ts";
 import {TableStateDTO} from "./DTO.ts";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   stateDTO: TableStateDTO,
-}>()
+}>(), {
+  stateDTO: () => ({cells: []})
+});
 
-const table = new Table(props.stateDTO)
+const table = ref(new Table(props.stateDTO))
 
-const tableCellsRef = ref(table.cells);
+watch( () => props.stateDTO, (newVal) => {
+  table.value = new Table(newVal);
+  console.log('updated');
+});
 
 function getColor(col: number, row: number): boolean {
   return !!((Math.floor(col / 3) + Math.floor(row / 3)) % 2)
@@ -20,7 +25,7 @@ function getColor(col: number, row: number): boolean {
 <template>
 <div class="sudoku-table">
   <table>
-    <tr v-for="row, colIndex in tableCellsRef">
+    <tr v-for="row, colIndex in table.cells">
       <td v-for="cell, rowIndex in row" :class="[getColor(colIndex, rowIndex) ? '' : 'grey' ]">
         {{cell.coords.row}}:{{cell.coords.col}} [{{ cell.groups[0].id }}] {{cell.value}}
       </td>

@@ -7,6 +7,7 @@ export class Table {
     private _cells: Cell[][]
 
     constructor(state?: TableStateDTO | undefined) {
+        console.log(state)
         this._groups = []
         this._cells = []
 

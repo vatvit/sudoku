@@ -8,7 +8,11 @@ ENV MERCURE_SUBSCRIBER_JWT_KEY='UkXp2s5v8y/B?E(H+MbPeShVmYq3t6w9'
 
 COPY ./infra/docker/mercure/caddy/Caddyfile /etc/caddy/Caddyfile
 
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
+#CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
+
+# https://github.com/caddyserver/caddy/issues/6363
+# temporary workaround
+CMD ["caddy", "run", "--adapter", "caddyfile", "--config", "/etc/caddy/Caddyfile"]
 
 FROM base
 
@@ -19,4 +23,8 @@ ENV SERVER_NAME='sudoku_mercure:80'
 
 COPY ./infra/docker/mercure/caddy/Caddyfile.dev /etc/caddy/Caddyfile.dev
 
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile.dev"]
+#CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile.dev"]
+
+# https://github.com/caddyserver/caddy/issues/6363
+# temporary workaround
+CMD ["caddy", "run", "--adapter", "caddyfile", "--config", "/etc/caddy/Caddyfile.dev"]

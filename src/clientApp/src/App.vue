@@ -25,7 +25,7 @@ async function loadSudokuTable() {
 </script>
 
 <template>
-  <SudokuTable :stateDto="sudokuTableStateDTO"/>
+  <SudokuTable :stateDto="sudokuTableStateDTO" @newGameEvent="loadSudokuTable"/>
   <MercureSubscribe />
 </template>
 

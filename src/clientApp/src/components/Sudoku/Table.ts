@@ -5,13 +5,16 @@ import {CellDto, TableStateDto} from "./Dto.ts";
 export class Table {
     private _groups: CellGroup[]
     private _cells: Cell[][]
+    private _solved: boolean
 
     constructor(state?: TableStateDto | undefined) {
         this._groups = []
         this._cells = []
+        this._solved = false
 
         if (state) {
             this.setState(state)
+            this.validateSolution()
         }
     }
 
@@ -21,6 +24,10 @@ export class Table {
 
     get cells(): Cell[][] {
         return this._cells;
+    }
+
+    get isSolved(): boolean {
+        return this._solved
     }
 
     setState(tableStateDto: TableStateDto): void {
@@ -41,18 +48,22 @@ export class Table {
 
     validateSolution(): boolean {
         for (const group of this._groups) {
-            const cellValues = group.cells.map(cell => cell.value);
+            const cellValues = group.cells.map(cell => cell.value)
 
             if (
                 cellValues.includes(undefined) ||
                 new Set(cellValues).size !== cellValues.length ||
                 cellValues.some(val => val < 1 || val > group.cells.length)
             ) {
-                return false;
+                this._solved = false
+
+                return this._solved
             }
         }
 
-        return true;
+        this._solved = true
+
+        return this._solved
     }
 
 }

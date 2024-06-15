@@ -12,10 +12,10 @@ const props = withDefaults(defineProps<{
 
 const table = ref(new Table(props.stateDto))
 const selectedCell = reactive({id: null, cell: null})
-let tableSolved = false
 
 watch( () => props.stateDto, (newVal) => {
   table.value = new Table(newVal)
+  resetSelectedCell()
 });
 
 function getColor(col: number, row: number): boolean {
@@ -51,12 +51,16 @@ function cellClickHandler(event) {
 
 function setSelectedCell(selectedCellId: string, selectedCellRow: number, selectedCellCol: number) {
   if (selectedCell.id === selectedCellId) {
-    selectedCell.id = null
-    selectedCell.cell = null
+    resetSelectedCell()
   } else {
     selectedCell.id = selectedCellId
     selectedCell.cell = table.value.cells[selectedCellRow - 1][selectedCellCol - 1]
   }
+}
+
+function resetSelectedCell() {
+  selectedCell.id = null
+  selectedCell.cell = null
 }
 
 function handleKeyup(event) {
@@ -64,7 +68,7 @@ function handleKeyup(event) {
   if (selectedCell.id && !selectedCell.cell.protected) {
     if (key >= '0' && key <= '9') {
       selectedCell.cell.value = key
-      tableSolved = table.value.validateSolution()
+      table.value.validateSolution()
     }
   }
 }
@@ -73,9 +77,10 @@ function handleKeyup(event) {
 
 <template>
 <div class="sudoku-table">
-  <div v-if="tableSolved">
+  <div v-if="table.isSolved">
     SOLVED!
   </div>
+  <button @click="$emit('newGameEvent')">New game?</button>
   <table>
     <tr v-for="row in table.cells">
       <td v-for="cell in row"

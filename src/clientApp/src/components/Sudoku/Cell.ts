@@ -32,10 +32,13 @@ export class Cell {
     }
 
     set value(value) {
-        console.log(this)
         if (!this._protected) {
             this._value = value;
         }
+    }
+
+    get protected(): boolean {
+        return this._protected
     }
 
     fulfillGroups() {

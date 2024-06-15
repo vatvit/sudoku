@@ -32,13 +32,27 @@ export class Table {
             }
 
             row.forEach((cellDto: CellDto, colIndex) => {
-                const cell = CellFactory(cellDto, allCellGroups)
-                this._cells[rowIndex][colIndex] = cell
+                this._cells[rowIndex][colIndex] = CellFactory(cellDto, allCellGroups)
             })
         })
 
         this._groups = allCellGroups
     }
 
+    validateSolution(): boolean {
+        for (const group of this._groups) {
+            const cellValues = group.cells.map(cell => cell.value);
+
+            if (
+                cellValues.includes(undefined) ||
+                new Set(cellValues).size !== cellValues.length ||
+                cellValues.some(val => val < 1 || val > group.cells.length)
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 }

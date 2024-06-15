@@ -23,7 +23,7 @@ class Table
 
         $table = $this->tableShuffler->shuffle($table);
 
-        $table = $this->tableCellHider->hideCells($table, 10);
+        $table = $this->tableCellHider->hideCells($table, 1);
 
         $table = $this->fulfillCells($table);
 
@@ -56,8 +56,8 @@ class Table
     {
         $squareId = $this->getSquareId($row, $col);
 
-        $cellGroupRowDto = CellGroupDto::hydrate(['id' => $row + 1, 'type' => 'ROW']);
-        $cellGroupColDto = CellGroupDto::hydrate(['id' => $col + 1, 'type' => 'COL']);
+        $cellGroupRowDto = CellGroupDto::hydrate(['id' => $row, 'type' => 'ROW']);
+        $cellGroupColDto = CellGroupDto::hydrate(['id' => $col, 'type' => 'COL']);
         $cellGroupSqrDto = CellGroupDto::hydrate(['id' => $squareId, 'type' => 'SQR']);
 
         return [
@@ -72,8 +72,8 @@ class Table
      * @param int $row
      * @return int
      */
-    private function getSquareId(int $col, int $row): int
+    private function getSquareId(int $row, int $col): int
     {
-        return (int)((floor($col / 3) + 1) + (floor($row / 3) * 3));
+        return (int)((floor(($col - 1) / 3)) + (floor(($row - 1) / 3) * 3) + 1);
     }
 }

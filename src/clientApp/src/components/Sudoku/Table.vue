@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<{
 
 const table = ref(new Table(props.stateDto))
 const selectedCell = reactive({id: null, cell: null})
+let tableSolved = false
 
 watch( () => props.stateDto, (newVal) => {
   table.value = new Table(newVal)
@@ -31,11 +32,12 @@ function getCellClasses(cell: Cell): string[] {
   const groupColor = getColor(cell.coords.col, cell.coords.row) ? '' : 'grey'
   const colClass = 'col-' + cell.coords.col
   const rowClass = 'row-' + cell.coords.row
+  const protectedClass = cell.protected ? 'protected' : 'not-protected'
 
   const cellId = getCellId(cell)
   const selected = selectedCell.id === cellId ? 'selected' : ''
 
-  classes.push(groupColor, colClass, rowClass, selected)
+  classes.push(groupColor, colClass, rowClass, selected, protectedClass)
   return classes;
 }
 
@@ -55,14 +57,14 @@ function setSelectedCell(selectedCellId: string, selectedCellRow: number, select
     selectedCell.id = selectedCellId
     selectedCell.cell = table.value.cells[selectedCellRow - 1][selectedCellCol - 1]
   }
-  console.log(selectedCell)
 }
 
 function handleKeyup(event) {
   const key = event.key
-  if (selectedCell.id) {
+  if (selectedCell.id && !selectedCell.cell.protected) {
     if (key >= '0' && key <= '9') {
       selectedCell.cell.value = key
+      tableSolved = table.value.validateSolution()
     }
   }
 }
@@ -71,6 +73,9 @@ function handleKeyup(event) {
 
 <template>
 <div class="sudoku-table">
+  <div v-if="tableSolved">
+    SOLVED!
+  </div>
   <table>
     <tr v-for="row in table.cells">
       <td v-for="cell in row"
@@ -114,6 +119,11 @@ function handleKeyup(event) {
 
       &.selected {
         background-color: dimgray;
+      }
+
+      &.not-protected {
+        font-weight: bold;
+        font-style: italic;
       }
     }
   }

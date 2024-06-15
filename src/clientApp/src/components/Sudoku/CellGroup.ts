@@ -1,14 +1,14 @@
 import {Cell} from "./Cell.ts";
-import {CellGroupDTO} from "./DTO.ts";
+import {CellGroupDto} from "./Dto.ts";
 
 export class CellGroup {
     id: number
     type: CellGroupTypes
     cells: Cell[]
 
-    constructor(cellGroupDTO: CellGroupDTO, cells?: Cell[]) {
-        this.id = cellGroupDTO.id;
-        this.type = cellGroupDTO.type;
+    constructor(cellGroupDto: CellGroupDto, cells?: Cell[]) {
+        this.id = cellGroupDto.id;
+        this.type = cellGroupDto.type;
         this.cells = cells ? cells : [];
     }
 

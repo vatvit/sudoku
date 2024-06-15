@@ -3,7 +3,7 @@ import {ref, onMounted} from 'vue'
 import axios from "axios"
 import SudokuTable from './components/Sudoku/Table.vue'
 import MercureSubscribe from './components/MercureSubscribe.vue'
-import {TableStateDTO as SudokuTableStateDTO} from "./components/Sudoku/DTO.ts";
+import {TableStateDto as SudokuTableStateDTO} from "./components/Sudoku/Dto.ts";
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -25,7 +25,7 @@ async function loadSudokuTable() {
 </script>
 
 <template>
-  <SudokuTable :stateDTO="sudokuTableStateDTO"/>
+  <SudokuTable :stateDto="sudokuTableStateDTO"/>
   <MercureSubscribe />
 </template>
 

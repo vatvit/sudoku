@@ -1,15 +1,20 @@
 import {CellGroup} from "./CellGroup.ts";
-import {CellDTO, CellGroupDTO} from "./DTO.ts";
+import {CellDto, CellGroupDto} from "./Dto.ts";
 
 export class Cell {
-    private _coords: CellCoords
-    private _groups: CellGroup[]
+    private readonly _coords: CellCoords
     private _value: number|undefined
+    private readonly _groups: CellGroup[]
+    private readonly _protected: boolean
 
-    constructor(row: number, col: number, value: number|undefined, groups: CellGroup[]) {
-        this._coords = new CellCoords(row, col)
-        this._value = value
+    constructor(
+        cellDto: CellDto,
+        groups: CellGroup[],
+    ) {
+        this._coords = new CellCoords(cellDto.row, cellDto.col)
+        this._value = cellDto.value
         this._groups = groups
+        this._protected = cellDto.protected
 
         this.fulfillGroups()
     }
@@ -26,6 +31,13 @@ export class Cell {
         return this._value;
     }
 
+    set value(value) {
+        console.log(this)
+        if (!this._protected) {
+            this._value = value;
+        }
+    }
+
     fulfillGroups() {
         this._groups.forEach((cellGroup) => {
             if (!cellGroup.cells.find((cell) => {
@@ -37,21 +49,21 @@ export class Cell {
     }
 }
 
-export function CellFactory(cellDTO: CellDTO, allCellGroups: CellGroup[]) {
+export function CellFactory(cellDto: CellDto, allCellGroups: CellGroup[]) {
     const cellGroups: CellGroup[] = []
-    cellDTO.groups.forEach((groupDTO: CellGroupDTO) => {
+    cellDto.groups.forEach((groupDto: CellGroupDto) => {
         let findCellGroup = allCellGroups.find((cellGroup: CellGroup) => {
-            return cellGroup.id === groupDTO.id
-                && cellGroup.type === groupDTO.type
+            return cellGroup.id === groupDto.id
+                && cellGroup.type === groupDto.type
         })
         if (!findCellGroup) {
-            findCellGroup = new CellGroup(groupDTO)
+            findCellGroup = new CellGroup(groupDto)
             allCellGroups.push(findCellGroup)
         }
         cellGroups.push(findCellGroup)
     })
 
-    const cell = new Cell(cellDTO.row, cellDTO.col, cellDTO.value, cellGroups)
+    const cell = new Cell(cellDto, cellGroups)
 
     return cell
 }

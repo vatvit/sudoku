@@ -1,12 +1,12 @@
 import {CellGroup} from "./CellGroup.ts";
 import {Cell, CellFactory} from "./Cell.ts";
-import {CellDTO, TableStateDTO} from "./DTO.ts";
+import {CellDto, TableStateDto} from "./Dto.ts";
 
 export class Table {
     private _groups: CellGroup[]
     private _cells: Cell[][]
 
-    constructor(state?: TableStateDTO | undefined) {
+    constructor(state?: TableStateDto | undefined) {
         this._groups = []
         this._cells = []
 
@@ -23,16 +23,16 @@ export class Table {
         return this._cells;
     }
 
-    setState(tableStateDTO: TableStateDTO): void {
+    setState(tableStateDto: TableStateDto): void {
         const allCellGroups: CellGroup[] = []
 
-        tableStateDTO.cells.forEach((row, rowIndex) => {
+        tableStateDto.cells.forEach((row, rowIndex) => {
             if (typeof this._cells[rowIndex] === "undefined") {
                 this._cells[rowIndex] = []
             }
 
-            row.forEach((cellDTO: CellDTO, colIndex) => {
-                const cell = CellFactory(cellDTO, allCellGroups)
+            row.forEach((cellDto: CellDto, colIndex) => {
+                const cell = CellFactory(cellDto, allCellGroups)
                 this._cells[rowIndex][colIndex] = cell
             })
         })

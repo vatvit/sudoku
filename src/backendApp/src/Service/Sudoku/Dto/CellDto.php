@@ -10,4 +10,5 @@ final class CellDto extends AbstractDto
         public int $col;
         public string $value;
         public CellGroupCollectionDto $groups;
+        public bool $protected;
 }

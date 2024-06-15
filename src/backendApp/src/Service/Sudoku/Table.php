@@ -39,6 +39,7 @@ class Table
             $cell['row'] = ((int)floor($i / 9)) + 1;
             $cell['col'] = ($i % 9) + 1;
             $cell['groups'] = $this->getCellGroups($cell['row'], $cell['col']);
+            $cell['protected'] = (bool)$cell['value'];
 
             $table['cells'][$i] = $cell;
         }

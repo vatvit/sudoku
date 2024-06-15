@@ -1,23 +1,28 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, reactive } from 'vue'
 import { Table } from "./Table.ts";
-import {TableStateDTO} from "./DTO.ts";
+import {TableStateDto} from "./Dto.ts";
 import {Cell} from "./Cell.ts";
 
 const props = withDefaults(defineProps<{
-  stateDTO: TableStateDTO,
+  stateDto: TableStateDto,
 }>(), {
-  stateDTO: () => ({cells: []})
+  stateDto: () => ({cells: []})
 });
 
-const table = ref(new Table(props.stateDTO))
+const table = ref(new Table(props.stateDto))
+const selectedCell = reactive({id: null, cell: null})
 
-watch( () => props.stateDTO, (newVal) => {
+watch( () => props.stateDto, (newVal) => {
   table.value = new Table(newVal)
 });
 
 function getColor(col: number, row: number): boolean {
   return !!((Math.floor((col - 1) / 3) + Math.floor((row - 1) / 3)) % 2)
+}
+
+function getCellId(cell: Cell): string {
+  return '' + cell.coords.row + '-' + cell.coords.col;
 }
 
 function getCellClasses(cell: Cell): string[] {
@@ -27,8 +32,39 @@ function getCellClasses(cell: Cell): string[] {
   const colClass = 'col-' + cell.coords.col
   const rowClass = 'row-' + cell.coords.row
 
-  classes.push(groupColor, colClass, rowClass)
+  const cellId = getCellId(cell)
+  const selected = selectedCell.id === cellId ? 'selected' : ''
+
+  classes.push(groupColor, colClass, rowClass, selected)
   return classes;
+}
+
+function cellClickHandler(event) {
+  setSelectedCell(
+      event.target.id,
+      event.target.getAttribute('data-row'),
+      event.target.getAttribute('data-col')
+  )
+}
+
+function setSelectedCell(selectedCellId: string, selectedCellRow: number, selectedCellCol: number) {
+  if (selectedCell.id === selectedCellId) {
+    selectedCell.id = null
+    selectedCell.cell = null
+  } else {
+    selectedCell.id = selectedCellId
+    selectedCell.cell = table.value.cells[selectedCellRow - 1][selectedCellCol - 1]
+  }
+  console.log(selectedCell)
+}
+
+function handleKeyup(event) {
+  const key = event.key
+  if (selectedCell.id) {
+    if (key >= '0' && key <= '9') {
+      selectedCell.cell.value = key
+    }
+  }
 }
 
 </script>
@@ -38,7 +74,13 @@ function getCellClasses(cell: Cell): string[] {
   <table>
     <tr v-for="row in table.cells">
       <td v-for="cell in row"
+          :id="getCellId(cell as Cell)"
           :class="getCellClasses(cell as Cell)"
+          :data-row="cell.coords.row"
+          :data-col="cell.coords.col"
+          @click="cellClickHandler"
+          @keyup="handleKeyup"
+          tabindex="0"
       >
         {{cell.value > 0 ? cell.value : ''}}
       </td>
@@ -68,6 +110,10 @@ function getCellClasses(cell: Cell): string[] {
 
       &:hover {
         background-color: grey;
+      }
+
+      &.selected {
+        background-color: dimgray;
       }
     }
   }

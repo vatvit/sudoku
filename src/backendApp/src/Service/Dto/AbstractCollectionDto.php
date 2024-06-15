@@ -28,9 +28,17 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
 
         $dto = new static();
 
+        if (empty($data)) {
+            $dto->collection = [];
+            return $dto;
+        }
+
         foreach ($data as $item) {
-            $itemDto = $itemClass::hydrate($item);
-            $dto->collection[] = $itemDto;
+            if (!is_a($item, AbstractDto::class)) {
+                $item = $itemClass::hydrate($item);
+            }
+
+            $dto->collection[] = $item;
         }
 
         return $dto;

@@ -24,7 +24,9 @@ abstract class AbstractDto
             $expectedType = $type->getName();
 
             if ($expectedType === 'self' || is_subclass_of($expectedType, AbstractDto::class)) {
-                $value = $expectedType::hydrate($value);
+                if (!is_a($value, AbstractDto::class)) {
+                    $value = $expectedType::hydrate($value);
+                }
             }
 
             $dto->$property = $value;

@@ -27,7 +27,7 @@ function getCellClasses(cell: Cell): string[] {
   const colClass = 'col-' + cell.coords.col
   const rowClass = 'row-' + cell.coords.row
 
-  classes.push([groupColor, colClass, rowClass])
+  classes.push(groupColor, colClass, rowClass)
   return classes;
 }
 
@@ -38,9 +38,9 @@ function getCellClasses(cell: Cell): string[] {
   <table>
     <tr v-for="row in table.cells">
       <td v-for="cell in row"
-          :class="getCellClasses(cell)"
+          :class="getCellClasses(cell as Cell)"
       >
-        {{cell.value}}
+        {{cell.value > 0 ? cell.value : ''}}
       </td>
     </tr>
   </table>

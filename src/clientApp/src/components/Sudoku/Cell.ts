@@ -6,6 +6,7 @@ export class Cell {
     private _value: number|undefined
     private readonly _groups: CellGroup[]
     private readonly _protected: boolean
+    private _notes: Set<number>
 
     constructor(
         cellDto: CellDto,
@@ -15,6 +16,7 @@ export class Cell {
         this._value = cellDto.value
         this._groups = groups
         this._protected = cellDto.protected
+        this.setNotes(cellDto.notes || [])
 
         this.fulfillGroups()
     }
@@ -37,6 +39,33 @@ export class Cell {
         }
     }
 
+    getNotes(): number[] {
+        return [...this._notes]
+    }
+
+    setNotes(notes: number[]) {
+        this.clearNotes()
+        notes.forEach(this.addNote)
+    }
+
+    clearNotes() {
+        this._notes = new Set([])
+    }
+
+    addNote(note: number) {
+        if (this.validateValue(note)) {
+            this._notes.add(note)
+        }
+    }
+
+    hasNote(note: number): boolean {
+        return this._notes.has(note)
+    }
+
+    deleteNote(note: number): void {
+        this._notes.delete(note)
+    }
+
     get protected(): boolean {
         return this._protected
     }
@@ -49,6 +78,10 @@ export class Cell {
                 cellGroup.cells.push(this)
             }
         })
+    }
+
+    validateValue(value: number): boolean {
+        return value > 0 && value <= 9
     }
 }
 
@@ -66,9 +99,7 @@ export function CellFactory(cellDto: CellDto, allCellGroups: CellGroup[]) {
         cellGroups.push(findCellGroup)
     })
 
-    const cell = new Cell(cellDto, cellGroups)
-
-    return cell
+    return new Cell(cellDto, cellGroups)
 }
 
 export class CellCoords {

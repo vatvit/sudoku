@@ -10,6 +10,7 @@ export interface CellDto {
     value: number | undefined
     groups: CellGroupDto[]
     protected: boolean
+    notes: number[]
 }
 
 export interface CellGroupDto {

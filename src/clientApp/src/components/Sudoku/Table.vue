@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, reactive } from 'vue'
-import { Table } from "./Table.ts";
+import {reactive, ref, watch} from 'vue'
+import {Table} from "./Table.ts";
 import {TableStateDto} from "./Dto.ts";
 import {Cell} from "./Cell.ts";
 
@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<{
 
 const table = ref(new Table(props.stateDto))
 const selectedCell = reactive({id: null, cell: null})
+const isNoteModeEnabled = ref(false)
 
 watch( () => props.stateDto, (newVal) => {
   table.value = new Table(newVal)
@@ -67,10 +68,43 @@ function handleKeyup(event) {
   const key = event.key
   if (selectedCell.id && !selectedCell.cell.protected) {
     if (key >= '0' && key <= '9') {
-      selectedCell.cell.value = key
-      table.value.validateSolution()
+      if (isNoteModeEnabled.value) {
+        selectedCell.cell.hasNote(key) ? selectedCell.cell.deleteNote(key) : selectedCell.cell.addNote(key)
+      } else {
+        if (selectedCell.cell.value === key) {
+          selectedCell.cell.value = 0
+        } else {
+          selectedCell.cell.value = key
+          table.value.validateSolution()
+        }
+      }
     }
   }
+}
+
+function toggleNoteMode() {
+  isNoteModeEnabled.value = !isNoteModeEnabled.value
+}
+
+function cellDisplayState(cell: Cell): string {
+  if (cell.value > 0) {
+    return 'value'
+  } else if (cell.getNotes().length > 0) {
+    return 'notes'
+  } else {
+    return ''
+  }
+}
+
+function getCellNotes(cell: Cell): number[] {
+  const allNotes = Array.from({length: 9}, () => 0)
+  cell.getNotes().forEach((note: number) => {
+    allNotes[note - 1] = note
+  })
+
+  return allNotes
+
+  // return Array.from({length: Math.ceil(allNotes.length / 3)}, (v, i) => allNotes.slice(i * 3, i * 3 + 3))
 }
 
 </script>
@@ -80,7 +114,8 @@ function handleKeyup(event) {
   <div v-if="table.isSolved">
     SOLVED!
   </div>
-  <button @click="$emit('newGameEvent')">New game?</button>
+  <button @click="$emit('newGameEvent')">New game?</button><br>
+  <button @click="toggleNoteMode">&nbsp;</button> Note mode is {{ isNoteModeEnabled ? 'enabled' : 'disabled' }}
   <table>
     <tr v-for="row in table.cells">
       <td v-for="cell in row"
@@ -92,7 +127,13 @@ function handleKeyup(event) {
           @keyup="handleKeyup"
           tabindex="0"
       >
-        {{cell.value > 0 ? cell.value : ''}}
+        <div class="cell-value" v-show="cellDisplayState(cell) === 'value'">{{ cell.value }}</div>
+        <div class="cell-notes" v-show="cellDisplayState(cell) === 'notes'">
+          <div v-for="note in getCellNotes(cell)" class="cell-note">
+            {{ note > 0 ? note : '' }}
+          </div>
+        </div>
+
       </td>
     </tr>
   </table>
@@ -101,18 +142,23 @@ function handleKeyup(event) {
 
 <style scoped>
 .sudoku-table {
-  table {
+  text-align: center;
+
+  > table {
     border-spacing: 0;
     border-width: 0 1px 1px 0;
     border-style: solid;
     border-color: #000;
-    margin: 5px;
+    margin: auto;
 
-    td {
+    > tr > td {
       border-width: 1px 0 0 1px;
       border-style: solid;
       border-color: #000;
-      padding: 5px;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      vertical-align: middle;
 
       &.grey {
         background-color: lightgray;
@@ -130,7 +176,38 @@ function handleKeyup(event) {
         font-weight: bold;
         font-style: italic;
       }
+
+      .cell-value {
+        padding: 5px;
+      }
     }
   }
+
+  .cell-notes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+
+    width: 20px;
+    max-width: 20px;
+    height: 20px;
+    max-height: 20px;
+    font-size: 10px;
+
+    padding: 0;
+
+    .cell-note {
+      margin-top: -5px;
+    }
+
+    table.cell-notes-table {
+      width: 20px;
+      max-width: 20px;
+      height: 20px;
+      max-height: 20px;
+      font-size: 5px;
+    }
+  }
+
 }
 </style>

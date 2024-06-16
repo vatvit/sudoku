@@ -46,6 +46,16 @@ export class Table {
         this._groups = allCellGroups
     }
 
+    cleanNotesByCellValue(cell: Cell) {
+        this._groups.forEach(group => {
+            if (group.cells.includes(cell)) {
+                group.cells.forEach(groupCell => {
+                    groupCell.deleteNote(cell.value as number);
+                });
+            }
+        });
+    }
+
     validateSolution(): boolean {
         for (const group of this._groups) {
             const cellValues = group.cells.map(cell => cell.value)

@@ -44,9 +44,9 @@ function getCellClasses(cell: Cell): string[] {
 
 function cellClickHandler(event) {
   setSelectedCell(
-      event.target.id,
-      event.target.getAttribute('data-row'),
-      event.target.getAttribute('data-col')
+      event.currentTarget.getAttribute('data-cell-id'),
+      event.currentTarget.getAttribute('data-row'),
+      event.currentTarget.getAttribute('data-col')
   )
 }
 
@@ -67,16 +67,15 @@ function resetSelectedCell() {
 function handleKeyup(event) {
   const key = event.key
   if (selectedCell.id && !selectedCell.cell.protected) {
-    if (key >= '0' && key <= '9') {
-      if (isNoteModeEnabled.value) {
-        selectedCell.cell.hasNote(key) ? selectedCell.cell.deleteNote(key) : selectedCell.cell.addNote(key)
+    if (isNoteModeEnabled.value) {
+      selectedCell.cell.hasNote(key) ? selectedCell.cell.deleteNote(key) : selectedCell.cell.addNote(key)
+    } else {
+      if (selectedCell.cell.value === key) {
+        selectedCell.cell.deleteValue()
       } else {
-        if (selectedCell.cell.value === key) {
-          selectedCell.cell.value = 0
-        } else {
-          selectedCell.cell.value = key
-          table.value.validateSolution()
-        }
+        selectedCell.cell.value = key
+        table.value.cleanNotesByCellValue(selectedCell.cell)
+        table.value.validateSolution()
       }
     }
   }
@@ -119,8 +118,8 @@ function getCellNotes(cell: Cell): number[] {
   <table>
     <tr v-for="row in table.cells">
       <td v-for="cell in row"
-          :id="getCellId(cell as Cell)"
           :class="getCellClasses(cell as Cell)"
+          :data-cell-id="getCellId(cell as Cell)"
           :data-row="cell.coords.row"
           :data-col="cell.coords.col"
           @click="cellClickHandler"

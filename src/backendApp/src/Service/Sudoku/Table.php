@@ -23,7 +23,7 @@ class Table
 
         $table = $this->tableShuffler->shuffle($table);
 
-        $table = $this->tableCellHider->hideCells($table, 1);
+        $table = $this->tableCellHider->hideCells($table, 70);
 
         $table = $this->fulfillCells($table);
 

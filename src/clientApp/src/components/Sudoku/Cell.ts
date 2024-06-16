@@ -33,10 +33,14 @@ export class Cell {
         return this._value;
     }
 
-    set value(value) {
-        if (!this._protected) {
+    set value(value: number) {
+        if (!this._protected && this.validateValue(value)) {
             this._value = value;
         }
+    }
+
+    deleteValue() {
+        this._value = 0
     }
 
     getNotes(): number[] {

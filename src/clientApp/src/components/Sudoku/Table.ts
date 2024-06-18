@@ -1,11 +1,12 @@
 import {CellGroup} from "./CellGroup.ts";
-import {Cell, CellFactory} from "./Cell.ts";
-import {CellDto, TableStateDto} from "./Dto.ts";
+import {Cell, CellCoords, CellFactory} from "./Cell.ts";
+import {CellDto, MistakeDto, TableStateDto, TableValidationResultDto} from "./Dto.ts";
 
 export class Table {
     private _groups: CellGroup[]
     private _cells: Cell[][]
     private _solved: boolean
+    private _mistakes: Map<CellCoords, MistakeDto>
 
     constructor(state?: TableStateDto | undefined) {
         this._groups = []
@@ -50,18 +51,20 @@ export class Table {
         this._groups.forEach(group => {
             if (group.cells.includes(cell)) {
                 group.cells.forEach(groupCell => {
-                    groupCell.deleteNote(cell.value as number);
+                    groupCell.deleteNote(cell.value);
                 });
             }
         });
     }
 
     validateSolution(): boolean {
+        this._mistakes = new Map<CellCoords, MistakeDto>()
+
         for (const group of this._groups) {
             const cellValues = group.cells.map(cell => cell.value)
 
             if (
-                cellValues.includes(undefined) ||
+                cellValues.includes(0) ||
                 new Set(cellValues).size !== cellValues.length ||
                 cellValues.some(val => val < 1 || val > group.cells.length)
             ) {

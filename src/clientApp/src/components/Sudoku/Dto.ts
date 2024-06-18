@@ -1,4 +1,5 @@
 import {CellGroupTypes} from "./CellGroup.ts";
+import {CellCoords} from "./Cell.ts";
 
 export interface TableStateDto {
     cells: CellDto[][]
@@ -16,4 +17,8 @@ export interface CellDto {
 export interface CellGroupDto {
     id: number
     type: CellGroupTypes
+}
+
+export interface MistakeDto {
+    cellCoords: CellCoords
 }

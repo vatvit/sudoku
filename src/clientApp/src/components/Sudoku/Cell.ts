@@ -1,9 +1,9 @@
 import {CellGroup} from "./CellGroup.ts";
-import {CellDto, CellGroupDto} from "./Dto.ts";
+import {CellDto, CellGroupDto, MistakeDto} from "./Dto.ts";
 
 export class Cell {
     private readonly _coords: CellCoords
-    private _value: number|undefined
+    private _value: number
     private readonly _groups: CellGroup[]
     private readonly _protected: boolean
     private _notes: Set<number>
@@ -13,11 +13,12 @@ export class Cell {
         groups: CellGroup[],
     ) {
         this._coords = new CellCoords(cellDto.row, cellDto.col)
-        this._value = cellDto.value
+        this._value = +cellDto.value || 0
         this._groups = groups
         this._protected = cellDto.protected
-        this.setNotes(cellDto.notes || [])
+        this._notes = new Set([])
 
+        this.setNotes(cellDto.notes || [])
         this.fulfillGroups()
     }
 
@@ -29,7 +30,7 @@ export class Cell {
         return this._groups;
     }
 
-    get value(): number | undefined {
+    get value(): number {
         return this._value;
     }
 
@@ -107,8 +108,8 @@ export function CellFactory(cellDto: CellDto, allCellGroups: CellGroup[]) {
 }
 
 export class CellCoords {
-    row: number
-    col: number
+    readonly row: number
+    readonly col: number
 
     constructor(row: number, col: number) {
         this.row = row

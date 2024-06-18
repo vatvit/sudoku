@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {reactive, ref, watch} from 'vue'
 import {Table} from "./Table.ts";
-import {TableStateDto} from "./Dto.ts";
-import {Cell} from "./Cell.ts";
+import {MistakeDto, TableStateDto} from "./Dto.ts";
+import {Cell, CellCoords} from "./Cell.ts";
 
 const props = withDefaults(defineProps<{
   stateDto: TableStateDto,
@@ -11,8 +11,9 @@ const props = withDefaults(defineProps<{
 });
 
 const table = ref(new Table(props.stateDto))
-const selectedCell = reactive({id: null, cell: null})
+const selectedCell = reactive({id: '', cell: <Cell | undefined>undefined})
 const isNoteModeEnabled = ref(false)
+let mistakes = new Map<CellCoords, MistakeDto>()
 
 watch( () => props.stateDto, (newVal) => {
   table.value = new Table(newVal)
@@ -27,46 +28,51 @@ function getCellId(cell: Cell): string {
   return '' + cell.coords.row + '-' + cell.coords.col;
 }
 
-function getCellClasses(cell: Cell): string[] {
+function getCellClasses(table: Table, cell: Cell): string[] {
   const classes = []
 
   const groupColor = getColor(cell.coords.col, cell.coords.row) ? '' : 'grey'
   const colClass = 'col-' + cell.coords.col
   const rowClass = 'row-' + cell.coords.row
   const protectedClass = cell.protected ? 'protected' : 'not-protected'
+  const mistake = mistakes.has(cell.coords) ? 'mistake' : ''
 
   const cellId = getCellId(cell)
   const selected = selectedCell.id === cellId ? 'selected' : ''
 
-  classes.push(groupColor, colClass, rowClass, selected, protectedClass)
+  classes.push(groupColor, colClass, rowClass, protectedClass, mistake, selected)
   return classes;
 }
 
-function cellClickHandler(event) {
+function cellClickHandler(event: Event) {
+  const currentTarget = event.currentTarget as HTMLElement
+  const selectedCellId = currentTarget.getAttribute('data-cell-id') || ''
+  const selectedCellRow = +(currentTarget.getAttribute('data-row') as string) || 0;
+  const selectedCellCol = +(currentTarget.getAttribute('data-col') as string) || 0;
   setSelectedCell(
-      event.currentTarget.getAttribute('data-cell-id'),
-      event.currentTarget.getAttribute('data-row'),
-      event.currentTarget.getAttribute('data-col')
+      selectedCellId,
+      selectedCellRow,
+      selectedCellCol
   )
 }
 
 function setSelectedCell(selectedCellId: string, selectedCellRow: number, selectedCellCol: number) {
-  if (selectedCell.id === selectedCellId) {
+  if (selectedCellId === '' || selectedCell.id === selectedCellId) {
     resetSelectedCell()
   } else {
     selectedCell.id = selectedCellId
-    selectedCell.cell = table.value.cells[selectedCellRow - 1][selectedCellCol - 1]
+    selectedCell.cell = table.value.cells[selectedCellRow - 1][selectedCellCol - 1] as Cell || undefined
   }
 }
 
 function resetSelectedCell() {
-  selectedCell.id = null
-  selectedCell.cell = null
+  selectedCell.id = ''
+  selectedCell.cell = undefined
 }
 
-function handleKeyup(event) {
-  const key = event.key
-  if (selectedCell.id && !selectedCell.cell.protected) {
+function handleKeyup(event: KeyboardEvent) {
+  const key = +event.key
+  if (selectedCell.cell && !selectedCell.cell.protected) {
     if (isNoteModeEnabled.value) {
       selectedCell.cell.hasNote(key) ? selectedCell.cell.deleteNote(key) : selectedCell.cell.addNote(key)
     } else {
@@ -74,9 +80,10 @@ function handleKeyup(event) {
         selectedCell.cell.deleteValue()
       } else {
         selectedCell.cell.value = key
-        table.value.cleanNotesByCellValue(selectedCell.cell)
+        table.value.cleanNotesByCellValue(selectedCell.cell as Cell)
         table.value.validateSolution()
       }
+      checkMistakes(table.value)
     }
   }
 }
@@ -102,8 +109,21 @@ function getCellNotes(cell: Cell): number[] {
   })
 
   return allNotes
+}
 
-  // return Array.from({length: Math.ceil(allNotes.length / 3)}, (v, i) => allNotes.slice(i * 3, i * 3 + 3))
+function checkMistakes(table: Table){
+  mistakes = new Map<CellCoords, MistakeDto>()
+  table.groups.forEach(group => {
+    let seenValues = new Map();
+    group.cells.forEach(cell => {
+      if (seenValues.has(cell.value)) {
+        mistakes.set(cell.coords, {cellCoords: cell.coords})
+        mistakes.set(seenValues.get(cell.value), {cellCoords: seenValues.get(cell.value)})
+      } else {
+        seenValues.set(cell.value, cell.coords)
+      }
+    });
+  });
 }
 
 </script>
@@ -118,7 +138,7 @@ function getCellNotes(cell: Cell): number[] {
   <table>
     <tr v-for="row in table.cells">
       <td v-for="cell in row"
-          :class="getCellClasses(cell as Cell)"
+          :class="getCellClasses(table as Table, cell as Cell)"
           :data-cell-id="getCellId(cell as Cell)"
           :data-row="cell.coords.row"
           :data-col="cell.coords.col"
@@ -126,9 +146,9 @@ function getCellNotes(cell: Cell): number[] {
           @keyup="handleKeyup"
           tabindex="0"
       >
-        <div class="cell-value" v-show="cellDisplayState(cell) === 'value'">{{ cell.value }}</div>
-        <div class="cell-notes" v-show="cellDisplayState(cell) === 'notes'">
-          <div v-for="note in getCellNotes(cell)" class="cell-note">
+        <div class="cell-value" v-show="cellDisplayState(cell as Cell) === 'value'">{{ cell.value }}</div>
+        <div class="cell-notes" v-show="cellDisplayState(cell as Cell) === 'notes'">
+          <div v-for="note in getCellNotes(cell as Cell)" class="cell-note">
             {{ note > 0 ? note : '' }}
           </div>
         </div>
@@ -165,6 +185,11 @@ function getCellNotes(cell: Cell): number[] {
 
       &:hover {
         background-color: grey;
+      }
+
+      &.mistake {
+        color: darkred;
+        background-color: lightcoral;
       }
 
       &.selected {

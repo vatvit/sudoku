@@ -41,8 +41,21 @@ cd /app
 
 # How to run Staging
 
+## From the Scratch
+
+Create file `/Users/vatvit/.aws/credentials` with
+
+```
+[default]
+aws_access_key_id=**************
+aws_secret_access_key=************
+```
+
+Install AWS CLI https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
 ```shell
 cd ./infra/staging
+terraform init
 terraform apply
 ./build.sh
 ./deploy.sh sudoku

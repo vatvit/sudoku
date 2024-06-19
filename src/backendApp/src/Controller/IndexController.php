@@ -18,16 +18,18 @@ class IndexController extends AbstractController
     public function index(HubInterface $hub, UserRepository $userRepository, CacheInterface $cache)
     {
         // DB
-        $allUsers = $userRepository->findAll(); // no Exception? and good
-        foreach ($allUsers as $key => $user) {
-            $allUsers[$key] = ['email' => $user->getEmail()];
-        }
+//        $allUsers = $userRepository->findAll(); // no Exception? and good
+//        foreach ($allUsers as $key => $user) {
+//            $allUsers[$key] = ['email' => $user->getEmail()];
+//        }
+        $allUsers = [];
 
         // Cache
-        $cachedDatetime = $cache->get('cachedDatetime', function (ItemInterface $item) {
-            $item->expiresAfter(10);
-            return date('Y-m-d H:i:s');
-        });
+//        $cachedDatetime = $cache->get('cachedDatetime', function (ItemInterface $item) {
+//            $item->expiresAfter(10);
+//            return date('Y-m-d H:i:s');
+//        });
+        $cachedDatetime = '';
 
         // Mercure
         $jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.dTeuPHTe_h_4E_D6xOJerk4__cG2YmhfI3BfyaGsHQ0';

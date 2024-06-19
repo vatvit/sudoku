@@ -9,10 +9,6 @@ use App\Service\Sudoku\Dto\TableStateDto;
 class TableGenerator
 {
 
-    public function __construct(readonly private TableShuffler $tableShuffler)
-    {
-    }
-
     public function generate(): array
     {
         $table = [
@@ -24,7 +20,11 @@ class TableGenerator
                 $cell = [
                     'value' => $this->getCellValue($row, $col),
                 ];
-                $table['cells'][] = $cell;
+
+                if (!isset($table['cells'][$row])) {
+                    $table['cells'][$row] = [];
+                }
+                $table['cells'][$row][$col] = $cell;
             }
         }
 

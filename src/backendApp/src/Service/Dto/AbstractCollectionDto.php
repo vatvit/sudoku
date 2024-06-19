@@ -21,12 +21,11 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
      */
     static protected string $itemClass;
 
-    public static function hydrate(array $data): static
+    public static function hydrate(array $data, $dto = null): static
     {
-        /** @var AbstractDto $itemClass */
-        $itemClass = static::$itemClass;
-
-        $dto = new static();
+        if ($dto === null) {
+            $dto = new static();
+        }
 
         if (empty($data)) {
             $dto->collection = [];
@@ -35,7 +34,7 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
 
         foreach ($data as $item) {
             if (!is_a($item, AbstractDto::class)) {
-                $item = $itemClass::hydrate($item);
+                $item = (static::$itemClass)::hydrate($item);
             }
 
             $dto->collection[] = $item;
@@ -48,8 +47,8 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
     {
         $array = [];
 
-        foreach ($this->collection as $item) {
-            $array[] = $item->toArray();
+        foreach ($this->collection as $key => $item) {
+            $array[$key] = $item->toArray();
         }
 
         return $array;

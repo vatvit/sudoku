@@ -1,12 +1,11 @@
 import {CellGroup} from "./CellGroup.ts";
-import {Cell, CellCoords, CellFactory} from "./Cell.ts";
-import {CellDto, MistakeDto, TableStateDto, TableValidationResultDto} from "./Dto.ts";
+import {Cell} from "./Cell.ts";
+import {CellDto, CellGroupDto, TableStateDto} from "./Dto.ts";
 
 export class Table {
     private _groups: CellGroup[]
     private _cells: Cell[][]
     private _solved: boolean
-    private _mistakes: Map<CellCoords, MistakeDto>
 
     constructor(state?: TableStateDto | undefined) {
         this._groups = []
@@ -32,24 +31,29 @@ export class Table {
     }
 
     setState(tableStateDto: TableStateDto): void {
-        const allCellGroups: CellGroup[] = []
+        tableStateDto.groups.forEach((cellGroupDto: CellGroupDto) => {
+            const groupCells: Map<string, Cell> = new Map<string, Cell>()
+            cellGroupDto.cells.forEach((cellDto: CellDto, coords: string) => {
+                const coordsArray: string[] = coords.split(":");
+                const row: number = parseInt(coordsArray[0]);
+                const col: number = parseInt(coordsArray[1]);
 
-        tableStateDto.cells.forEach((row, rowIndex) => {
-            if (typeof this._cells[rowIndex] === "undefined") {
-                this._cells[rowIndex] = []
-            }
-
-            row.forEach((cellDto: CellDto, colIndex) => {
-                this._cells[rowIndex][colIndex] = CellFactory(cellDto, allCellGroups)
+                if (typeof this._cells[row - 1] === 'undefined') {
+                    this._cells[row - 1] = []
+                }
+                if (typeof this._cells[row - 1][col - 1] === 'undefined') {
+                    this._cells[row - 1][col - 1] = new Cell(cellDto);
+                }
+                groupCells.set(row + ':' + col, this._cells[row - 1][col - 1])
             })
-        })
 
-        this._groups = allCellGroups
+            this._groups.push(new CellGroup(cellGroupDto, groupCells))
+        })
     }
 
     cleanNotesByCellValue(cell: Cell) {
         this._groups.forEach(group => {
-            if (group.cells.includes(cell)) {
+            if (group.cells.has(cell.coords)) {
                 group.cells.forEach(groupCell => {
                     groupCell.deleteNote(cell.value);
                 });
@@ -58,15 +62,13 @@ export class Table {
     }
 
     validateSolution(): boolean {
-        this._mistakes = new Map<CellCoords, MistakeDto>()
-
         for (const group of this._groups) {
-            const cellValues = group.cells.map(cell => cell.value)
+            const cellValues: number[] = Array.from(group.cells.values()).map((cell: Cell) => cell.value)
 
             if (
                 cellValues.includes(0) ||
                 new Set(cellValues).size !== cellValues.length ||
-                cellValues.some(val => val < 1 || val > group.cells.length)
+                cellValues.some(val => val < 1 || val > 9)
             ) {
                 this._solved = false
 

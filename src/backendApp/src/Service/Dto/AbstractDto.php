@@ -5,9 +5,18 @@ namespace App\Service\Dto;
 abstract class AbstractDto
 {
 
-    public static function hydrate(array $data): static
+    public function __construct(array $data = [])
     {
-        $dto = new static();
+        if (isset($data)) {
+            self::hydrate($data, $this);
+        }
+    }
+
+    public static function hydrate(array $data, $dto = null): static
+    {
+        if ($dto === null) {
+            $dto = new static();
+        }
 
         foreach ($data as $property => $value) {
             if (!property_exists($dto, $property)) {

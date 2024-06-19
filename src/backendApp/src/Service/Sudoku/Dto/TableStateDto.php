@@ -6,8 +6,13 @@ use App\Service\Dto\AbstractDto;
 
 final class TableStateDto extends AbstractDto
 {
-    /**
-     * @var CellCollectionDto|CellDto[]
-     */
-    public CellCollectionDto $cells;
+    public CellRowCollectionDto $cells;
+    public CellGroupCollectionDto $groups;
+
+    public function __construct(array $data = [])
+    {
+        $this->cells = new CellRowCollectionDto([]);
+        $this->groups = new CellGroupCollectionDto([]);
+        parent::__construct($data);
+    }
 }

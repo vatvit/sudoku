@@ -1,39 +1,43 @@
 <script setup lang="ts">
 import {reactive, ref, watch} from 'vue'
 import {Table} from "./Table.ts";
-import {MistakeDto, TableStateDto} from "./Dto.ts";
-import {Cell, CellCoords} from "./Cell.ts";
+import {CellGroupDto, MistakeDto, TableStateDto} from "./Dto.ts";
+import {Cell} from "./Cell.ts";
 
 const props = withDefaults(defineProps<{
   stateDto: TableStateDto,
 }>(), {
-  stateDto: () => ({cells: []})
+  stateDto: () => ({cells: [], groups: [] as CellGroupDto[]})
 });
 
 const table = ref(new Table(props.stateDto))
 const selectedCell = reactive({id: '', cell: <Cell | undefined>undefined})
 const isNoteModeEnabled = ref(false)
-let mistakes = new Map<CellCoords, MistakeDto>()
+let mistakes: Map<string, MistakeDto> = new Map<string, MistakeDto>()
 
 watch( () => props.stateDto, (newVal) => {
   table.value = new Table(newVal)
   resetSelectedCell()
 });
 
-function getColor(col: number, row: number): boolean {
-  return !!((Math.floor((col - 1) / 3) + Math.floor((row - 1) / 3)) % 2)
+function getColor(row: number, col: number): string {
+  return ( !!((Math.floor((col - 1) / 3) + Math.floor((row - 1) / 3)) % 2) ) ? '' : 'grey'
 }
 
 function getCellId(cell: Cell): string {
-  return '' + cell.coords.row + '-' + cell.coords.col;
+  return cell.coords;
 }
 
-function getCellClasses(table: Table, cell: Cell): string[] {
+function getCellClasses(cell: Cell): string[] {
   const classes = []
 
-  const groupColor = getColor(cell.coords.col, cell.coords.row) ? '' : 'grey'
-  const colClass = 'col-' + cell.coords.col
-  const rowClass = 'row-' + cell.coords.row
+  const coordsArray: string[] = cell.coords.split(":");
+  const row: number = parseInt(coordsArray[0]);
+  const col: number = parseInt(coordsArray[1]);
+
+  const groupColor = getColor(row, col)
+  const rowClass = 'row-' + row
+  const colClass = 'col-' + col
   const protectedClass = cell.protected ? 'protected' : 'not-protected'
   const mistake = mistakes.has(cell.coords) ? 'mistake' : ''
 
@@ -47,21 +51,23 @@ function getCellClasses(table: Table, cell: Cell): string[] {
 function cellClickHandler(event: Event) {
   const currentTarget = event.currentTarget as HTMLElement
   const selectedCellId = currentTarget.getAttribute('data-cell-id') || ''
-  const selectedCellRow = +(currentTarget.getAttribute('data-row') as string) || 0;
-  const selectedCellCol = +(currentTarget.getAttribute('data-col') as string) || 0;
+  const selectedCellCoords = currentTarget.getAttribute('data-coords') || '';
   setSelectedCell(
       selectedCellId,
-      selectedCellRow,
-      selectedCellCol
+      selectedCellCoords
   )
 }
 
-function setSelectedCell(selectedCellId: string, selectedCellRow: number, selectedCellCol: number) {
+function setSelectedCell(selectedCellId: string, selectedCellCoords: string) {
+  const coordsArray: string[] = selectedCellCoords.split(":");
+  const row: number = parseInt(coordsArray[0]);
+  const col: number = parseInt(coordsArray[1]);
+
   if (selectedCellId === '' || selectedCell.id === selectedCellId) {
     resetSelectedCell()
   } else {
     selectedCell.id = selectedCellId
-    selectedCell.cell = table.value.cells[selectedCellRow - 1][selectedCellCol - 1] as Cell || undefined
+    selectedCell.cell = table.value.cells[row - 1][col - 1] as Cell || undefined
   }
 }
 
@@ -83,7 +89,7 @@ function handleKeyup(event: KeyboardEvent) {
         table.value.cleanNotesByCellValue(selectedCell.cell as Cell)
         table.value.validateSolution()
       }
-      checkMistakes(table.value)
+      checkMistakes(table.value as Table)
     }
   }
 }
@@ -112,15 +118,16 @@ function getCellNotes(cell: Cell): number[] {
 }
 
 function checkMistakes(table: Table){
-  mistakes = new Map<CellCoords, MistakeDto>()
+  mistakes = new Map<string, MistakeDto>()
   table.groups.forEach(group => {
-    let seenValues = new Map();
-    group.cells.forEach(cell => {
-      if (seenValues.has(cell.value)) {
-        mistakes.set(cell.coords, {cellCoords: cell.coords})
-        mistakes.set(seenValues.get(cell.value), {cellCoords: seenValues.get(cell.value)})
+    const seenValues = new Map<number, string>();
+    group.cells.forEach((cell, coords) => {
+      const cellValue = cell.value || 0;
+      if (seenValues.has(cellValue)) {
+        mistakes.set(coords, {cellCoords: coords})
+        mistakes.set(seenValues.get(cellValue) as string, {cellCoords: seenValues.get(cellValue) as string})
       } else {
-        seenValues.set(cell.value, cell.coords)
+        seenValues.set(cellValue, coords)
       }
     });
   });
@@ -138,10 +145,9 @@ function checkMistakes(table: Table){
   <table>
     <tr v-for="row in table.cells">
       <td v-for="cell in row"
-          :class="getCellClasses(table as Table, cell as Cell)"
+          :class="getCellClasses(cell as Cell)"
           :data-cell-id="getCellId(cell as Cell)"
-          :data-row="cell.coords.row"
-          :data-col="cell.coords.col"
+          :data-coords="cell.coords"
           @click="cellClickHandler"
           @keyup="handleKeyup"
           tabindex="0"

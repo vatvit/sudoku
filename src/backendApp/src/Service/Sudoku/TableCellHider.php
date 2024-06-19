@@ -7,12 +7,29 @@ class TableCellHider
 
     public function hideCells(array $table, int $count): array
     {
-        $cellsRange = range(0, count($table['cells']));
+        // get Total amount of cells
+        $totalCount = 0;
+        foreach ($table['cells'] as $subArray) {
+            $totalCount += count($subArray);
+        }
+
+        // size of the table
+        $size = count($table['cells']);
+
+        // prepare random array of cell indexes
+        $cellsRange = range(1, $totalCount);
         shuffle($cellsRange);
 
         for ($i = 0; $i < $count; $i++) {
-            $randomCell = array_shift($cellsRange);
-            $table['cells'][$randomCell]['value'] = 0;
+            // get random cell index
+            $randomCell = array_shift($cellsRange) - 1;
+
+            // calculate row/col by index
+            $row = floor($randomCell / $size);
+            $col = $randomCell % $size;
+
+            // remove value
+            $table['cells'][$row][$col]['value'] = 0;
         }
 
         return $table;

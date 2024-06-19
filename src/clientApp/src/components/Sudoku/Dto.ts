@@ -1,15 +1,13 @@
 import {CellGroupTypes} from "./CellGroup.ts";
-import {CellCoords} from "./Cell.ts";
 
 export interface TableStateDto {
     cells: CellDto[][]
+    groups: CellGroupDto[]
 }
 
 export interface CellDto {
-    row: number
-    col: number
+    coords: string
     value: number | undefined
-    groups: CellGroupDto[]
     protected: boolean
     notes: number[]
 }
@@ -17,8 +15,9 @@ export interface CellDto {
 export interface CellGroupDto {
     id: number
     type: CellGroupTypes
+    cells: Map<string, CellDto>
 }
 
 export interface MistakeDto {
-    cellCoords: CellCoords
+    cellCoords: string
 }

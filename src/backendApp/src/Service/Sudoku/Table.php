@@ -25,40 +25,64 @@ class Table
 
         $table = $this->tableCellHider->hideCells($table, 1);
 
-        $table = $this->fulfillCells($table);
-
-        $tableStateDto = TableStateDto::hydrate($table);
+        $tableStateDto = $this->hydrateTableStateDto($table);
 
         return $tableStateDto;
 
     }
 
-    public function fulfillCells(array $table): array
+    public function hydrateTableStateDto(array $table): TableStateDto
     {
-        foreach ($table['cells'] as $i => $cell) {
-            $cell['row'] = ((int)floor($i / 9)) + 1;
-            $cell['col'] = ($i % 9) + 1;
-            $cell['groups'] = $this->getCellGroups($cell['row'], $cell['col']);
-            $cell['protected'] = (bool)$cell['value'];
+        $groups = [];
+        foreach ($table['cells'] as $rowIndex => $rowArray) {
+            foreach ($rowArray as $colIndex => $cell) {
 
-            $table['cells'][$i] = $cell;
+                $cellDto = $this->hydrateCellDto($rowIndex, $colIndex, $cell);
+                $table['cells'][$rowIndex][$colIndex] = $cellDto;
+
+                $groups = $this->hydrateCellGroups($rowIndex, $colIndex, $groups, $cellDto);
+            }
         }
+        $table['groups'] = array_values($groups);
 
-        return $table;
+        return TableStateDto::hydrate($table);
     }
 
-    /**
-     * @param int $row
-     * @param int $col
-     * @return array[]
-     */
-    private function getCellGroups(int $row, int $col): array
+    public function hydrateCellDto(int $rowIndex, int $colIndex, array $cell): CellDto
     {
-        $squareId = $this->getSquareId($row, $col);
+        $cell['coords'] = $this->getCellCoords($rowIndex, $colIndex);
+        $cell['protected'] = (bool)$cell['value'];
 
-        $cellGroupRowDto = CellGroupDto::hydrate(['id' => $row, 'type' => 'ROW']);
-        $cellGroupColDto = CellGroupDto::hydrate(['id' => $col, 'type' => 'COL']);
-        $cellGroupSqrDto = CellGroupDto::hydrate(['id' => $squareId, 'type' => 'SQR']);
+        $cellDto = CellDto::hydrate($cell);
+        return $cellDto;
+    }
+
+    public function hydrateCellGroups(int $rowIndex, int $colIndex, array $groups, CellDto $cellDto): array
+    {
+        $cellGroups = $this->getCellGroups($rowIndex, $colIndex);
+
+        foreach ($cellGroups as $group) {
+            $groupId = $group['id'] . ':' . $group['type'];
+            if (!isset($groups[$groupId])) {
+                $groups[$groupId] = CellGroupDto::hydrate($group);
+            }
+            $groups[$groupId]->cells[$this->getCellCoords($rowIndex, $colIndex)] = $cellDto;
+        }
+        return $groups;
+    }
+
+    private function getCellCoords(int $rowIndex, int $colIndex): string
+    {
+        return ($rowIndex + 1) . ':' . ($colIndex + 1);
+    }
+
+    private function getCellGroups(int $rowIndex, int $colIndex): array
+    {
+        $squareId = $this->getSquareId($rowIndex, $colIndex);
+
+        $cellGroupRowDto = ['id' => $rowIndex + 1, 'type' => 'ROW'];
+        $cellGroupColDto = ['id' => $colIndex + 1, 'type' => 'COL'];
+        $cellGroupSqrDto = ['id' => $squareId, 'type' => 'SQR'];
 
         return [
             $cellGroupRowDto,
@@ -67,13 +91,8 @@ class Table
         ];
     }
 
-    /**
-     * @param int $col
-     * @param int $row
-     * @return int
-     */
-    private function getSquareId(int $row, int $col): int
+    private function getSquareId(int $rowIndex, int $colIndex): int
     {
-        return (int)((floor(($col - 1) / 3)) + (floor(($row - 1) / 3) * 3) + 1);
+        return (int)((floor($colIndex / 3)) + (floor($rowIndex / 3) * 3) + 1);
     }
 }

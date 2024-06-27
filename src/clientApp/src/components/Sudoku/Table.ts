@@ -3,7 +3,7 @@ import {Cell} from "./Cell.ts";
 import {CellDto, CellGroupDto, TableStateDto} from "./Dto.ts";
 
 export class Table {
-    private _groups: CellGroup[]
+    private _groups: CellGroup[] = []
     private _cells: Cell[][]
     private _solved: boolean
 
@@ -19,7 +19,7 @@ export class Table {
     }
 
     get groups(): CellGroup[] {
-        return this._groups;
+        return this._groups || [];
     }
 
     get cells(): Cell[][] {

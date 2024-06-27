@@ -3,6 +3,7 @@ import {reactive, ref, watch} from 'vue'
 import {Table} from "./Table.ts";
 import {CellGroupDto, MistakeDto, TableStateDto} from "./Dto.ts";
 import {Cell} from "./Cell.ts";
+import {CellGroup, CellGroupTypes} from "./CellGroup.ts";
 
 const props = withDefaults(defineProps<{
   stateDto: TableStateDto,
@@ -12,6 +13,7 @@ const props = withDefaults(defineProps<{
 
 const table = ref(new Table(props.stateDto))
 const selectedCell = reactive({id: '', cell: <Cell | undefined>undefined})
+const hoveredCell = reactive({cell: <Cell | undefined>undefined})
 const isNoteModeEnabled = ref(false)
 let mistakes: Map<string, MistakeDto> = new Map<string, MistakeDto>()
 
@@ -44,8 +46,70 @@ function getCellClasses(cell: Cell): string[] {
   const cellId = getCellId(cell)
   const selected = selectedCell.id === cellId ? 'selected' : ''
 
-  classes.push(groupColor, colClass, rowClass, protectedClass, mistake, selected)
+  const highlightedClasses = getHighlightedClasses(cell)
+  const hoveredClasses = getHoveredClasses(cell)
+
+  let highlightedValue = '';
+  if (selectedCell.cell && selectedCell.cell.value > 0 && selectedCell.cell.value === cell.value) {
+    highlightedValue = 'highlighted-value'
+  }
+
+  classes.push(
+      groupColor,
+      colClass,
+      rowClass,
+      protectedClass,
+      mistake,
+      selected,
+      ...hoveredClasses,
+      ...highlightedClasses,
+      highlightedValue
+  )
   return classes;
+}
+
+function getHighlightedClasses(cell: Cell): string[] {
+  const highlightedClasses: string[] = [];
+
+  if (!selectedCell.cell) {
+    return highlightedClasses
+  }
+
+  const groups: CellGroup[] = table.value.groups as CellGroup[]
+
+  groups.forEach((cellGroup: any) => {
+    if (cellGroup.cells.has(selectedCell.cell?.coords)) {
+      if (cellGroup.cells.has((cell.coords))) {
+        if (cellGroup.type === CellGroupTypes.ROW || cellGroup.type === CellGroupTypes.COL) {
+          highlightedClasses.push('highlighted')
+        }
+      }
+    }
+  })
+
+  return highlightedClasses
+}
+
+function getHoveredClasses(cell: Cell): string[] {
+  const hoveredClasses: string[] = [];
+
+  if (!hoveredCell.cell) {
+    return hoveredClasses
+  }
+
+  const groups: CellGroup[] = table.value.groups as CellGroup[]
+
+  groups.forEach((cellGroup: any) => {
+    if (cellGroup.cells.has(hoveredCell.cell?.coords)) {
+      if (cellGroup.cells.has((cell.coords))) {
+        if (cellGroup.type === CellGroupTypes.ROW || cellGroup.type === CellGroupTypes.COL) {
+          hoveredClasses.push('hovered')
+        }
+      }
+    }
+  })
+
+  return hoveredClasses
 }
 
 function cellClickHandler(event: Event) {
@@ -133,6 +197,26 @@ function checkMistakes(table: Table){
   });
 }
 
+function mouseover(event: MouseEvent) {
+  const currentTarget = event.currentTarget as HTMLElement
+  const hoveredCellCoords = currentTarget.getAttribute('data-coords') || ''
+  const coordsArray: string[] = hoveredCellCoords.split(":");
+  const row: number = parseInt(coordsArray[0]);
+  const col: number = parseInt(coordsArray[1]);
+  hoveredCell.cell = table.value.cells[row - 1][col - 1] as Cell || undefined
+}
+
+function mouseleave(event: MouseEvent) {
+  if (!hoveredCell.cell) {
+    return
+  }
+  const currentTarget = event.currentTarget as HTMLElement
+  const hoveredCellCoords = currentTarget.getAttribute('data-coords') || ''
+  if (hoveredCellCoords === hoveredCell.cell.coords) {
+    hoveredCell.cell = undefined
+  }
+}
+
 </script>
 
 <template>
@@ -150,6 +234,8 @@ function checkMistakes(table: Table){
           :data-coords="cell.coords"
           @click="cellClickHandler"
           @keyup="handleKeyup"
+          @mouseover="mouseover"
+          @mouseleave="mouseleave"
           tabindex="0"
       >
         <div class="cell-value" v-show="cellDisplayState(cell as Cell) === 'value'">{{ cell.value }}</div>
@@ -187,6 +273,18 @@ function checkMistakes(table: Table){
 
       &.grey {
         background-color: lightgray;
+      }
+
+      &.highlighted {
+        background-color: darkgray;
+      }
+
+      &.hovered {
+        background-color: #c2c2c2;
+      }
+
+      &.highlighted-value {
+        background-color: #6e6e6e;
       }
 
       &:hover {

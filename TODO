@@ -1,4 +1,4 @@
-Highlight row and column after selecting cell
+Store game state in backend session
 
 sudoku_mercure on AWS doesn't work
 RDS is empty on AWS

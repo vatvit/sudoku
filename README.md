@@ -84,6 +84,21 @@ terraform apply
 ./deploy.sh sudoku_mercure
 ```
 
+# How to Shutdown Staging
+
+## Temporary / Partially
+
+```shell
+./stop.sh sudoku
+./shop.sh sudoku_mercure
+```
+
+## Fully
+
+```shell
+terraform destroy
+```
+
 ## XDebug on Local
 Enable [Debug Helper](https://chromewebstore.google.com/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc) Chrome extension
 Enable Debug Listening in PHPStorm

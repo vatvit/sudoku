@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {reactive, ref, watch} from 'vue'
+import {ref, watch} from 'vue'
 import {Table} from "./Table.ts";
 import {CellGroupDto, MistakeDto, TableStateDto} from "./Dto.ts";
 import {Cell} from "./Cell.ts";
 import {CellGroup, CellGroupTypes} from "./CellGroup.ts";
+import {defineStore} from "pinia";
 
 const props = withDefaults(defineProps<{
   stateDto: TableStateDto,
@@ -11,9 +12,26 @@ const props = withDefaults(defineProps<{
   stateDto: () => ({cells: [], groups: [] as CellGroupDto[]})
 });
 
+interface SudokuStore {
+  selectedCell: Cell | undefined
+  hoveredCell: Cell | undefined
+}
+
+const useSudokuStore = defineStore('sudoku', {
+  state(): SudokuStore {
+    return {
+      selectedCell: undefined as Cell | undefined,
+      hoveredCell: undefined as Cell | undefined,
+    }
+  },
+  getters: {
+  },
+  actions: {
+  },
+})
+const store = useSudokuStore() as SudokuStore
+
 const table = ref(new Table(props.stateDto))
-const selectedCell = reactive({id: '', cell: <Cell | undefined>undefined})
-const hoveredCell = reactive({cell: <Cell | undefined>undefined})
 const isNoteModeEnabled = ref(false)
 let mistakes: Map<string, MistakeDto> = new Map<string, MistakeDto>()
 
@@ -24,10 +42,6 @@ watch( () => props.stateDto, (newVal) => {
 
 function getColor(row: number, col: number): string {
   return ( !!((Math.floor((col - 1) / 3) + Math.floor((row - 1) / 3)) % 2) ) ? '' : 'grey'
-}
-
-function getCellId(cell: Cell): string {
-  return cell.coords;
 }
 
 function getCellClasses(cell: Cell): string[] {
@@ -43,14 +57,13 @@ function getCellClasses(cell: Cell): string[] {
   const protectedClass = cell.protected ? 'protected' : 'not-protected'
   const mistake = mistakes.has(cell.coords) ? 'mistake' : ''
 
-  const cellId = getCellId(cell)
-  const selected = selectedCell.id === cellId ? 'selected' : ''
+  const selected = store.selectedCell?.coords === cell.coords ? 'selected' : ''
 
   const highlightedClasses = getHighlightedClasses(cell)
   const hoveredClasses = getHoveredClasses(cell)
 
   let highlightedValue = '';
-  if (selectedCell.cell && selectedCell.cell.value > 0 && selectedCell.cell.value === cell.value) {
+  if (store.selectedCell && store.selectedCell?.value > 0 && store.selectedCell?.value === cell.value) {
     highlightedValue = 'highlighted-value'
   }
 
@@ -71,14 +84,14 @@ function getCellClasses(cell: Cell): string[] {
 function getHighlightedClasses(cell: Cell): string[] {
   const highlightedClasses: string[] = [];
 
-  if (!selectedCell.cell) {
+  if (!store.selectedCell) {
     return highlightedClasses
   }
 
   const groups: CellGroup[] = table.value.groups as CellGroup[]
 
   groups.forEach((cellGroup: any) => {
-    if (cellGroup.cells.has(selectedCell.cell?.coords)) {
+    if (cellGroup.cells.has(store.selectedCell?.coords)) {
       if (cellGroup.cells.has((cell.coords))) {
         if (cellGroup.type === CellGroupTypes.ROW || cellGroup.type === CellGroupTypes.COL) {
           highlightedClasses.push('highlighted')
@@ -93,14 +106,14 @@ function getHighlightedClasses(cell: Cell): string[] {
 function getHoveredClasses(cell: Cell): string[] {
   const hoveredClasses: string[] = [];
 
-  if (!hoveredCell.cell) {
+  if (!store.hoveredCell) {
     return hoveredClasses
   }
 
   const groups: CellGroup[] = table.value.groups as CellGroup[]
 
   groups.forEach((cellGroup: any) => {
-    if (cellGroup.cells.has(hoveredCell.cell?.coords)) {
+    if (cellGroup.cells.has(store.hoveredCell?.coords)) {
       if (cellGroup.cells.has((cell.coords))) {
         if (cellGroup.type === CellGroupTypes.ROW || cellGroup.type === CellGroupTypes.COL) {
           hoveredClasses.push('hovered')
@@ -114,43 +127,36 @@ function getHoveredClasses(cell: Cell): string[] {
 
 function cellClickHandler(event: Event) {
   const currentTarget = event.currentTarget as HTMLElement
-  const selectedCellId = currentTarget.getAttribute('data-cell-id') || ''
   const selectedCellCoords = currentTarget.getAttribute('data-coords') || '';
-  setSelectedCell(
-      selectedCellId,
-      selectedCellCoords
-  )
+  setSelectedCell(selectedCellCoords)
 }
 
-function setSelectedCell(selectedCellId: string, selectedCellCoords: string) {
+function setSelectedCell(selectedCellCoords: string) {
   const coordsArray: string[] = selectedCellCoords.split(":");
-  const row: number = parseInt(coordsArray[0]);
-  const col: number = parseInt(coordsArray[1]);
-
-  if (selectedCellId === '' || selectedCell.id === selectedCellId) {
+  if (selectedCellCoords === '' || store.selectedCell?.coords === selectedCellCoords) {
     resetSelectedCell()
   } else {
-    selectedCell.id = selectedCellId
-    selectedCell.cell = table.value.cells[row - 1][col - 1] as Cell || undefined
+    const row: number = parseInt(coordsArray[0]);
+    const col: number = parseInt(coordsArray[1]);
+    store.selectedCell = table.value.cells[row - 1][col - 1] as Cell || undefined
   }
 }
 
 function resetSelectedCell() {
-  selectedCell.id = ''
-  selectedCell.cell = undefined
+  store.selectedCell = undefined
 }
 
 function handleKeyup(event: KeyboardEvent) {
   const key = +event.key
-  if (selectedCell.cell && !selectedCell.cell.protected) {
+  if (store.selectedCell && !store.selectedCell?.protected) {
     if (isNoteModeEnabled.value) {
-      selectedCell.cell.hasNote(key) ? selectedCell.cell.deleteNote(key) : selectedCell.cell.addNote(key)
+      store.selectedCell.hasNote(key) ? store.selectedCell.deleteNote(key) : store.selectedCell.addNote(key)
     } else {
-      if (selectedCell.cell.value === key) {
-        selectedCell.cell.deleteValue()
+      if (store.selectedCell.value === key) {
+        store.selectedCell.deleteValue()
       } else {
-        selectedCell.cell.value = key
-        table.value.cleanNotesByCellValue(selectedCell.cell as Cell)
+        store.selectedCell.value = key
+        table.value.cleanNotesByCellValue(store.selectedCell as Cell)
         table.value.validateSolution()
       }
       checkMistakes(table.value as Table)
@@ -203,17 +209,17 @@ function mouseover(event: MouseEvent) {
   const coordsArray: string[] = hoveredCellCoords.split(":");
   const row: number = parseInt(coordsArray[0]);
   const col: number = parseInt(coordsArray[1]);
-  hoveredCell.cell = table.value.cells[row - 1][col - 1] as Cell || undefined
+  store.hoveredCell = table.value.cells[row - 1][col - 1] as Cell || undefined
 }
 
 function mouseleave(event: MouseEvent) {
-  if (!hoveredCell.cell) {
+  if (!store.hoveredCell) {
     return
   }
   const currentTarget = event.currentTarget as HTMLElement
   const hoveredCellCoords = currentTarget.getAttribute('data-coords') || ''
-  if (hoveredCellCoords === hoveredCell.cell.coords) {
-    hoveredCell.cell = undefined
+  if (hoveredCellCoords === store.hoveredCell.coords) {
+    store.hoveredCell = undefined
   }
 }
 
@@ -230,7 +236,6 @@ function mouseleave(event: MouseEvent) {
     <tr v-for="row in table.cells">
       <td v-for="cell in row"
           :class="getCellClasses(cell as Cell)"
-          :data-cell-id="getCellId(cell as Cell)"
           :data-coords="cell.coords"
           @click="cellClickHandler"
           @keyup="handleKeyup"

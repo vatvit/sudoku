@@ -12,18 +12,15 @@ terraform init
 Run inside the Docker container
 
 ```shell
-cd /app/backendApp
-composer install
+cd /app/backendApp && composer install
 ./bin/console doctrine:migrations:migrate
-cd /app/clientApp
-npm install
-cd /app
-./build.sh
+cd /app/clientApp && npm install
+cd /app && ./build.sh
 ```
 
 open http://localhost
 
-## Not a first time:
+## Not the first time:
 
 ```shell
 cd ./infra/local

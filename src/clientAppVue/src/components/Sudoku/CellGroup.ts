@@ -1,5 +1,5 @@
 import {Cell} from "./Cell.ts";
-import {CellGroupDto} from "./Dto.ts";
+import type {CellGroupDto} from "./Dto.ts";
 
 export class CellGroup {
     id: number

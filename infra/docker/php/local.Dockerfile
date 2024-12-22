@@ -4,6 +4,7 @@ FROM webdevops/php-nginx-dev:8.2-alpine as base
 ENV WEB_DOCUMENT_ROOT=/app/backendApp/public
 
 COPY ./infra/docker/php/nginx /opt/docker/etc/nginx/
+COPY ./infra/docker/php/nginx.dev /opt/docker/etc/nginx/
 
 FROM base
 

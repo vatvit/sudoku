@@ -1,6 +1,6 @@
 import {CellGroup} from "./CellGroup.ts";
 import {Cell} from "./Cell.ts";
-import {CellDto, CellGroupDto, TableStateDto} from "./Dto.ts";
+import type {CellDto, CellGroupDto, TableStateDto} from "./Dto.ts";
 
 export class Table {
     private _groups: CellGroup[] = []

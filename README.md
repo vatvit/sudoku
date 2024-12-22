@@ -14,27 +14,17 @@ Run inside the Docker container
 ```shell
 cd /app/backendApp && composer install
 ./bin/console doctrine:migrations:migrate
-cd /app/clientApp && npm install
-cd /app && ./build.sh
+cd /app/clientAppVue && npm install
+cd /app/clientAppNext && npm install
+```
+
+Depends on which a Front framework is needed:
+```shell
+cd /app/clientAppVue && npm install
+npm run dev
 ```
 
 open http://localhost
-
-## Not the first time:
-
-```shell
-cd ./infra/local
-terraform init
-```
-
-# How to build ClientApp automatically on updates
-
-Run inside the Docker container (use two console tabs)
-```shell
-cd /app
-./vueBuildAndWatch.sh
-./indexHtmlWatchAndCopy.sh 
-```
 
 # How to run Staging
 

@@ -1,4 +1,4 @@
-import {CellDto} from "./Dto.ts";
+import type {CellDto} from "./Dto.ts";
 
 export class Cell {
     private readonly _coords: string

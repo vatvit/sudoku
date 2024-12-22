@@ -20,6 +20,11 @@ resource "docker_container" "php" {
     external = 80
   }
 
+  ports {
+    internal = 3000
+    external = 3000
+  }
+
   network_mode = "bridge"
   networks_advanced {
     name = "sudoku_network"

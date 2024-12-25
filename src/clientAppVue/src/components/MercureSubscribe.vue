@@ -54,6 +54,7 @@ function onMessage(message: {lastEventId: number; data: object}) {
     <button id="subscribe" @click="subscribe">Subscribe</button>
     <button id="unsubscribe" @click="unsubscribe">Unsubscribe</button>
     <button id="clear" @click="clearLog">Clear log</button>
+    <a href="/api/mercure/publish" target="_blank">publish</a>
     <div id="messages" style="border: 1px red; padding: 5px;">
       Messages:
       <MercureMessageItem v-for="message in messages" :key="message.id" :id="message.id" :data="message.data" />

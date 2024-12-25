@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PublishController extends AbstractController
 {
-    #[Route('/mercure/publish')]
+    #[Route('/api/mercure/publish')]
     public function publish(HubInterface $hub, Publisher $publisher): Response
     {
         $data = ['time' => date("H:i:s")];

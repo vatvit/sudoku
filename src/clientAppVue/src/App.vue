@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {ref, onMounted} from 'vue'
 import axios from "axios"
-import SudokuTable from './components/Sudoku/Table.vue'
+import SudokuPuzzle from './components/Sudoku/Puzzle.vue'
 import MercureSubscribe from './components/MercureSubscribe.vue'
-import {CellDto, CellGroupDto, TableStateDto as SudokuTableStateDTO} from "./components/Sudoku/Dto.ts";
+import {CellDto, CellGroupDto, PuzzleStateDto as SudokuTableStateDTO} from "./components/Sudoku/Dto.ts";
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -29,7 +29,7 @@ async function loadSudokuTable() {
 </script>
 
 <template>
-  <SudokuTable :stateDto="sudokuTableStateDTO" @newGameEvent="loadSudokuTable"/>
+  <SudokuPuzzle :stateDto="sudokuTableStateDTO" @newGameEvent="loadSudokuTable"/>
   <MercureSubscribe />
 </template>
 

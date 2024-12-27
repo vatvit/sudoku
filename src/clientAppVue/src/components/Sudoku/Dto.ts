@@ -1,6 +1,6 @@
 import {CellGroupTypes} from "./CellGroup.ts";
 
-export interface TableStateDto {
+export interface PuzzleStateDto {
     cells: CellDto[][]
     groups: CellGroupDto[]
 }

@@ -1,72 +1,72 @@
 import type {CellDto} from "./Dto.ts";
 
 export class Cell {
-    private readonly _coords: string
-    private _value: number
-    private readonly _protected: boolean
-    private _notes: Set<number>
+  private readonly _coords: string
+  private _value: number
+  private readonly _protected: boolean
+  private _notes: Set<number>
 
-    constructor(
-        cellDto: CellDto,
-    ) {
-        this._coords = cellDto.coords
-        this._value = +(cellDto.value as number) || 0
-        this._protected = cellDto.protected
-        this._notes = new Set([])
+  constructor(
+    cellDto: CellDto,
+  ) {
+    this._coords = cellDto.coords
+    this._value = +(cellDto.value as number) || 0
+    this._protected = cellDto.protected
+    this._notes = new Set([])
 
-        this.setNotes(cellDto.notes || [])
+    this.setNotes(cellDto.notes || [])
+  }
+
+  get coords(): string {
+    return this._coords;
+  }
+
+  get value(): number {
+    return this._value;
+  }
+
+  set value(value: number) {
+    if (!this._protected && Cell.validateValue(value)) {
+      this._value = value;
     }
+  }
 
-    get coords(): string {
-        return this._coords;
-    }
+  deleteValue() {
+    this._value = 0
+  }
 
-    get value(): number {
-        return this._value;
-    }
+  getNotes(): number[] {
+    return [...this._notes]
+  }
 
-    set value(value: number) {
-        if (!this._protected && this.validateValue(value)) {
-            this._value = value;
-        }
-    }
+  setNotes(notes: number[]) {
+    this.clearNotes()
+    notes.forEach(this.addNote)
+  }
 
-    deleteValue() {
-        this._value = 0
-    }
+  clearNotes() {
+    this._notes = new Set([])
+  }
 
-    getNotes(): number[] {
-        return [...this._notes]
+  addNote(note: number) {
+    if (Cell.validateValue(note)) {
+      this._notes.add(note)
     }
+  }
 
-    setNotes(notes: number[]) {
-        this.clearNotes()
-        notes.forEach(this.addNote)
-    }
+  hasNote(note: number): boolean {
+    return this._notes.has(note)
+  }
 
-    clearNotes() {
-        this._notes = new Set([])
-    }
+  deleteNote(note: number): void {
+    this._notes.delete(note)
+  }
 
-    addNote(note: number) {
-        if (this.validateValue(note)) {
-            this._notes.add(note)
-        }
-    }
+  get protected(): boolean {
+    return this._protected
+  }
 
-    hasNote(note: number): boolean {
-        return this._notes.has(note)
-    }
-
-    deleteNote(note: number): void {
-        this._notes.delete(note)
-    }
-
-    get protected(): boolean {
-        return this._protected
-    }
-
-    validateValue(value: number): boolean {
-        return value > 0 && value <= 9
-    }
+  static validateValue(value: number): boolean {
+    return value > 0 && value <= 9
+  }
 }

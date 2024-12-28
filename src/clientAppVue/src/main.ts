@@ -3,6 +3,7 @@ import {createPinia} from 'pinia'
 import './style.css'
 import App from './App.vue'
 import axios from "axios";
+import router from "@/router";
 
 declare global {
     interface  Window {
@@ -21,6 +22,7 @@ window.sudoku.config = config;
 const app = createApp(App)
 
 app.use(createPinia())
+app.use(router)
 
 app.provide('$sudoku', window.sudoku)
 app.mount('#app')

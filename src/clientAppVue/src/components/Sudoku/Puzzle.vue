@@ -58,8 +58,6 @@ function handleKeyupHandler(event: KeyboardEvent) {
     <div v-if="puzzle.isSolved">
       SOLVED!
     </div>
-    <button @click="$emit('newGameEvent')">New game?</button>
-    <br>
     <button @click="store.toggleNoteMode">&nbsp;</button>
     Note mode is <b>{{ store.isNoteModeEnabled ? 'enabled' : 'disabled' }}</b>
     <table>

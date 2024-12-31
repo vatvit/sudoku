@@ -1,14 +1,17 @@
 import {CellGroup} from "./CellGroup.ts";
 import {Cell} from "./Cell.ts";
 import type {CellDto, CellGroupDto, PuzzleStateDto} from "./Dto.ts";
+import axios from "axios";
 
 export class Puzzle {
+  public readonly id: string
   private _initialised: boolean = false
   private readonly _groups: CellGroup[] = []
   private readonly _cells: Cell[][]
   private _solved: boolean
 
-  constructor(state?: PuzzleStateDto | undefined) {
+  constructor(state: PuzzleStateDto) {
+    this.id = state.id
     this._groups = []
     this._cells = []
     this._solved = false
@@ -67,8 +70,8 @@ export class Puzzle {
   private setState(puzzleStateDto: PuzzleStateDto): void {
     puzzleStateDto.groups.forEach((cellGroupDto: CellGroupDto) => {
       const groupCells: Map<string, Cell> = new Map<string, Cell>()
-      cellGroupDto.cells.forEach((cellDto: CellDto, coords: string) => {
-        const [rowIndex, colIndex] = this.getRowColIndexesByCoords(coords)
+      cellGroupDto.cells.forEach((cellDto: CellDto) => {
+        const [rowIndex, colIndex] = this.getRowColIndexesByCoords(cellDto.coords)
 
         if (typeof this._cells[rowIndex] === 'undefined') {
           this._cells[rowIndex] = []
@@ -76,18 +79,35 @@ export class Puzzle {
         if (typeof this._cells[rowIndex][colIndex] === 'undefined') {
           this._cells[rowIndex][colIndex] = new Cell(cellDto);
         }
-        groupCells.set(coords, this._cells[rowIndex][colIndex])
+        groupCells.set(cellDto.coords, this._cells[rowIndex][colIndex])
       })
 
       this._groups.push(new CellGroup(cellGroupDto, groupCells))
     })
   }
 
-  cleanRelatedNotesByCell(cell: Cell) {
+  async setCellValue(coords: string, value: number): void {
+    const cell = this.getCellByCoords(coords)
+    cell.value = value
+
+    const actionDto = {
+      id: '1234',
+      timeDiff: 1234,
+      effects: [
+        {
+          id: '4312'
+        }
+      ]
+    }
+
+    const response = await axios.post('/api/games/sudoku/instances/' + this.id + '/actions', actionDto)
+  }
+
+  cleanRelatedNotesByCoordsAndValue(coords: string, value: number): void {
     this._groups.forEach(group => {
-      if (group.cells.has(cell.coords)) {
+      if (group.cells.has(coords)) {
         group.cells.forEach(groupCell => {
-          groupCell.deleteNote(cell.value);
+          groupCell.deleteNote(value);
         });
       }
     });

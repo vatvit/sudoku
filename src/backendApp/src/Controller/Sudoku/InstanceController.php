@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Sudoku;
 
 use App\Service\Sudoku\Table;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,18 +9,16 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-class SudokuTableController extends AbstractController
+class InstanceController extends AbstractController
 {
-    #[Route('/api/sudoku/puzzle', name: 'sudoku-puzzle-create', options: ['cache' => false], methods: ['POST'])]
+    #[Route('/api/games/sudoku/instances', name: 'game-sudoku-instance-create', options: ['cache' => false], methods: ['POST'])]
     public function create(Table $table, CacheInterface $cache): JsonResponse
     {
         $tableStateDto = $table->generate();
 
         $table = $tableStateDto->toArray();
 
-        $gameId = sha1(json_encode($table));
-
-        $cacheKey = $this->getCacheKey($gameId);
+        $cacheKey = $this->getCacheKey($tableStateDto->id);
 
         $cache->get($cacheKey, function (ItemInterface $item) use ($table) {
             $item->expiresAfter(3600);
@@ -29,12 +27,12 @@ class SudokuTableController extends AbstractController
         });
 
         return $this->json([
-            'puzzleId' => $gameId,
+            'id' => $tableStateDto->id,
         ]);
     }
 
-    #[Route('/api/sudoku/puzzle/{id}', name: 'sudoku-puzzle-get', options: ['cache' => false], methods: ['GET'])]
-    public function load(string $id, CacheInterface $cache): JsonResponse
+    #[Route('/api/games/sudoku/instances/{id}', name: 'game-sudoku-instance-get', options: ['cache' => false], methods: ['GET'])]
+    public function get(string $id, CacheInterface $cache): JsonResponse
     {
         $cacheKey = $this->getCacheKey($id);
         $tableCacheItem = $cache->getItem($cacheKey);

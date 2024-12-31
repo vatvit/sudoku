@@ -45,7 +45,14 @@ class Table
         }
         $table['groups'] = array_values($groups);
 
+        $table['id'] = $this->generateId($table);
+
         return TableStateDto::hydrate($table);
+    }
+
+    private function generateId(array $table): string
+    {
+        return sha1(json_encode($table));
     }
 
     public function hydrateCellDto(int $rowIndex, int $colIndex, array $cell): CellDto
@@ -64,9 +71,9 @@ class Table
         foreach ($cellGroups as $group) {
             $groupId = $group['id'] . ':' . $group['type'];
             if (!isset($groups[$groupId])) {
-                $groups[$groupId] = CellGroupDto::hydrate($group);
+                $groups[$groupId] = $group;
             }
-            $groups[$groupId]->cells[$this->getCellCoords($rowIndex, $colIndex)] = $cellDto;
+            $groups[$groupId]['cells'][$this->getCellCoords($rowIndex, $colIndex)] = $cellDto;
         }
         return $groups;
     }

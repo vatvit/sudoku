@@ -7,12 +7,12 @@ const emit = defineEmits(['NewGameEvent'])
 const router = useRouter();
 
 async function createSudokuPuzzle() {
-  const createResponse = await axios.post('/api/sudoku/puzzle') as {data: {puzzleId: string}};
-  const puzzleId = createResponse.data.puzzleId as string;
+  const createResponse = await axios.post('/api/games/sudoku/instances') as {data: {id: string}};
+  const id = createResponse.data.id as string;
 
-  await router.push({name: 'SudokuPuzzle', params: {puzzleId: puzzleId}})
+  await router.push({name: 'SudokuPuzzle', params: {puzzleId: id}})
 
-  emit('NewGameEvent', puzzleId)
+  emit('NewGameEvent', id)
 }
 </script>
 

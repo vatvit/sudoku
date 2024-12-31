@@ -8,11 +8,13 @@ final class CellGroupDto extends AbstractDto
 {
     public int $id;
     public string $type;
-    public CellCollectionDto $cells;
+
+    /** @var static::PROP_CELLS_TYPE[]  */
+    public array $cells;
+    protected const PROP_CELLS_TYPE = CellDto::class;
 
     public function __construct(array $data = [])
     {
-        $this->cells = new CellCollectionDto([]);
         parent::__construct($data);
     }
 }

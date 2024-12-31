@@ -1,20 +1,14 @@
 <script setup lang="ts">
 import {ref, watch} from 'vue'
+import type {CellGroupDto, PuzzleStateDto} from "./Dto.ts";
 import {Puzzle} from "./Puzzle.ts";
-import type {CellGroupDto, MistakeDto, PuzzleStateDto} from "./Dto.ts";
-import {Cell} from "./Cell.ts";
-import {CellGroup, CellGroupTypes} from "./CellGroup.ts";
-import {defineStore} from "pinia";
 import storeFactory from "./Store"
 import PuzzleCell from "@/components/Sudoku/Cell.vue";
-import {toggleNoteOnSelectedCell} from "@/components/Sudoku/Store/Note.ts";
-import {resetHighlightValue} from "@/components/Sudoku/Store/HighlightValue.ts";
-import {findMistakes} from "@/components/Sudoku/Store/Mistake.ts";
 
 const props = withDefaults(defineProps<{
   stateDto: PuzzleStateDto,
 }>(), {
-  stateDto: () => ({cells: [], groups: [] as CellGroupDto[]})
+  stateDto: () => ({id: '', cells: [], groups: [] as CellGroupDto[]})
 });
 
 const puzzle = ref(new Puzzle(props.stateDto))
@@ -38,8 +32,9 @@ function handleKeyupHandler(event: KeyboardEvent) {
         store.selectedCell.deleteValue()
       } else {
         store.selectedCell.value = value
-        puzzle.value.cleanRelatedNotesByCell(store.selectedCell as Cell)
-        puzzle.value.validateSolution()
+        store.puzzle.setCellValue(store.selectedCell.coords, value)
+        store.puzzle.cleanRelatedNotesByCoordsAndValue(store.selectedCell.coords, value)
+        store.puzzle.validateSolution()
       }
       store.findMistakes()
     }
@@ -58,8 +53,7 @@ function handleKeyupHandler(event: KeyboardEvent) {
     <div v-if="puzzle.isSolved">
       SOLVED!
     </div>
-    <button @click="store.toggleNoteMode">&nbsp;</button>
-    Note mode is <b>{{ store.isNoteModeEnabled ? 'enabled' : 'disabled' }}</b>
+    Note mode is <button @click="store.toggleNoteMode">{{ store.isNoteModeEnabled ? 'enabled' : 'disabled' }}</button>
     <table>
       <tr v-for="row in puzzle.cells">
         <td v-for="cell in row" tabindex="0">

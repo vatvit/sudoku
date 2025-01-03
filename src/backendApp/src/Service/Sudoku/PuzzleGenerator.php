@@ -3,10 +3,9 @@
 namespace App\Service\Sudoku;
 
 use App\Service\Sudoku\Dto\CellDto;
-use App\Service\Sudoku\Dto\CellGroupDto;
-use App\Service\Sudoku\Dto\TableStateDto;
+use App\Service\Sudoku\Dto\PuzzleStateDto;
 
-class Table
+class PuzzleGenerator
 {
 
     public function __construct(
@@ -17,45 +16,45 @@ class Table
     {
     }
 
-    public function generate(): TableStateDto
+    public function generate(): PuzzleStateDto
     {
         $table = $this->tableGenerator->generate();
 
-        $table = $this->tableShuffler->shuffle($table);
+        $shuffledTable = $this->tableShuffler->shuffle($table);
 
-        $table = $this->tableCellHider->hideCells($table, 3);
+        $puzzleTable = $this->tableCellHider->hideCells($shuffledTable, 3);
 
-        $tableStateDto = $this->hydrateTableStateDto($table);
+        $puzzleStateDto = $this->hydrateTableStateDto($puzzleTable);
 
-        return $tableStateDto;
+        return $puzzleStateDto;
 
     }
 
-    public function hydrateTableStateDto(array $table): TableStateDto
+    private function hydrateTableStateDto(array $puzzleTable): PuzzleStateDto
     {
         $groups = [];
-        foreach ($table['cells'] as $rowIndex => $rowArray) {
+        foreach ($puzzleTable['cells'] as $rowIndex => $rowArray) {
             foreach ($rowArray as $colIndex => $cell) {
 
                 $cellDto = $this->hydrateCellDto($rowIndex, $colIndex, $cell);
-                $table['cells'][$rowIndex][$colIndex] = $cellDto;
+                $puzzleTable['cells'][$rowIndex][$colIndex] = $cellDto;
 
                 $groups = $this->hydrateCellGroups($rowIndex, $colIndex, $groups, $cellDto);
             }
         }
-        $table['groups'] = array_values($groups);
+        $puzzleTable['groups'] = array_values($groups);
 
-        $table['id'] = $this->generateId($table);
+        $puzzleTable['id'] = $this->generateId($puzzleTable);
 
-        return TableStateDto::hydrate($table);
+        return PuzzleStateDto::hydrate($puzzleTable);
     }
 
-    private function generateId(array $table): string
+    private function generateId(array $puzzleTable): string
     {
-        return sha1(json_encode($table));
+        return sha1(json_encode($puzzleTable));
     }
 
-    public function hydrateCellDto(int $rowIndex, int $colIndex, array $cell): CellDto
+    private function hydrateCellDto(int $rowIndex, int $colIndex, array $cell): CellDto
     {
         $cell['coords'] = $this->getCellCoords($rowIndex, $colIndex);
         $cell['protected'] = (bool)$cell['value'];
@@ -64,7 +63,7 @@ class Table
         return $cellDto;
     }
 
-    public function hydrateCellGroups(int $rowIndex, int $colIndex, array $groups, CellDto $cellDto): array
+    private function hydrateCellGroups(int $rowIndex, int $colIndex, array $groups, CellDto $cellDto): array
     {
         $cellGroups = $this->getCellGroups($rowIndex, $colIndex);
 

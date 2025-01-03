@@ -4,7 +4,7 @@ namespace App\Service\Sudoku\Dto;
 
 use App\Service\Dto\AbstractDto;
 
-final class TableStateDto extends AbstractDto
+final class PuzzleStateDto extends AbstractDto
 {
     public string $id;
 
@@ -15,9 +15,4 @@ final class TableStateDto extends AbstractDto
     /** @var static::PROP_GROUPS_TYPE[]  */
     public array $groups;
     protected const PROP_GROUPS_TYPE = CellGroupDto::class;
-
-    public function __construct(array $data = [])
-    {
-        parent::__construct($data);
-    }
 }

@@ -4,7 +4,7 @@ namespace App\Service\Sudoku;
 
 use App\Service\Sudoku\Dto\CellDto;
 use App\Service\Sudoku\Dto\CellGroupDto;
-use App\Service\Sudoku\Dto\TableStateDto;
+use App\Service\Sudoku\Dto\PuzzleStateDto;
 
 class TableShuffler
 {

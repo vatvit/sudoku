@@ -2,7 +2,7 @@
 
 namespace App\Controller\Sudoku;
 
-use App\Service\Sudoku\Table;
+use App\Service\Sudoku\PuzzleGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,29 +12,27 @@ use Symfony\Contracts\Cache\ItemInterface;
 class InstanceController extends AbstractController
 {
     #[Route('/api/games/sudoku/instances', name: 'game-sudoku-instance-create', options: ['cache' => false], methods: ['POST'])]
-    public function create(Table $table, CacheInterface $cache): JsonResponse
+    public function create(PuzzleGenerator $puzzleGenerator, CacheInterface $cache): JsonResponse
     {
-        $tableStateDto = $table->generate();
+        $puzzleStateDto = $puzzleGenerator->generate();
 
-        $table = $tableStateDto->toArray();
+        $gameCacheKey = $this->getGameCacheKey($puzzleStateDto->id);
 
-        $cacheKey = $this->getCacheKey($tableStateDto->id);
-
-        $cache->get($cacheKey, function (ItemInterface $item) use ($table) {
+        $cache->get($gameCacheKey, function (ItemInterface $item) use ($puzzleStateDto) {
             $item->expiresAfter(3600);
 
-            return $table;
+            return $puzzleStateDto->toArray();
         });
 
         return $this->json([
-            'id' => $tableStateDto->id,
+            'id' => $puzzleStateDto->id,
         ]);
     }
 
-    #[Route('/api/games/sudoku/instances/{id}', name: 'game-sudoku-instance-get', options: ['cache' => false], methods: ['GET'])]
-    public function get(string $id, CacheInterface $cache): JsonResponse
+    #[Route('/api/games/sudoku/instances/{gameId}', name: 'game-sudoku-instance-get', options: ['cache' => false], methods: ['GET'])]
+    public function get(string $gameId, CacheInterface $cache): JsonResponse
     {
-        $cacheKey = $this->getCacheKey($id);
+        $cacheKey = $this->getGameCacheKey($gameId);
         $tableCacheItem = $cache->getItem($cacheKey);
         if (!$tableCacheItem->isHit()) {
             throw $this->createNotFoundException();
@@ -44,7 +42,7 @@ class InstanceController extends AbstractController
         return $this->json($table);
     }
 
-    private function getCacheKey(string $gameId): string
+    private function getGameCacheKey(string $gameId): string
     {
         return 'game-sudoku-' . $gameId;
     }

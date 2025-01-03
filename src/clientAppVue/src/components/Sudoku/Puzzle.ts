@@ -1,6 +1,6 @@
 import {CellGroup} from "./CellGroup.ts";
 import {Cell} from "./Cell.ts";
-import type {CellDto, CellGroupDto, PuzzleStateDto} from "./Dto.ts";
+import type {ActionDto, ActionEffectDto, CellDto, CellGroupDto, PuzzleStateDto} from "./Dto.ts";
 import axios from "axios";
 
 export class Puzzle {
@@ -87,15 +87,16 @@ export class Puzzle {
   }
 
   async setCellValue(coords: string, value: number): void {
-    const cell = this.getCellByCoords(coords)
+    const cell: Cell = this.getCellByCoords(coords)
     cell.value = value
 
-    const actionDto = {
+    const actionDto: ActionDto = {
       id: '1234',
       timeDiff: 1234,
-      effects: [
+      effects: <ActionEffectDto[]>[
         {
-          id: '4312'
+          coords: cell.coords,
+          value: cell.value
         }
       ]
     }

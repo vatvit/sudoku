@@ -39,30 +39,22 @@ abstract class AbstractDto
             }
 
             if ($expectedPropertyType === 'array') {
-                $value = self::hydrateArrayOfDtoValue((string)$propertyName, $value);
+                $arrayDtoConstName = 'PROP_' . mb_strtoupper($propertyName) . '_TYPE';
+                $arrayDtoConstValue = defined('static::' . $arrayDtoConstName) ? constant('static::' . $arrayDtoConstName) : '';
+
+                if (is_subclass_of($arrayDtoConstValue, AbstractDto::class)) {
+                    foreach ($value as &$item) {
+                        if (!is_a($item, AbstractDto::class)) {
+                            $item = $arrayDtoConstValue::hydrate($item);
+                        }
+                    }
+                }
             }
 
             $dto->$propertyName = $value;
         }
 
         return $dto;
-    }
-
-    protected static function hydrateArrayOfDtoValue(string $propertyName, array $value): array
-    {
-        $arrayDtoConstName = 'PROP_' . mb_strtoupper($propertyName) . '_TYPE';
-        $arrayDtoConstValue = defined('static::' . $arrayDtoConstName) ? constant('static::' . $arrayDtoConstName) : '';
-
-        if (!is_subclass_of($arrayDtoConstValue, AbstractDto::class)) {
-            throw new \RuntimeException('Invalid array DTO type "' . $arrayDtoConstValue . '" for property: ' . $propertyName);
-        }
-
-        foreach ($value as &$item) {
-            if (!is_a($item, AbstractDto::class)) {
-                $item = $arrayDtoConstValue::hydrate($item);
-            }
-        }
-        return $value;
     }
 
     public function toArray(): array

@@ -6,8 +6,8 @@ use App\Service\Dto\AbstractActionEffectDto;
 
 class ActionEffectDto extends AbstractActionEffectDto
 {
-    public function test()
-    {
-
-    }
+    public string $coords;
+    public int $value;
+    /** @var int[] */
+    public array $notes;
 }

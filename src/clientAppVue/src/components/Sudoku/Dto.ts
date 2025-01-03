@@ -22,3 +22,15 @@ export interface CellGroupDto {
 export interface MistakeDto {
   cellCoords: string
 }
+
+export interface ActionDto {
+  id: string // idempotency ID
+  timeDiff: number // milliseconds from start
+  effects: ActionEffectDto[]
+}
+
+export interface ActionEffectDto {
+  coords: string
+  value: number | undefined
+  notes: number[]
+}

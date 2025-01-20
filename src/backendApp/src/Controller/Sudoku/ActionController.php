@@ -28,7 +28,11 @@ class ActionController extends AbstractController
         $tableCacheItem->set($table);
         $cache->save($tableCacheItem);
 
-        /* TODO: Applying Game actions
+        /*
+         * TODO: Write Application/API tests
+         * TODO: Use AI to generate tests/logic
+         * TODO: Use proto lib to communicate Front-Back
+         * TODO: Applying Game actions
          * store info about started game into the session on the game creation
          * store info about finished game into persistent storage on the game finish
          * clean up the started game info in the session if the started game not found

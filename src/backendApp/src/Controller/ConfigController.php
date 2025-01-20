@@ -37,7 +37,7 @@ class ConfigController extends AbstractController
             (new \DateTime('now'))->modify("+1 day"),
             '/.well-known/mercure',
             parse_url($hub->getPublicUrl(), PHP_URL_HOST),
-            null,
+            true,
             true,
             true,
             Cookie::SAMESITE_STRICT

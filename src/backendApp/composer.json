@@ -41,14 +41,14 @@
         },
         "sort-packages": true
     },
-    "autoload": {
-        "psr-4": {
-            "App\\": "src/"
-        }
-    },
     "autoload-dev": {
         "psr-4": {
             "App\\Tests\\": "tests/"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
         }
     },
     "replace": {
@@ -72,7 +72,8 @@
         "post-update-cmd": [
             "@auto-scripts",
             "symfony security:check"
-        ]
+        ],
+        "test": "vendor/bin/phpunit"
     },
     "conflict": {
         "symfony/symfony": "*"

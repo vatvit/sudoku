@@ -1,23 +1,18 @@
 <?php
 
-namespace App\tests\Controller;
+namespace Acceptance;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
-class ConfigControllerTest extends WebTestCase
+class ConfigControllerTest extends AbstractAcceptanceWebTestCase
 {
-    public function testIndex()
+    public function testGetConfig()
     {
-        // Arrange
-        $client = static::createClient();
-
         // Act
-        $client->request('GET', '/api/config');
+        $this->client->request('GET', '/api/config');
 
         // Assert
         $this->assertResponseIsSuccessful();
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
 
         $this->assertArrayHasKey('mercurePublicUrl', $responseData);
         $this->assertArrayHasKey('allUsers', $responseData);
@@ -32,7 +27,7 @@ class ConfigControllerTest extends WebTestCase
             $responseData['cachedDatetime']
         );
 
-        $cookie = $client->getResponse()->headers->getCookies()[0]; // Retrieve the first cookie
+        $cookie = $this->client->getResponse()->headers->getCookies()[0]; // Retrieve the first cookie
         $this->assertEquals('mercureAuthorization', $cookie->getName());
         $this->assertNotEmpty($cookie->getValue());
         $this->assertEquals('/.well-known/mercure', $cookie->getPath());

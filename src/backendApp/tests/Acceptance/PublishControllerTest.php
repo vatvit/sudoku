@@ -1,23 +1,18 @@
 <?php
 
-namespace App\tests\Controller;
+namespace Acceptance;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
-class PublishControllerTest extends WebTestCase
+class PublishControllerTest extends AbstractAcceptanceWebTestCase
 {
     public function testPublish(): void
     {
-        // Arrange
-        $client = static::createClient();
-
         // Act
-        $client->request('GET', '/api/mercure/publish');
+        $this->client->request('GET', '/api/mercure/publish');
 
         // Assert
         $this->assertResponseIsSuccessful();
 
-        $responseContent = $client->getResponse()->getContent();
+        $responseContent = $this->client->getResponse()->getContent();
         $this->assertStringContainsString('published to "my-private-topic"', $responseContent);
 
         $this->assertMatchesRegularExpression(

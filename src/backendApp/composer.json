@@ -43,7 +43,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "App\\Tests\\": "tests/",
+            "Acceptance\\": "tests/Acceptance",
+            "Unit\\": "tests/Unit"
         }
     },
     "autoload": {
@@ -73,7 +75,11 @@
             "@auto-scripts",
             "symfony security:check"
         ],
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/phpunit",
+        "test-unit": "vendor/bin/phpunit tests/Unit/",
+        "test-acceptance": "vendor/bin/phpunit tests/Acceptance/",
+        "test-filter": "vendor/bin/phpunit --filter",
+        "infection": "php ./infection.phar -v --threads=4"
     },
     "conflict": {
         "symfony/symfony": "*"

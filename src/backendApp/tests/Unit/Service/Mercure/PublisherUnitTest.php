@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Service\Mercure;
+namespace App\Tests\Unit\Service\Mercure;
 
 use App\Service\Mercure\Factory;
 use App\Service\Mercure\Publisher;

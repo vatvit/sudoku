@@ -28,3 +28,5 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.alpine.sh' 
 RUN apk add symfony-cli
 
 RUN apk add nodejs npm
+
+USER 1000:1000

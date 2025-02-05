@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  title: 'My App'
+  description: 'This is an awesome app!'
+  version: 1.0.0
+servers:
+  -
+    url: 'https://api.example.com/secured'
+    description: 'API over HTTPS'
+paths:
+  /api/config:
+    get:
+      operationId: get_app_config_index
+      responses:
+        default:
+          description: ''
+    put:
+      operationId: put_app_config_index
+      responses:
+        default:
+          description: ''
+    post:
+      operationId: post_app_config_index
+      responses:
+        default:
+          description: ''
+    delete:
+      operationId: delete_app_config_index
+      responses:
+        default:
+          description: ''
+    options:
+      operationId: options_app_config_index
+      responses:
+        default:
+          description: ''
+    head:
+      operationId: head_app_config_index
+      responses:
+        default:
+          description: ''
+    patch:
+      operationId: patch_app_config_index
+      responses:
+        default:
+          description: ''
+    trace:
+      operationId: trace_app_config_index
+      responses:
+        default:
+          description: ''
+  /api/mercure/publish:
+    get:
+      operationId: get_app_publish_publish
+      responses:
+        default:
+          description: ''
+    put:
+      operationId: put_app_publish_publish
+      responses:
+        default:
+          description: ''
+    post:
+      operationId: post_app_publish_publish
+      responses:
+        default:
+          description: ''
+    delete:
+      operationId: delete_app_publish_publish
+      responses:
+        default:
+          description: ''
+    options:
+      operationId: options_app_publish_publish
+      responses:
+        default:
+          description: ''
+    head:
+      operationId: head_app_publish_publish
+      responses:
+        default:
+          description: ''
+    patch:
+      operationId: patch_app_publish_publish
+      responses:
+        default:
+          description: ''
+    trace:
+      operationId: trace_app_publish_publish
+      responses:
+        default:
+          description: ''
+  '/api/games/sudoku/instances/{gameId}/actions':
+    post:
+      operationId: post_game-sudoku-instance-action-create
+      parameters:
+        -
+          name: gameId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionDto'
+      responses:
+        default:
+          description: ''
+  /api/games/sudoku/instances:
+    post:
+      operationId: post_game-sudoku-instance-create
+      responses:
+        default:
+          description: ''
+  '/api/games/sudoku/instances/{gameId}':
+    get:
+      operationId: get_game-sudoku-instance-get
+      parameters:
+        -
+          name: gameId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: ''
+components:
+  schemas:
+    ActionDto:
+      required:
+        - id
+        - timeDiff
+        - effects
+      properties:
+        id:
+          type: string
+        timeDiff:
+          type: integer
+        effects:
+          type: array
+          items: {  }
+      type: object
+

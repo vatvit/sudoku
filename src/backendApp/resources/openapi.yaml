@@ -5,50 +5,19 @@ info:
   version: 1.0.0
 servers:
   -
-    url: 'https://api.example.com/secured'
+    url: 'http://localhost/'
     description: 'API over HTTPS'
 paths:
   /api/config:
     get:
-      operationId: get_app_config_index
+      operationId: get_config
       responses:
-        default:
-          description: ''
-    put:
-      operationId: put_app_config_index
-      responses:
-        default:
-          description: ''
-    post:
-      operationId: post_app_config_index
-      responses:
-        default:
-          description: ''
-    delete:
-      operationId: delete_app_config_index
-      responses:
-        default:
-          description: ''
-    options:
-      operationId: options_app_config_index
-      responses:
-        default:
-          description: ''
-    head:
-      operationId: head_app_config_index
-      responses:
-        default:
-          description: ''
-    patch:
-      operationId: patch_app_config_index
-      responses:
-        default:
-          description: ''
-    trace:
-      operationId: trace_app_config_index
-      responses:
-        default:
-          description: ''
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigDto'
   /api/mercure/publish:
     get:
       operationId: get_app_publish_publish
@@ -143,5 +112,21 @@ components:
         effects:
           type: array
           items: {  }
+      type: object
+    ConfigDto:
+      required:
+        - mercurePublicUrl
+        - allUsers
+        - cachedDatetime
+      properties:
+        mercurePublicUrl:
+          type: string
+          maxLength: 500
+          minLength: 10
+        allUsers:
+          type: array
+          items: {  }
+        cachedDatetime:
+          type: string
       type: object
 

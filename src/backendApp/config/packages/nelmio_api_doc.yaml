@@ -4,7 +4,7 @@ nelmio_api_doc:
       - ^/api/
   documentation:
     servers:
-      - url: https://api.example.com/secured
+      - url: http://localhost/
         description: API over HTTPS
     info:
       title: My App

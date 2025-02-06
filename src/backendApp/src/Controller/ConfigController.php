@@ -17,7 +17,12 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class ConfigController extends AbstractController
 {
-    #[Route('/api/config')]
+    #[Route('/api/config', name: 'config', methods: ['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new Model(type: ConfigDto::class)
+    )]
     public function index(HubInterface $hub, UserRepository $userRepository, CacheInterface $cache): Response
     {
         // DB

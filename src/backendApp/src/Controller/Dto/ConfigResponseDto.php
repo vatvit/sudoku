@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Service\Dto;
+namespace App\Controller\Dto;
 
+use App\Service\Dto\AbstractDto;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ConfigDto extends AbstractDto
+class ConfigResponseDto extends AbstractDto
 {
     #[Assert\Length(min: 10, max: 500)]
     public string $mercurePublicUrl;

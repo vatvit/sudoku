@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
+use App\Controller\Dto\ConfigResponseDto;
 use App\Repository\UserRepository;
-use App\Service\Dto\ConfigDto;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -21,8 +20,10 @@ class ConfigController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new Model(type: ConfigDto::class)
+        content: new Model(type: ConfigResponseDto::class)
     )]
+    #[OA\Tag(name: 'config')]
+    #[OA\Tag(name: 'get-data')]
     public function index(HubInterface $hub, UserRepository $userRepository, CacheInterface $cache): Response
     {
         // DB
@@ -53,12 +54,12 @@ class ConfigController extends AbstractController
         );
 
         //
-        $config = new ConfigDto([
+        $responseDto = ConfigResponseDto::hydrate([
             'mercurePublicUrl' => $hub->getPublicUrl(),
             'allUsers' => $allUsers,
             'cachedDatetime' => $cachedDatetime,
         ]);
-        $response = $this->json($config, 200);
+        $response = $this->json($responseDto, 200);
         $response->headers->setCookie($mercureAuthCookie);
 
         return $response;

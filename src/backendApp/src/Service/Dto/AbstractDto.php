@@ -2,28 +2,63 @@
 
 namespace App\Service\Dto;
 
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 abstract class AbstractDto
 {
 
-    public function __construct(array $data = [])
+    private ValidatorInterface $_validator;
+
+    private array $_privateProperties = ['_privateProperties', '_validator'];
+
+    public function __construct(?array $data = [], ?ValidatorInterface $validator = null)
     {
+        if ($validator === null) {
+            $validator = $this->getDefaultValidator();
+        }
+        $this->_validator = $validator;
+
         if (isset($data)) {
             self::hydrate($data, $this);
         }
     }
 
-    public static function hydrate(array $data, $dto = null): static
+    public static function hydrate(array $data, $dto = null, ?ValidatorInterface $validator = null): static
     {
         if ($dto === null) {
-            $dto = new static();
+            $dto = new static(null, $validator);
         }
 
+        if (!$dto instanceof static) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Invalid DTO class: %s provided, expected instance of %s.',
+                    get_class($dto),
+                    static::class
+                )
+            );
+        }
+
+        $dto->hydrateData($data);
+
+        $dto->validate();
+
+        return $dto;
+    }
+
+    protected function hydrateData(array $data): void
+    {
         foreach ($data as $propertyName => $value) {
-            if (!property_exists($dto, $propertyName)) {
+            if (!property_exists($this, $propertyName)) {
                 throw new \InvalidArgumentException('Invalid property: ' . $propertyName);
             }
 
-            $reflection = new \ReflectionProperty($dto, $propertyName);
+            if (in_array($propertyName, $this->_privateProperties, true)) {
+                throw new \InvalidArgumentException('The property "' . $propertyName . '" is private and cannot be populated.');
+            }
+
+            $reflection = new \ReflectionProperty($this, $propertyName);
             $type = $reflection->getType();
 
             if (!$type) {
@@ -51,10 +86,8 @@ abstract class AbstractDto
                 }
             }
 
-            $dto->$propertyName = $value;
+            $this->$propertyName = $value;
         }
-
-        return $dto;
     }
 
     public function toArray(): array
@@ -62,6 +95,10 @@ abstract class AbstractDto
         $array = [];
 
         foreach (get_object_vars($this) as $property => $value) {
+            if (in_array($property, $this->_privateProperties)) {
+                continue;
+            }
+            
             if ($value instanceof self) {
                 $array[$property] = $value->toArray();
             } elseif (is_array($value)) {
@@ -76,5 +113,34 @@ abstract class AbstractDto
         }
 
         return $array;
+    }
+
+    /**
+     * @return bool
+     * @throws \InvalidArgumentException
+     */
+    public function validate(): bool
+    {
+        $violations = $this->_validator->validate($this);
+
+        if (count($violations) > 0) {
+            $messages = [];
+            foreach ($violations as $violation) {
+                $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+            }
+            throw new \InvalidArgumentException(implode('; ', $messages));
+        }
+
+        return true;
+    }
+
+    /**
+     * @return ValidatorInterface
+     */
+    private function getDefaultValidator(): ValidatorInterface
+    {
+        return Validation::createValidatorBuilder()
+            ->enableAttributeMapping()
+            ->getValidator();
     }
 }

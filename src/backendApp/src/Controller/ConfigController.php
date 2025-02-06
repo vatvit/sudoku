@@ -3,11 +3,15 @@
 namespace App\Controller;
 
 use App\Repository\UserRepository;
+use App\Service\Dto\ConfigDto;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -44,11 +48,11 @@ class ConfigController extends AbstractController
         );
 
         //
-        $config = [
+        $config = new ConfigDto([
             'mercurePublicUrl' => $hub->getPublicUrl(),
             'allUsers' => $allUsers,
             'cachedDatetime' => $cachedDatetime,
-        ];
+        ]);
         $response = $this->json($config, 200);
         $response->headers->setCookie($mercureAuthCookie);
 

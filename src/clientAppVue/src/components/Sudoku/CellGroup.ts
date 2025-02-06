@@ -17,5 +17,5 @@ export class CellGroup {
 export enum CellGroupTypes {
     COL = "COL",
     ROW = "ROW",
-    SQR = "SQR",
+    BLC = "BLC",
 }

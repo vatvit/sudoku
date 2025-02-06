@@ -2,6 +2,7 @@
 
 namespace App\Service\Dto;
 
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Traversable;
 
 abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess, \IteratorAggregate, \Countable
@@ -15,33 +16,36 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
     protected array $collection = [];
 
     /**
-     * The $itemClass variable represents the class name of the item.
+     * The $itemClass variable represents the class name of the DTO item.
      *
      * @var string
      */
     static protected string $itemClass;
 
-    public static function hydrate(array $data, $dto = null): static
+    protected function hydrateData(array $data): void
     {
-        if ($dto === null) {
-            $dto = new static();
-        }
-
-        if (empty($data)) {
-            $dto->collection = [];
-            return $dto;
-        }
+        $this->collection = [];
 
         foreach ($data as $item) {
             if (!is_a($item, AbstractDto::class)) {
-                $item = (static::$itemClass)::hydrate($item);
+                $itemDtoClass = static::$itemClass;
+                if (is_subclass_of($itemDtoClass, AbstractDto::class)) {
+                    $item = $itemDtoClass::hydrate($item);
+                } else {
+                    throw new \InvalidArgumentException(
+                        sprintf(
+                            'Invalid item class: %s provided. Expected subclass of %s.',
+                            $itemDtoClass ?? 'null',
+                            AbstractDto::class
+                        )
+                    );
+                }
             }
 
-            $dto->collection[] = $item;
+            $this->collection[] = $item;
         }
-
-        return $dto;
     }
+
 
     public function toArray(): array
     {

@@ -3,6 +3,7 @@
 namespace App\Service\Sudoku;
 
 use App\Service\Sudoku\Dto\CellDto;
+use App\Service\Sudoku\Dto\CellGroupDto;
 use App\Service\Sudoku\Dto\PuzzleStateDto;
 
 class PuzzleGenerator
@@ -86,9 +87,9 @@ class PuzzleGenerator
     {
         $squareId = $this->getSquareId($rowIndex, $colIndex);
 
-        $cellGroupRowDto = ['id' => $rowIndex + 1, 'type' => 'ROW'];
-        $cellGroupColDto = ['id' => $colIndex + 1, 'type' => 'COL'];
-        $cellGroupSqrDto = ['id' => $squareId, 'type' => 'SQR'];
+        $cellGroupRowDto = ['id' => $rowIndex + 1, 'type' => CellGroupDto::TYPE_ROW];
+        $cellGroupColDto = ['id' => $colIndex + 1, 'type' => CellGroupDto::TYPE_COLUMN];
+        $cellGroupSqrDto = ['id' => $squareId, 'type' => CellGroupDto::TYPE_BLOCK];
 
         return [
             $cellGroupRowDto,

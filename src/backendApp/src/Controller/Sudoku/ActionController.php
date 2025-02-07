@@ -12,7 +12,11 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class ActionController extends AbstractController
 {
-    #[Route('/api/games/sudoku/instances/{gameId}/actions', name: 'game-sudoku-instance-action-create', options: ['cache' => false], methods: ['POST'])]
+    #[Route('/api/games/sudoku/instances/{gameId}/actions',
+        name: 'create-game-sudoku-instance-action',
+        options: ['cache' => false],
+        methods: ['POST']
+    )]
     public function action(string $gameId, #[MapRequestPayload] ActionDto $actionDto, CacheInterface $cache): JsonResponse
     {
         $cacheKey = $this->getGameCacheKey($gameId);

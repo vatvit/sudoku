@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import axios from "axios";
 import {useRouter} from "vue-router";
+
+import {Api} from "@/generated/Api";
+
+const api = new Api().api;
 
 const emit = defineEmits(['NewGameEvent'])
 
 const router = useRouter();
 
 async function createSudokuPuzzle() {
-  const createResponse = await axios.post('/api/games/sudoku/instances') as {data: {id: string}};
-  const id = createResponse.data.id as string;
+  const response = await api.postCreateGameSudokuInstance();
+  const id = response.data.id;
 
   await router.push({name: 'SudokuPuzzle', params: {puzzleId: id}})
 

@@ -2,18 +2,6 @@
 
 This template should help get you started developing with Vue 3 in Vite.
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
 ## Project Setup
 
 ```sh
@@ -32,33 +20,82 @@ npm run dev
 npm run build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+# Testing
+
+## Unit Tests
+
+Run unit tests with [Vitest](https://vitest.dev/):
 
 ```sh
 npm run test:unit
 ```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
+## End-to-End Tests
 
+Run end-to-end (E2E) tests with [Playwright](https://playwright.dev/):
+
+Install Playwright browsers (if not already installed):
 ```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
+   npx playwright install
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+Run the E2E tests:
+```sh
+   npm run test:e2e
+```
+
+### Additional Playwright Testing Options:
+
+- **Run tests only on Chromium:**
+
+```sh
+  npm run test:e2e -- --project=chromium
+```
+
+- **Run tests for a specific file:**
+
+```sh
+  npm run test:e2e -- tests/example.spec.ts
+```
+
+- **Debug mode:**
+
+```sh
+  npm run test:e2e -- --debug
+```
+
+## Code Quality
+
+### Linting
+
+Lint and fix code style issues using [ESLint](https://eslint.org/):
 
 ```sh
 npm run lint
 ```
+
+### Formatting
+
+Format code with [Prettier](https://prettier.io/):
+
+```sh
+npm run format
+```
+
+## Type Checking
+
+Run TypeScript type checking for the project using:
+
+```sh
+npm run type-check
+```
+
+## OpenAPI Client Generation
+
+Generate TypeScript API client from OpenAPI specification:
+
+``` sh
+npm run openapi:generate
+```
+
+This reads the OpenAPI schema from `./../backendApp/resources/openapi.yaml` and outputs the generated TypeScript API files to `./src/generated`.

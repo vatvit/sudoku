@@ -2,8 +2,10 @@ import {createApp} from 'vue'
 import {createPinia} from 'pinia'
 import './style.css'
 import App from './App.vue'
-import axios from "axios";
 import router from "@/router";
+import {Api} from "@/generated/Api";
+
+const api = new Api().api;
 
 declare global {
     interface  Window {
@@ -11,7 +13,7 @@ declare global {
     }
 }
 
-const response = await axios.get('/api/config');
+const response = await api.getGetConfig();
 const config = response.data;
 
 window.sudoku = {

@@ -1,7 +1,9 @@
 import {CellGroup} from "./CellGroup.ts";
 import {Cell} from "./Cell.ts";
 import type {ActionDto, ActionEffectDto, CellDto, CellGroupDto, PuzzleStateDto} from "./Dto.ts";
-import axios from "axios";
+import {Api} from "@/generated/Api";
+
+const api = new Api().api;
 
 export class Puzzle {
   public readonly id: string
@@ -101,7 +103,7 @@ export class Puzzle {
       ]
     }
 
-    const response = await axios.post('/api/games/sudoku/instances/' + this.id + '/actions', actionDto)
+    const response = await api.postCreateGameSudokuInstanceAction(this.id, actionDto)
   }
 
   cleanRelatedNotesByCoordsAndValue(coords: string, value: number): void {

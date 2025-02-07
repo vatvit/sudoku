@@ -5,19 +5,22 @@ info:
   version: 1.0.0
 servers:
   -
-    url: 'http://localhost/'
+    url: 'http://localhost'
     description: 'API over HTTPS'
 paths:
   /api/config:
     get:
-      operationId: get_config
+      tags:
+        - config
+        - get-data
+      operationId: get_get-config
       responses:
         '200':
           description: 'Successful response'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigDto'
+                $ref: '#/components/schemas/ConfigResponseDto'
   /api/mercure/publish:
     get:
       operationId: get_app_publish_publish
@@ -61,7 +64,7 @@ paths:
           description: ''
   '/api/games/sudoku/instances/{gameId}/actions':
     post:
-      operationId: post_game-sudoku-instance-action-create
+      operationId: post_create-game-sudoku-instance-action
       parameters:
         -
           name: gameId
@@ -80,23 +83,40 @@ paths:
           description: ''
   /api/games/sudoku/instances:
     post:
-      operationId: post_game-sudoku-instance-create
+      tags:
+        - game-instances
+        - game-sudoku-instances
+        - post-data
+      operationId: post_create-game-sudoku-instance
       responses:
-        default:
-          description: ''
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceCreateResponseDto'
   '/api/games/sudoku/instances/{gameId}':
     get:
-      operationId: get_game-sudoku-instance-get
+      tags:
+        - game-instances
+        - game-sudoku-instances
+        - get-data
+      operationId: get_get-game-sudoku-instance
       parameters:
         -
           name: gameId
           in: path
+          description: 'Unique identifier for the Sudoku game instance'
           required: true
           schema:
             type: string
       responses:
-        default:
-          description: ''
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceGetResponseDto'
 components:
   schemas:
     ActionDto:
@@ -113,7 +133,7 @@ components:
           type: array
           items: {  }
       type: object
-    ConfigDto:
+    ConfigResponseDto:
       required:
         - mercurePublicUrl
         - allUsers
@@ -129,4 +149,37 @@ components:
         cachedDatetime:
           type: string
       type: object
+    InstanceCreateResponseDto:
+      required:
+        - id
+      properties:
+        id:
+          type: string
+      type: object
+    InstanceGetResponseDto:
+      required:
+        - id
+        - cells
+        - groups
+      properties:
+        id:
+          type: string
+        cells:
+          type: array
+          items: {  }
+        groups:
+          type: array
+          items: {  }
+      type: object
+tags:
+  -
+    name: config
+  -
+    name: get-data
+  -
+    name: game-instances
+  -
+    name: game-sudoku-instances
+  -
+    name: post-data
 

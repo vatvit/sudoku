@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import {ref, onMounted, defineAsyncComponent} from 'vue'
-import axios from "axios"
-// import SudokuPuzzle from '@/components/Sudoku/Puzzle.vue'
 import {CellDto, CellGroupDto, PuzzleStateDto as SudokuTableStateDTO} from "./components/Sudoku/Dto.ts";
 import {useRoute, useRouter} from "vue-router";
 import SudokuNewGameButton from "@/components/SudokuNewGameButton.vue";
+import {Api} from "@/generated/Api.ts";
+
+const api = new Api().api;
 
 const sudokuTableStateDTO = ref<SudokuTableStateDTO>({id: '', cells: [], groups: [] as CellGroupDto[]})
 
@@ -23,7 +24,7 @@ async function NewGameEventHandler(puzzleId: string) {
 }
 
 async function loadSudokuTable(id: string) {
-  const response = await axios.get('/api/games/sudoku/instances/' + id)
+  const response = await api.getGetGameSudokuInstance(id)
   const sudokuTableState = response.data as SudokuTableStateDTO
   for (const key in sudokuTableState.groups) {
     sudokuTableState.groups[key].cells = new Map<string, CellDto>(Object.entries(sudokuTableState.groups[key].cells))

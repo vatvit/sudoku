@@ -15,7 +15,11 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class InstanceController extends AbstractController
 {
-    #[Route('/api/games/sudoku/instances', name: 'game-sudoku-instance-create', options: ['cache' => false], methods: ['POST'])]
+    #[Route('/api/games/sudoku/instances',
+        name: 'create-game-sudoku-instance',
+        options: ['cache' => false],
+        methods: ['POST']
+    )]
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -43,11 +47,15 @@ class InstanceController extends AbstractController
         return $this->json($responseDto);
     }
 
-    #[Route('/api/games/sudoku/instances/{gameId}', name: 'game-sudoku-instance-get', options: ['cache' => false], methods: ['GET'])]
+    #[Route('/api/games/sudoku/instances/{gameId}',
+        name: 'get-game-sudoku-instance',
+        options: ['cache' => false],
+        methods: ['GET']
+    )]
     #[OA\Parameter(
         name: 'gameId',
         description: 'Unique identifier for the Sudoku game instance',
-        in: 'query',
+        in: 'path',
         schema: new OA\Schema(type: 'string')
     )]
     #[OA\Response(

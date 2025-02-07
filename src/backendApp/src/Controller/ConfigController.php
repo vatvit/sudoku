@@ -16,7 +16,10 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class ConfigController extends AbstractController
 {
-    #[Route('/api/config', name: 'config', methods: ['GET'])]
+    #[Route('/api/config',
+        name: 'get-config',
+        methods: ['GET']
+    )]
     #[OA\Response(
         response: 200,
         description: 'Successful response',

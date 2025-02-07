@@ -8,12 +8,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /** @phpstan-consistent-constructor */
 abstract class AbstractDto
 {
-    private ValidatorInterface $_validator;
+    private ValidatorInterface $_validator; // @phpcs:ignore
 
     /**
      * @var array<string>
      */
-    private array $_privateProperties = ['_privateProperties', '_validator'];
+    private array $_privateProperties = ['_privateProperties', '_validator']; // @phpcs:ignore
 
     /**
      * @param array<mixed>|null $data
@@ -72,7 +72,7 @@ abstract class AbstractDto
             }
 
             if (in_array($propertyName, $this->_privateProperties, true)) {
-                throw new \InvalidArgumentException('The property "' . $propertyName . '" is private and cannot be populated.');
+                throw new \InvalidArgumentException('The property "' . $propertyName . '" is private and cannot be populated.'); // phpcs:ignore Generic.Files.LineLength.TooLong -- The following line exceeds the maximum length allowed by PHPCS, but it's a log string and it is more readable this way.
             }
 
             $reflection = new \ReflectionProperty($this, $propertyName);
@@ -111,7 +111,8 @@ abstract class AbstractDto
 
             if ($expectedPropertyType === 'array') {
                 $arrayDtoConstName = 'PROP_' . mb_strtoupper($propertyName) . '_TYPE';
-                $arrayDtoConstValue = defined('static::' . $arrayDtoConstName) ? constant('static::' . $arrayDtoConstName) : '';
+                $fullStaticConstName = 'static::' . $arrayDtoConstName;
+                $arrayDtoConstValue = defined($fullStaticConstName) ? constant($fullStaticConstName) : '';
 
                 if (is_subclass_of($arrayDtoConstValue, AbstractDto::class)) {
                     foreach ($value as &$item) {

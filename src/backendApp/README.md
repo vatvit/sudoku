@@ -45,6 +45,34 @@ Replace `<filter-name>` with a PHPUnit-compatible filter string. E.g. "ClassTest
 
 ---
 
+# Running PHP CodeSniffer
+
+To check the coding standards for the project, use PHP CodeSniffer. This will help ensure that the code follows uniform,
+clean, and conventional coding practices:
+
+```bash
+composer cs-check
+```
+
+You can also auto-fix issues (where applicable) using:
+
+```bash
+composer cs-fix
+```
+
+---
+
+# Running PHPStan
+
+To perform static analysis on your code and ensure proper static types and type safety, use PHPStan. Run the following
+command:
+
+```bash
+composer phpstan
+```
+
+---
+
 ## Mutation Testing
 Mutation testing helps ensure your tests are robust. To run mutation testing with [Infection](https://infection.github.io/), execute the following:
 ```shell
@@ -52,6 +80,20 @@ composer infection
 ```
 
 Make sure `infection.phar` is available in your project root.
+
+---
+
+# Running the "check-all" Composer Script
+
+The `check-all` composer script combines all the check commands (`test`, `cs-check`, `phpstan`, and `infection`) into a
+single command. This allows developers to run them all in one go and identify issues during the development process. It
+stops on the first encountered error, which makes it a useful tool for local development.
+
+You can use the following command:
+
+```bash
+composer check-all
+```
 
 ---
 

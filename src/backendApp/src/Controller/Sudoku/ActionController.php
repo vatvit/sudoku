@@ -9,6 +9,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class ActionController extends AbstractController
 {
@@ -18,8 +19,12 @@ class ActionController extends AbstractController
         options: ['cache' => false],
         methods: ['POST']
     )]
-    public function action(string $gameId, #[MapRequestPayload] ActionDto $actionDto, TagAwareAdapter $cache): JsonResponse
-    {
+    public function action(
+        string $gameId,
+        #[MapRequestPayload] ActionDto $actionDto,
+        CacheInterface $cache
+    ): JsonResponse {
+        /** @var TagAwareAdapter $cache */
         $cacheKey = $this->getGameCacheKey($gameId);
         $tableCacheItem = $cache->getItem($cacheKey);
         if (!$tableCacheItem->isHit()) {

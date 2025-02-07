@@ -86,7 +86,8 @@
         "openapi-generate": "php bin/console nelmio:apidoc:dump --format=yaml > resources/openapi.yaml",
         "cs-check": "vendor/bin/phpcs --standard=PSR12 src/",
         "cs-fix": "vendor/bin/phpcbf --standard=PSR12 src/",
-        "phpstan": "vendor/bin/phpstan analyse -l 6 src/"
+        "phpstan": "vendor/bin/phpstan analyse -l 6 src/",
+        "check-all": "composer test && composer cs-check && composer phpstan && composer infection"
     },
     "conflict": {
         "symfony/symfony": "*"

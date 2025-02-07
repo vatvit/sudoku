@@ -15,8 +15,14 @@ class Factory
      * @param int|null $retry
      * @return Update
      */
-    public function createUpdate(string|array $topics, string $data = '', bool $private = false, string $id = null, string $type = null, int $retry = null): Update
-    {
+    public function createUpdate(
+        string|array $topics,
+        string $data = '',
+        bool $private = false,
+        string $id = null,
+        string $type = null,
+        int $retry = null
+    ): Update {
         return new Update($topics, $data, $private, $id, $type, $retry);
     }
 }

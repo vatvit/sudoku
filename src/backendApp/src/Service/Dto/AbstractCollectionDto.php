@@ -85,7 +85,7 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
         if (is_a($value, static::$itemClass)) {
             return;
         }
-        throw new CollectionDtoWrongValueException('Wrong value type "' . gettype($value) . '" for ' . (gettype($this)));
+        throw new CollectionDtoWrongValueException('Wrong value type "' . gettype($value) . '" for ' . (gettype($this))); // phpcs:ignore Generic.Files.LineLength.TooLong -- The following line exceeds the maximum length allowed by PHPCS, but it's a log string and it is more readable this way.
     }
 
     public function getIterator(): Traversable

@@ -44,6 +44,7 @@ class ConfigController extends AbstractController
         });
 
         // Mercure
+        // phpcs:ignore Generic.Files.LineLength.TooLong
         $jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.dTeuPHTe_h_4E_D6xOJerk4__cG2YmhfI3BfyaGsHQ0';
         $mercureAuthCookie = new Cookie(
             'mercureAuthorization',

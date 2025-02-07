@@ -28,6 +28,10 @@ class PuzzleGenerator
         return $puzzleStateDto;
     }
 
+    /**
+     * @param array<mixed> $puzzleTable // TODO: use DTO
+     * @return PuzzleStateDto
+     */
     private function hydrateTableStateDto(array $puzzleTable): PuzzleStateDto
     {
         $groups = [];
@@ -36,7 +40,7 @@ class PuzzleGenerator
                 $cellDto = $this->hydrateCellDto($rowIndex, $colIndex, $cell);
                 $puzzleTable['cells'][$rowIndex][$colIndex] = $cellDto;
 
-                $groups = $this->hydrateCellGroups($rowIndex, $colIndex, $groups, $cellDto);
+                $groups = $this->hydrateCellGroups($groups, $cellDto);
             }
         }
         $puzzleTable['groups'] = array_values($groups);
@@ -46,11 +50,21 @@ class PuzzleGenerator
         return PuzzleStateDto::hydrate($puzzleTable);
     }
 
+    /**
+     * @param array<mixed> $puzzleTable // TODO: use DTO
+     * @return string
+     */
     private function generateId(array $puzzleTable): string
     {
         return sha1(json_encode($puzzleTable));
     }
 
+    /**
+     * @param int $rowIndex
+     * @param int $colIndex
+     * @param array<mixed> $cell // TODO: use DTO
+     * @return CellDto
+     */
     private function hydrateCellDto(int $rowIndex, int $colIndex, array $cell): CellDto
     {
         $cell['coords'] = $this->getCellCoords($rowIndex, $colIndex);
@@ -60,16 +74,21 @@ class PuzzleGenerator
         return $cellDto;
     }
 
-    private function hydrateCellGroups(int $rowIndex, int $colIndex, array $groups, CellDto $cellDto): array
+    /**
+     * @param array<int, array{id: int, type: string, cells: array<string, CellDto>}> $groups // TODO: use DTO
+     * @param CellDto $cellDto
+     * @return array<int, array{id: int, type: string, cells: array<string, CellDto>}> // TODO: use DTO
+     */
+    private function hydrateCellGroups(array $groups, CellDto $cellDto): array
     {
-        $cellGroups = $this->getCellGroups($rowIndex, $colIndex);
+        $cellGroups = $this->getCellGroups($cellDto);
 
         foreach ($cellGroups as $group) {
             $groupId = $group['id'] . ':' . $group['type'];
             if (!isset($groups[$groupId])) {
                 $groups[$groupId] = $group;
             }
-            $groups[$groupId]['cells'][$this->getCellCoords($rowIndex, $colIndex)] = $cellDto;
+            $groups[$groupId]['cells'][$cellDto->coords] = $cellDto;
         }
         return $groups;
     }
@@ -79,13 +98,20 @@ class PuzzleGenerator
         return ($rowIndex + 1) . ':' . ($colIndex + 1);
     }
 
-    private function getCellGroups(int $rowIndex, int $colIndex): array
+    /**
+     * @param CellDto $cellDto
+     * @return array<int, array{id: int, type: string, cells: array{}}> // TODO: use DTO
+     */
+    private function getCellGroups(CellDto $cellDto): array
     {
+        $rowIndex = (int)explode(':', $cellDto->coords)[0] - 1;
+        $colIndex = (int)explode(':', $cellDto->coords)[1] - 1;
+
         $squareId = $this->getSquareId($rowIndex, $colIndex);
 
-        $cellGroupRowDto = ['id' => $rowIndex + 1, 'type' => CellGroupDto::TYPE_ROW];
-        $cellGroupColDto = ['id' => $colIndex + 1, 'type' => CellGroupDto::TYPE_COLUMN];
-        $cellGroupSqrDto = ['id' => $squareId, 'type' => CellGroupDto::TYPE_BLOCK];
+        $cellGroupRowDto = ['id' => $rowIndex + 1, 'type' => CellGroupDto::TYPE_ROW, 'cells' => []];
+        $cellGroupColDto = ['id' => $colIndex + 1, 'type' => CellGroupDto::TYPE_COLUMN, 'cells' => []];
+        $cellGroupSqrDto = ['id' => $squareId, 'type' => CellGroupDto::TYPE_BLOCK, 'cells' => []];
 
         return [
             $cellGroupRowDto,

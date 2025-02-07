@@ -14,7 +14,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 class IndexController extends AbstractController
 {
     #[Route('/')]
-    public function index(HubInterface $hub, UserRepository $userRepository, CacheInterface $cache)
+    public function index(HubInterface $hub, UserRepository $userRepository, CacheInterface $cache): Response
     {
         //
         $config = [

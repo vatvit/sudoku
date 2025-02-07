@@ -10,6 +10,9 @@ class ConfigResponseDto extends AbstractDto
     #[Assert\Length(min: 10, max: 500)]
     public string $mercurePublicUrl;
 
+    /**
+     * @var mixed[]
+     */
     public array $allUsers;
 
     #[Assert\DateTime]

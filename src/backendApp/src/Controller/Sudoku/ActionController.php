@@ -5,10 +5,10 @@ namespace App\Controller\Sudoku;
 use App\Service\Sudoku\Dto\ActionDto;
 use App\Service\Sudoku\Dto\PuzzleStateDto;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Cache\CacheInterface;
 
 class ActionController extends AbstractController
 {
@@ -18,7 +18,7 @@ class ActionController extends AbstractController
         options: ['cache' => false],
         methods: ['POST']
     )]
-    public function action(string $gameId, #[MapRequestPayload] ActionDto $actionDto, CacheInterface $cache): JsonResponse
+    public function action(string $gameId, #[MapRequestPayload] ActionDto $actionDto, TagAwareAdapter $cache): JsonResponse
     {
         $cacheKey = $this->getGameCacheKey($gameId);
         $tableCacheItem = $cache->getItem($cacheKey);

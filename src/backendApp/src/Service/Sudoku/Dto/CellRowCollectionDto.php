@@ -5,6 +5,9 @@ namespace App\Service\Sudoku\Dto;
 use App\Service\Dto\AbstractCollectionDto;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @extends AbstractCollectionDto<CellDto>
+ */
 final class CellRowCollectionDto extends AbstractCollectionDto
 {
     #[Assert\All([

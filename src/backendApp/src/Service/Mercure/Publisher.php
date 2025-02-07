@@ -4,14 +4,14 @@ namespace App\Service\Mercure;
 
 use Symfony\Component\Mercure\HubInterface;
 
-class Publisher
+readonly class Publisher
 {
-    public function __construct(private readonly HubInterface $mercureHub, private Factory $mercureFactory)
+    public function __construct(private HubInterface $mercureHub, private Factory $mercureFactory)
     {
     }
 
 
-    public function publish(string $topic, mixed $data)
+    public function publish(string $topic, mixed $data): void
     {
         $jsonData = json_encode($data);
 

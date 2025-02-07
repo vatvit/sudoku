@@ -4,6 +4,11 @@ namespace App\Service\Sudoku;
 
 class TableCellHider
 {
+    /**
+     * @param array<mixed> $table // TODO: use DTO
+     * @param int $count
+     * @return array<mixed> // TODO: use DTO
+     */
     public function hideCells(array $table, int $count): array
     {
         // get Total amount of cells

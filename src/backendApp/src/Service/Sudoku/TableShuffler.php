@@ -4,6 +4,11 @@ namespace App\Service\Sudoku;
 
 class TableShuffler
 {
+    /**
+     * @param array<mixed> $table // TODO: use DTO
+     * @param int $iterations
+     * @return array<mixed> // TODO: use DTO
+     */
     public function shuffle(array $table, int $iterations = 10): array
     {
         $actions = ['transposeTable', 'switchCols', 'switchRows', 'switchColsGroup', 'switchRowsGroup'];
@@ -21,8 +26,8 @@ class TableShuffler
      * This method take an array with 81 elements as input
      * and returns its transpose.
      *
-     * @param array $table
-     * @return array
+     * @param array<mixed> $table // TODO: use DTO
+     * @return array<mixed> // TODO: use DTO
      */
     public function transposeTable(array $table): array
     {
@@ -39,6 +44,10 @@ class TableShuffler
         return $table;
     }
 
+    /**
+     * @param array<mixed> $table // TODO: use DTO
+     * @return array<mixed> // TODO: use DTO
+     */
     public function switchColsGroup(array $table): array
     {
         $groups = [0, 3, 6];
@@ -57,6 +66,10 @@ class TableShuffler
         return $table;
     }
 
+    /**
+     * @param array<mixed> $table // TODO: use DTO
+     * @return array<mixed> // TODO: use DTO
+     */
     public function switchRowsGroup(array $table): array
     {
         $groups = [0, 3, 6];
@@ -73,6 +86,10 @@ class TableShuffler
         return $table;
     }
 
+    /**
+     * @param array<mixed> $table // TODO: use DTO
+     * @return array<mixed> // TODO: use DTO
+     */
     public function switchRows(array $table): array
     {
         $group = rand(0, 2);
@@ -89,6 +106,10 @@ class TableShuffler
         return $table;
     }
 
+    /**
+     * @param array<mixed> $table // TODO: use DTO
+     * @return array<mixed> // TODO: use DTO
+     */
     public function switchCols(array $table): array
     {
         $group = rand(0, 2);

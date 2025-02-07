@@ -8,6 +8,7 @@ use App\Service\Sudoku\PuzzleGenerator;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -68,7 +69,7 @@ class InstanceController extends AbstractController
     #[OA\Tag(name: 'game-instances')]
     #[OA\Tag(name: 'game-sudoku-instances')]
     #[OA\Tag(name: 'get-data')]
-    public function get(string $gameId, CacheInterface $cache): JsonResponse
+    public function get(string $gameId, TagAwareAdapter $cache): JsonResponse
     {
         $cacheKey = $this->getGameCacheKey($gameId);
         $tableCacheItem = $cache->getItem($cacheKey);

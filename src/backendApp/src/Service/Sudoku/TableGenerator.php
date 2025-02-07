@@ -4,6 +4,9 @@ namespace App\Service\Sudoku;
 
 class TableGenerator
 {
+    /**
+     * @return array<mixed> // TODO: use DTO
+     */
     public function generate(): array
     {
         $table = [

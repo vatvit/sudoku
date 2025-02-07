@@ -25,8 +25,10 @@ final class CellGroupDto extends AbstractDto
     #[Assert\All([
         new Assert\Type(type: CellDto::class)
     ])]
-    /** @var static::PROP_CELLS_TYPE[] $cells */
+    /**
+     * @var array<CellDto> $cells
+     */
+    // @phpstan-ignore-next-line missingType.iterableValue
     public array $cells;
-
     protected const PROP_CELLS_TYPE = CellDto::class;
 }

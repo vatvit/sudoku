@@ -4,13 +4,18 @@ namespace App\Service\Dto;
 
 use Traversable;
 
+/**
+ * @template TValue
+ * @implements \ArrayAccess<int, TValue>
+ * @implements \IteratorAggregate<int, TValue>
+ */
 abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * Represents a collection.
      * Overwrite the PHPDoc to specify type of elements accordingly to validateValueType method logic
      *
-     * @var array $collection
+     * @var array<mixed> $collection
      */
     protected array $collection = [];
 
@@ -21,6 +26,10 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
      */
     protected static string $itemClass;
 
+    /**
+     * @param array<mixed> $data
+     * @return void
+     */
     protected function hydrateData(array $data): void
     {
         $this->collection = [];
@@ -34,7 +43,7 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
                     throw new \InvalidArgumentException(
                         sprintf(
                             'Invalid item class: %s provided. Expected subclass of %s.',
-                            $itemDtoClass ?? 'null',
+                            $itemDtoClass,
                             AbstractDto::class
                         )
                     );
@@ -46,6 +55,9 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
     }
 
 
+    /**
+     * @return array<mixed>
+     */
     public function toArray(): array
     {
         $array = [];

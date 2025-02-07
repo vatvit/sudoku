@@ -5,12 +5,20 @@ namespace App\Service\Dto;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/** @phpstan-consistent-constructor */
 abstract class AbstractDto
 {
     private ValidatorInterface $_validator;
 
+    /**
+     * @var array<string>
+     */
     private array $_privateProperties = ['_privateProperties', '_validator'];
 
+    /**
+     * @param array<mixed>|null $data
+     * @param ValidatorInterface|null $validator
+     */
     public function __construct(?array $data = [], ?ValidatorInterface $validator = null)
     {
         if ($validator === null) {
@@ -23,7 +31,13 @@ abstract class AbstractDto
         }
     }
 
-    public static function hydrate(array $data, $dto = null, ?ValidatorInterface $validator = null): static
+    /**
+     * @param array<mixed> $data
+     * @param AbstractDto|null $dto
+     * @param ValidatorInterface|null $validator
+     * @return static
+     */
+    public static function hydrate(array $data, ?AbstractDto $dto = null, ?ValidatorInterface $validator = null): static
     {
         if ($dto === null) {
             $dto = new static(null, $validator);
@@ -46,6 +60,10 @@ abstract class AbstractDto
         return $dto;
     }
 
+    /**
+     * @param array<mixed> $data
+     * @return void
+     */
     protected function hydrateData(array $data): void
     {
         foreach ($data as $propertyName => $value) {
@@ -64,10 +82,29 @@ abstract class AbstractDto
                 throw new \RuntimeException('Undefined type for property: ' . $propertyName);
             }
 
+            if (!$type instanceof \ReflectionNamedType) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'Invalid type for property: %s. Expected type but got: %s.',
+                        $propertyName,
+                        get_debug_type($type)
+                    )
+                );
+            }
+
             $expectedPropertyType = $type->getName();
 
             if ($expectedPropertyType === 'self' || is_subclass_of($expectedPropertyType, AbstractDto::class)) {
                 if (!is_a($value, AbstractDto::class)) {
+                    if (!is_array($value)) {
+                        throw new \InvalidArgumentException(
+                            sprintf(
+                                'Expected property "%s" to be an array, %s given.',
+                                $propertyName,
+                                gettype($value)
+                            )
+                        );
+                    }
                     $value = $expectedPropertyType::hydrate($value);
                 }
             }
@@ -89,6 +126,9 @@ abstract class AbstractDto
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function toArray(): array
     {
         $array = [];

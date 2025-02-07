@@ -15,7 +15,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class InstanceController extends AbstractController
 {
-    #[Route('/api/games/sudoku/instances',
+    #[Route(
+        '/api/games/sudoku/instances',
         name: 'create-game-sudoku-instance',
         options: ['cache' => false],
         methods: ['POST']
@@ -47,7 +48,8 @@ class InstanceController extends AbstractController
         return $this->json($responseDto);
     }
 
-    #[Route('/api/games/sudoku/instances/{gameId}',
+    #[Route(
+        '/api/games/sudoku/instances/{gameId}',
         name: 'get-game-sudoku-instance',
         options: ['cache' => false],
         methods: ['GET']
@@ -84,5 +86,4 @@ class InstanceController extends AbstractController
     {
         return 'game-sudoku-' . $gameId;
     }
-
 }

@@ -6,7 +6,7 @@ use Symfony\Component\Mercure\HubInterface;
 
 class Publisher
 {
-    public function __construct(private HubInterface $mercureHub, private Factory $mercureFactory)
+    public function __construct(private readonly HubInterface $mercureHub, private Factory $mercureFactory)
     {
     }
 
@@ -19,5 +19,4 @@ class Publisher
 
         $this->mercureHub->publish($update);
     }
-
 }

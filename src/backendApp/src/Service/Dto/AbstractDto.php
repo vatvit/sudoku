@@ -7,7 +7,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class AbstractDto
 {
-
     private ValidatorInterface $_validator;
 
     private array $_privateProperties = ['_privateProperties', '_validator'];
@@ -98,7 +97,7 @@ abstract class AbstractDto
             if (in_array($property, $this->_privateProperties)) {
                 continue;
             }
-            
+
             if ($value instanceof self) {
                 $array[$property] = $value->toArray();
             } elseif (is_array($value)) {

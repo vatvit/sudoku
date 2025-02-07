@@ -29,5 +29,4 @@ final class CellGroupDto extends AbstractDto
     public array $cells;
 
     protected const PROP_CELLS_TYPE = CellDto::class;
-
 }

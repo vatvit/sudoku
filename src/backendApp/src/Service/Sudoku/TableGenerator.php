@@ -4,7 +4,6 @@ namespace App\Service\Sudoku;
 
 class TableGenerator
 {
-
     public function generate(): array
     {
         $table = [
@@ -36,5 +35,4 @@ class TableGenerator
         $value = ($value % 9) + 1;
         return (int)$value;
     }
-
 }

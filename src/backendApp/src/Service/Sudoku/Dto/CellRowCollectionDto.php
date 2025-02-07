@@ -7,7 +7,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class CellRowCollectionDto extends AbstractCollectionDto
 {
-
     #[Assert\All([
         new Assert\Type(type: CellDto::class)
     ])]
@@ -16,6 +15,5 @@ final class CellRowCollectionDto extends AbstractCollectionDto
      */
     protected array $collection;
 
-    static protected string $itemClass = CellDto::class;
-
+    protected static string $itemClass = CellDto::class;
 }

@@ -4,7 +4,6 @@ namespace App\Service\Sudoku;
 
 class TableCellHider
 {
-
     public function hideCells(array $table, int $count): array
     {
         // get Total amount of cells
@@ -34,5 +33,4 @@ class TableCellHider
 
         return $table;
     }
-
 }

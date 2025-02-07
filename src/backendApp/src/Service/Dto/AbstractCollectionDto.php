@@ -2,7 +2,6 @@
 
 namespace App\Service\Dto;
 
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Traversable;
 
 abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess, \IteratorAggregate, \Countable
@@ -20,7 +19,7 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
      *
      * @var string
      */
-    static protected string $itemClass;
+    protected static string $itemClass;
 
     protected function hydrateData(array $data): void
     {
@@ -107,6 +106,4 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
     {
         return count($this->collection);
     }
-
-
 }

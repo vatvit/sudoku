@@ -4,12 +4,11 @@ namespace App\Service\Sudoku;
 
 class TableShuffler
 {
-
     public function shuffle(array $table, int $iterations = 10): array
     {
         $actions = ['transposeTable', 'switchCols', 'switchRows', 'switchColsGroup', 'switchRowsGroup'];
 
-        for($i = 0; $i < $iterations; $i++) {
+        for ($i = 0; $i < $iterations; $i++) {
             $randomAction = $actions[array_rand($actions)];
             $table = $this->$randomAction($table);
         }
@@ -106,5 +105,4 @@ class TableShuffler
 
         return $table;
     }
-
 }

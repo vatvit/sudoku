@@ -8,13 +8,11 @@ use App\Service\Sudoku\Dto\PuzzleStateDto;
 
 class PuzzleGenerator
 {
-
     public function __construct(
         readonly private TableGenerator $tableGenerator,
         readonly private TableShuffler $tableShuffler,
         readonly private TableCellHider $tableCellHider,
-    )
-    {
+    ) {
     }
 
     public function generate(): PuzzleStateDto
@@ -28,7 +26,6 @@ class PuzzleGenerator
         $puzzleStateDto = $this->hydrateTableStateDto($puzzleTable);
 
         return $puzzleStateDto;
-
     }
 
     private function hydrateTableStateDto(array $puzzleTable): PuzzleStateDto
@@ -36,7 +33,6 @@ class PuzzleGenerator
         $groups = [];
         foreach ($puzzleTable['cells'] as $rowIndex => $rowArray) {
             foreach ($rowArray as $colIndex => $cell) {
-
                 $cellDto = $this->hydrateCellDto($rowIndex, $colIndex, $cell);
                 $puzzleTable['cells'][$rowIndex][$colIndex] = $cellDto;
 

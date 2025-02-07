@@ -12,7 +12,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class ActionController extends AbstractController
 {
-    #[Route('/api/games/sudoku/instances/{gameId}/actions',
+    #[Route(
+        '/api/games/sudoku/instances/{gameId}/actions',
         name: 'create-game-sudoku-instance-action',
         options: ['cache' => false],
         methods: ['POST']
@@ -35,7 +36,6 @@ class ActionController extends AbstractController
         /*
          * TODO: Write Application/API tests
          * TODO: Use AI to generate tests/logic
-         * TODO: Use proto lib to communicate Front-Back
          * TODO: Applying Game actions
          * store info about started game into the session on the game creation
          * store info about finished game into persistent storage on the game finish
@@ -63,5 +63,4 @@ class ActionController extends AbstractController
     {
         return 'game-sudoku-' . $gameId;
     }
-
 }

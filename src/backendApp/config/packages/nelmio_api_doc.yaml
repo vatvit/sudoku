@@ -7,15 +7,6 @@ nelmio_api_doc:
       - url: http://localhost
         description: API over HTTPS
     info:
-      title: My App
-      description: This is an awesome app!
+      title: My Sudoku App
+      description: This is a pet-project.
       version: 1.0.0
-#      x-build: #CommitHash
-#    components:
-#      securitySchemes:
-#        Bearer:
-#          type: http
-#          scheme: bearer
-#          bearerFormat: JWT
-#    security:
-#      - Bearer: []

@@ -26,8 +26,8 @@ class ConfigController extends AbstractController
         description: 'Successful response',
         content: new Model(type: ConfigResponseDto::class)
     )]
-    #[OA\Tag(name: 'config')]
     #[OA\Tag(name: 'get-data')]
+    #[OA\Tag(name: 'config')]
     public function index(HubInterface $hub, UserRepository $userRepository, CacheInterface $cache): Response
     {
         // DB

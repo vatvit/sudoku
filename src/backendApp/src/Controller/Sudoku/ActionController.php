@@ -2,8 +2,11 @@
 
 namespace App\Controller\Sudoku;
 
+use App\Controller\Sudoku\Dto\InstanceCreateResponseDto;
 use App\Service\Sudoku\Dto\ActionDto;
 use App\Service\Sudoku\Dto\PuzzleStateDto;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,6 +22,15 @@ class ActionController extends AbstractController
         options: ['cache' => false],
         methods: ['POST']
     )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+//        content: new Model(type: InstanceCreateResponseDto::class)
+    )]
+    #[OA\Tag(name: 'post-data')]
+    #[OA\Tag(name: 'game-instance-actions')]
+    #[OA\Tag(name: 'game-sudoku')]
+    #[OA\Tag(name: 'game-sudoku-instance-actions')]
     public function action(
         string $gameId,
         #[MapRequestPayload] ActionDto $actionDto,

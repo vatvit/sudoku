@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: 'My App'
-  description: 'This is an awesome app!'
+  title: 'My Sudoku App'
+  description: 'This is a pet-project.'
   version: 1.0.0
 servers:
   -
@@ -11,8 +11,8 @@ paths:
   /api/config:
     get:
       tags:
-        - config
         - get-data
+        - config
       operationId: get_get-config
       responses:
         '200':
@@ -23,47 +23,22 @@ paths:
                 $ref: '#/components/schemas/ConfigResponseDto'
   /api/mercure/publish:
     get:
-      operationId: get_app_publish_publish
-      responses:
-        default:
-          description: ''
-    put:
-      operationId: put_app_publish_publish
-      responses:
-        default:
-          description: ''
-    post:
-      operationId: post_app_publish_publish
-      responses:
-        default:
-          description: ''
-    delete:
-      operationId: delete_app_publish_publish
-      responses:
-        default:
-          description: ''
-    options:
-      operationId: options_app_publish_publish
-      responses:
-        default:
-          description: ''
-    head:
-      operationId: head_app_publish_publish
-      responses:
-        default:
-          description: ''
-    patch:
-      operationId: patch_app_publish_publish
-      responses:
-        default:
-          description: ''
-    trace:
-      operationId: trace_app_publish_publish
+      tags:
+        - testing
+        - get-data
+        - mercure
+        - mercure-publish
+      operationId: get_mercure-publish
       responses:
         default:
           description: ''
   '/api/games/sudoku/instances/{gameId}/actions':
     post:
+      tags:
+        - post-data
+        - game-instance-actions
+        - game-sudoku
+        - game-sudoku-instance-actions
       operationId: post_create-game-sudoku-instance-action
       parameters:
         -
@@ -79,14 +54,15 @@ paths:
             schema:
               $ref: '#/components/schemas/ActionDto'
       responses:
-        default:
-          description: ''
+        '200':
+          description: 'Successful response'
   /api/games/sudoku/instances:
     post:
       tags:
-        - game-instances
-        - game-sudoku-instances
         - post-data
+        - game-instances
+        - game-sudoku
+        - game-sudoku-instances
       operationId: post_create-game-sudoku-instance
       responses:
         '200':
@@ -98,9 +74,10 @@ paths:
   '/api/games/sudoku/instances/{gameId}':
     get:
       tags:
-        - game-instances
-        - game-sudoku-instances
         - get-data
+        - game-instances
+        - game-sudoku
+        - game-sudoku-instances
       operationId: get_get-game-sudoku-instance
       parameters:
         -
@@ -166,20 +143,82 @@ components:
           type: string
         cells:
           type: array
-          items: {  }
+          items:
+            $ref: '#/components/schemas/CellRowCollectionDto'
         groups:
           type: array
-          items: {  }
+          items:
+            $ref: '#/components/schemas/CellGroupDto'
+      type: object
+    CellRowCollectionDto:
+      required:
+        - iterator
+      properties:
+        iterator:
+          $ref: '#/components/schemas/Traversable'
+      type: object
+    CellGroupDto:
+      required:
+        - id
+        - type
+        - cells
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum:
+            - ROW
+            - COL
+            - BLC
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/CellDto'
+      type: object
+    Traversable:
+      type: object
+    CellDto:
+      required:
+        - coords
+        - value
+        - protected
+      properties:
+        coords:
+          type: string
+        value:
+          type: integer
+          maximum: 9
+          minimum: 0
+        notes:
+          type: array
+          items:
+            type: integer
+          default: []
+        protected:
+          type: boolean
       type: object
 tags:
   -
+    name: get-data
+  -
     name: config
   -
-    name: get-data
+    name: testing
+  -
+    name: mercure
+  -
+    name: mercure-publish
+  -
+    name: post-data
+  -
+    name: game-instance-actions
+  -
+    name: game-sudoku
+  -
+    name: game-sudoku-instance-actions
   -
     name: game-instances
   -
     name: game-sudoku-instances
-  -
-    name: post-data
 

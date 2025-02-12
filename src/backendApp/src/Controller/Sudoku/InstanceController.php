@@ -27,9 +27,10 @@ class InstanceController extends AbstractController
         description: 'Successful response',
         content: new Model(type: InstanceCreateResponseDto::class)
     )]
-    #[OA\Tag(name: 'game-instances')]
-    #[OA\Tag(name: 'game-sudoku-instances')]
     #[OA\Tag(name: 'post-data')]
+    #[OA\Tag(name: 'game-instances')]
+    #[OA\Tag(name: 'game-sudoku')]
+    #[OA\Tag(name: 'game-sudoku-instances')]
     public function create(PuzzleGenerator $puzzleGenerator, CacheInterface $cache): JsonResponse
     {
         $puzzleStateDto = $puzzleGenerator->generate();
@@ -66,9 +67,10 @@ class InstanceController extends AbstractController
         description: 'Successful response',
         content: new Model(type: InstanceGetResponseDto::class)
     )]
-    #[OA\Tag(name: 'game-instances')]
-    #[OA\Tag(name: 'game-sudoku-instances')]
     #[OA\Tag(name: 'get-data')]
+    #[OA\Tag(name: 'game-instances')]
+    #[OA\Tag(name: 'game-sudoku')]
+    #[OA\Tag(name: 'game-sudoku-instances')]
     public function get(string $gameId, CacheInterface $cache): JsonResponse
     {
         /** @var TagAwareAdapter $cache */

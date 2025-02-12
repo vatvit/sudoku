@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use App\Repository\GamePlayerRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+#[ORM\Entity(repositoryClass: GamePlayerRepository::class)]
+class GamePlayer
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -15,11 +15,13 @@ class User
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    #[ORM\ManyToOne(inversedBy: 'gamePlayers')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Player $playerId = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    #[ORM\ManyToOne(inversedBy: 'gamePlayers')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?GameInstance $gameInstance = null;
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -29,26 +31,26 @@ class User
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getPlayerId(): ?Player
     {
-        return $this->email;
+        return $this->playerId;
     }
 
-    public function setEmail(string $email): static
+    public function setPlayerId(?Player $playerId): static
     {
-        $this->email = $email;
+        $this->playerId = $playerId;
 
         return $this;
     }
 
-    public function getPassword(): ?string
+    public function getGameInstance(): ?GameInstance
     {
-        return $this->password;
+        return $this->gameInstance;
     }
 
-    public function setPassword(string $password): static
+    public function setGameInstance(?GameInstance $gameInstance): static
     {
-        $this->password = $password;
+        $this->gameInstance = $gameInstance;
 
         return $this;
     }

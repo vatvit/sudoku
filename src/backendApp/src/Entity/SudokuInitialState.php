@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use App\Repository\SudokuInitialStateRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+#[ORM\Entity(repositoryClass: SudokuInitialStateRepository::class)]
+class SudokuInitialState
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -15,11 +16,12 @@ class User
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?SudokuGrid $grid = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $hiddenCells = null;
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -29,26 +31,26 @@ class User
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getGrid(): ?SudokuGrid
     {
-        return $this->email;
+        return $this->grid;
     }
 
-    public function setEmail(string $email): static
+    public function setGrid(?SudokuGrid $grid): static
     {
-        $this->email = $email;
+        $this->grid = $grid;
 
         return $this;
     }
 
-    public function getPassword(): ?string
+    public function getHiddenCells(): ?string
     {
-        return $this->password;
+        return $this->hiddenCells;
     }
 
-    public function setPassword(string $password): static
+    public function setHiddenCells(string $hiddenCells): static
     {
-        $this->password = $password;
+        $this->hiddenCells = $hiddenCells;
 
         return $this;
     }

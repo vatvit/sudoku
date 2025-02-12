@@ -19,5 +19,10 @@ resource "docker_container" "db" {
   networks_advanced {
     name = "sudoku_network"
   }
+
+  ports {
+    internal = 3306
+    external = 3306
+  }
 }
 

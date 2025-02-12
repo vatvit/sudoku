@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use App\Repository\SudokuGridRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+#[ORM\Entity(repositoryClass: SudokuGridRepository::class)]
+class SudokuGrid
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -15,11 +16,8 @@ class User
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $grid = null;
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -29,26 +27,14 @@ class User
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getGrid(): ?string
     {
-        return $this->email;
+        return $this->grid;
     }
 
-    public function setEmail(string $email): static
+    public function setGrid(string $grid): static
     {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
+        $this->grid = $grid;
 
         return $this;
     }

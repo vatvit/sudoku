@@ -36,6 +36,7 @@ class ConfigController extends AbstractController
 //            $allUsers[$key] = ['email' => $user->getEmail()];
 //        }
         $allUsers = [];
+        $allUsers = $userRepository->findAll();
 
         // Cache
         $cachedDatetime = $cache->get('cachedDatetime', function (ItemInterface $item) {

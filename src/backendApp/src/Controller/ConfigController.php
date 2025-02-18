@@ -3,19 +3,30 @@
 namespace App\Controller;
 
 use App\Controller\Dto\ConfigResponseDto;
-use App\Repository\UserRepository;
+use App\CQRS\Command\CreateUserCommand;
+use App\CQRS\Query\GetUsersQuery;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
+use Symfony\Component\Messenger\HandleTrait;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 class ConfigController extends AbstractController
 {
+    use HandleTrait;
+
+    public function __construct(MessageBusInterface $messageBus)
+    {
+        $this->messageBus = $messageBus;
+    }
+
     #[Route(
         '/api/config',
         name: 'get-config',
@@ -28,15 +39,14 @@ class ConfigController extends AbstractController
     )]
     #[OA\Tag(name: 'get-data')]
     #[OA\Tag(name: 'config')]
-    public function index(HubInterface $hub, UserRepository $userRepository, CacheInterface $cache): Response
+    public function index(HubInterface $hub, CacheInterface $cache): Response
     {
         // DB
-//        $allUsers = $userRepository->findAll(); // no Exception? and good
-//        foreach ($allUsers as $key => $user) {
-//            $allUsers[$key] = ['email' => $user->getEmail()];
-//        }
-        $allUsers = [];
-        $allUsers = $userRepository->findAll();
+        $this->messageBus->dispatch(new CreateUserCommand(
+            'John',
+            'some-password',
+        ));
+        $allUsers = $this->handle(new GetUsersQuery());
 
         // Cache
         $cachedDatetime = $cache->get('cachedDatetime', function (ItemInterface $item) {

@@ -1,0 +1,1 @@
+alias composer="php /app/backendApp/composer.phar"

@@ -6,6 +6,9 @@ resource "null_resource" "docker_build" {
     command = <<COMMAND
       (
         cd ./../../ &&
+        docker build -t sudoku_php_nginx -f ./infra/docker/php/nginx.Dockerfile ./
+      ) && (
+        cd ./../../ &&
         docker build -t sudoku_php -f ./infra/docker/php/local.Dockerfile ./
       ) && (
         cd ./../../ &&

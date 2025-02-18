@@ -1,1 +1,1 @@
-docker exec -ti sudoku_php sh
+docker exec -ti sudoku_php bash

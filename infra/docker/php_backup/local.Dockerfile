@@ -1,15 +1,10 @@
-FROM php:8.2-fpm-alpine as base
+FROM webdevops/php-nginx-dev:8.2-alpine as base
+# doc : https://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/php-nginx-dev.html
 
-# install packages for deps
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS autoconf bash
+ENV WEB_DOCUMENT_ROOT=/app/backendApp/public
 
-RUN docker-php-ext-install mysqli pdo pdo_mysql
-
-RUN pecl install redis \
-    && docker-php-ext-enable redis
-
-# Clean packages for deps
-RUN apk del -f .build-deps
+COPY ./infra/docker/php/nginx /opt/docker/etc/nginx/
+COPY ./infra/docker/php/nginx.dev /opt/docker/etc/nginx/
 
 FROM base
 
@@ -29,16 +24,10 @@ ENV CACHE_HOST=sudoku_cache
 ENV CACHE_PORT=6379
 
 RUN apk add --no-cache bash
-
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.alpine.sh' | bash
 RUN apk add symfony-cli
 
 RUN apk -UvX https://dl-4.alpinelinux.org/alpine/edge/main add -u npm
 
-RUN mkdir /.npm && chown www-data:www-data /.npm
+USER 1000:1000
 
-USER www-data:www-data
-
-EXPOSE 3000
-
-WORKDIR /app

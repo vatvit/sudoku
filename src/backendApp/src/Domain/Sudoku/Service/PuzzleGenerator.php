@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 
 class PuzzleGenerator
 {
-    private const HIDDEN_CELLS_COUNT = 3;
+    private const DEFAULT_HIDDEN_CELLS_RATIO = 0.3;
 
     public function __construct(
         readonly private GridGenerator $gridGenerator,
@@ -21,9 +21,9 @@ class PuzzleGenerator
     ) {
     }
 
-    public function generate(): PuzzleStateDto
+    public function generate(int $size = 9): PuzzleStateDto
     {
-        $grid = $this->gridGenerator->generate();
+        $grid = $this->gridGenerator->generate($size);
 
         $envelope = $this->messageBus->dispatch(new CreateSudokuGridCommand($grid));
         $handledStamps = $envelope->all(HandledStamp::class);
@@ -35,7 +35,8 @@ class PuzzleGenerator
             }
         }
 
-        $puzzleGrid = $this->gridCellHider->hideCells($grid, self::HIDDEN_CELLS_COUNT);
+        $hiddenCellsCount = (int)($size * $size * self::DEFAULT_HIDDEN_CELLS_RATIO);
+        $puzzleGrid = $this->gridCellHider->hideCells($grid, $hiddenCellsCount);
 
         $puzzleStateDto = $this->hydratePuzzleStateDto($puzzleGrid);
 
@@ -136,6 +137,7 @@ class PuzzleGenerator
 
     private function getSquareId(int $rowIndex, int $colIndex): int
     {
-        return (int)((floor($colIndex / 3)) + (floor($rowIndex / 3) * 3) + 1);
+        $blockSize = (int)sqrt(count($this->gridGenerator->generate()['cells']));
+        return (int)((floor($colIndex / $blockSize)) + (floor($rowIndex / $blockSize) * $blockSize) + 1);
     }
 }

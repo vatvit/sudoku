@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS sudoku_test;
+GRANT ALL PRIVILEGES ON sudoku_test.* TO 'sudoku'@'%';
+FLUSH PRIVILEGES;

@@ -11,7 +11,7 @@ class GridCellHider
      */
     public function hideCells(array $table, int $count): array
     {
-        // get Total amount of cells
+        // get Total number of cells
         $totalCount = 0;
         foreach ($table['cells'] as $subArray) {
             $totalCount += count($subArray);
@@ -20,7 +20,7 @@ class GridCellHider
         // size of the table
         $size = count($table['cells']);
 
-        // prepare random array of cell indexes
+        // prepare a random array of cell indexes
         $cellsRange = range(1, $totalCount);
         shuffle($cellsRange);
 

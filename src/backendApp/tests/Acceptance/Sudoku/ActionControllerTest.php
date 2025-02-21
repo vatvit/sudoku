@@ -4,6 +4,8 @@ namespace Acceptance\Sudoku;
 
 use Acceptance\AbstractAcceptanceWebTestCase;
 use Acceptance\Sudoku\HelperTrait\InstanceCreator;
+use App\Domain\Sudoku\Service\Dto\ActionDto;
+use App\Domain\Sudoku\Service\Dto\PuzzleStateDto;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ActionControllerTest extends AbstractAcceptanceWebTestCase
@@ -44,9 +46,20 @@ class ActionControllerTest extends AbstractAcceptanceWebTestCase
         // Configuration
         $this->client->catchExceptions(false);
 
+        $action = [
+            'id' => 'action-' . uniqid(),
+            'timeDiff' => time(),
+            'effects' => [
+                'id' => random_int(1, 9999),
+                'coords' => 'A1',
+                'value' => 5,
+                'notes' => [2, 4, 6],
+            ],
+        ];
+
         // Act
         try {
-            $this->client->jsonRequest('POST', '/api/games/sudoku/instances/nonexistent-game/actions', []);
+            $this->client->jsonRequest('POST', '/api/games/sudoku/instances/nonexistent-game/actions', $action);
         } catch (\Exception $e) {
             // Assert
             $this->assertInstanceOf(NotFoundHttpException::class, $e);

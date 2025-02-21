@@ -5,125 +5,142 @@ namespace App\Domain\Sudoku\Service;
 class GridShuffler
 {
     /**
-     * @param array<mixed> $table // TODO: use DTO
+     * @param array<mixed> $grid // TODO: use DTO
      * @param int $iterations
      * @return array<mixed> // TODO: use DTO
      */
-    public function shuffle(array $table, int $iterations = 10): array
+    public function shuffle(array $grid, int $iterations = 10): array
     {
+        $gridConfiguration = $this->getGridConfiguration($grid);
+
         $actions = ['transposeTable', 'switchCols', 'switchRows', 'switchColsGroup', 'switchRowsGroup'];
 
         for ($i = 0; $i < $iterations; $i++) {
             $randomAction = $actions[array_rand($actions)];
-            $table = $this->$randomAction($table);
+            $grid = $this->$randomAction($grid, $gridConfiguration);
         }
 
-        return $table;
+        return $grid;
     }
 
+    private function getGridConfiguration($grid): array
+    {
+        $size = count($grid['cells']);
+
+        if ($size <= 0 || floor(sqrt($size)) * floor(sqrt($size)) !== $size) {
+            throw new \InvalidArgumentException('Grid size must be a perfect square number');
+        }
+
+        $boxSize = (int)sqrt($size);
+
+        $gridConfiguration = [
+            'size' => $size,
+            'boxSize' => $boxSize,
+        ];
+
+        return $gridConfiguration;
+    }
 
     /**
-     * This method take an array with 81 elements as input
-     * and returns its transpose.
+     * This method takes a grid array as input and returns its transpose.
      *
-     * @param array<mixed> $table // TODO: use DTO
+     * @param array<mixed> $grid // TODO: use DTO
      * @return array<mixed> // TODO: use DTO
      */
-    public function transposeTable(array $table): array
+    private function transposeTable(array $grid, array $gridConfiguration): array
     {
         $transpose = [];
 
-        for ($i = 0; $i < 9; $i++) {
-            for ($j = 0; $j < 9; $j++) {
-                $transpose[$j][$i] = $table['cells'][$i][$j];
+        for ($i = 0; $i < $gridConfiguration['size']; $i++) {
+            for ($j = 0; $j < $gridConfiguration['size']; $j++) {
+                $transpose[$j][$i] = $grid['cells'][$i][$j];
             }
         }
 
-        $table['cells'] = $transpose;
+        $grid['cells'] = $transpose;
 
-        return $table;
+        return $grid;
     }
 
     /**
-     * @param array<mixed> $table // TODO: use DTO
+     * @param array<mixed> $grid // TODO: use DTO
      * @return array<mixed> // TODO: use DTO
      */
-    public function switchColsGroup(array $table): array
+    private function switchColsGroup(array $grid, array $gridConfiguration): array
     {
-        $groups = [0, 3, 6];
+        $groups = range(0, $gridConfiguration['size'] - 1, $gridConfiguration['boxSize']);
         shuffle($groups);
         $groupA = array_shift($groups);
         $groupB = array_shift($groups);
 
-        for ($i = 0; $i < 9; $i++) {
-            for ($j = 0; $j < 3; $j++) {
-                $temp = $table['cells'][$i][$groupA + $j];
-                $table['cells'][$i][$groupA + $j] = $table['cells'][$i][$groupB + $j];
-                $table['cells'][$i][$groupB + $j] = $temp;
+        for ($i = 0; $i < $gridConfiguration['size']; $i++) {
+            for ($j = 0; $j < $gridConfiguration['boxSize']; $j++) {
+                $temp = $grid['cells'][$i][$groupA + $j];
+                $grid['cells'][$i][$groupA + $j] = $grid['cells'][$i][$groupB + $j];
+                $grid['cells'][$i][$groupB + $j] = $temp;
             }
         }
 
-        return $table;
+        return $grid;
     }
 
     /**
-     * @param array<mixed> $table // TODO: use DTO
+     * @param array<mixed> $grid // TODO: use DTO
      * @return array<mixed> // TODO: use DTO
      */
-    public function switchRowsGroup(array $table): array
+    private function switchRowsGroup(array $grid, array $gridConfiguration): array
     {
-        $groups = [0, 3, 6];
+        $groups = range(0, $gridConfiguration['size'] - 1, $gridConfiguration['boxSize']);
         shuffle($groups);
         $groupA = array_shift($groups);
         $groupB = array_shift($groups);
 
-        for ($i = 0; $i < 3; $i++) {
-            $temp = $table['cells'][$groupA + $i];
-            $table['cells'][$groupA + $i] = $table['cells'][$groupB + $i];
-            $table['cells'][$groupB + $i] = $temp;
+        for ($i = 0; $i < $gridConfiguration['boxSize']; $i++) {
+            $temp = $grid['cells'][$groupA + $i];
+            $grid['cells'][$groupA + $i] = $grid['cells'][$groupB + $i];
+            $grid['cells'][$groupB + $i] = $temp;
         }
 
-        return $table;
+        return $grid;
     }
 
     /**
-     * @param array<mixed> $table // TODO: use DTO
+     * @param array<mixed> $grid // TODO: use DTO
      * @return array<mixed> // TODO: use DTO
      */
-    public function switchRows(array $table): array
+    private function switchRows(array $grid, array $gridConfiguration): array
     {
-        $group = rand(0, 2);
-        $rows = range(0, 2);
+        $group = rand(0, $gridConfiguration['boxSize'] - 1);
+        $rows = range(0, $gridConfiguration['boxSize'] - 1);
         shuffle($rows);
-        $rowA = array_shift($rows) + ($group * 3);
-        $rowB = array_shift($rows) + ($group * 3);
+        $rowA = array_shift($rows) + ($group * $gridConfiguration['boxSize']);
+        $rowB = array_shift($rows) + ($group * $gridConfiguration['boxSize']);
 
+        $temp = $grid['cells'][$rowA];
+        $grid['cells'][$rowA] = $grid['cells'][$rowB];
+        $grid['cells'][$rowB] = $temp;
 
-        $temp = $table['cells'][$rowA];
-        $table['cells'][$rowA] = $table['cells'][$rowB];
-        $table['cells'][$rowB] = $temp;
-
-        return $table;
+        return $grid;
     }
 
     /**
-     * @param array<mixed> $table // TODO: use DTO
+     * @param array<mixed> $grid // TODO: use DTO
      * @return array<mixed> // TODO: use DTO
      */
-    public function switchCols(array $table): array
+    private function switchCols(array $grid, array $gridConfiguration): array
     {
-        $group = rand(0, 2);
-        $cols = range(0, 2);
+        $group = rand(0, $gridConfiguration['boxSize'] - 1);
+        $cols = range(0, $gridConfiguration['boxSize'] - 1);
         shuffle($cols);
-        $colA = array_shift($cols) + ($group * 3);
-        $colB = array_shift($cols) + ($group * 3);
+        $colA = array_shift($cols) + ($group * $gridConfiguration['boxSize']);
+        $colB = array_shift($cols) + ($group * $gridConfiguration['boxSize']);
 
-        for ($i = 0; $i < 9; $i++) {
-            $temp = $table['cells'][$i][$colA];
-            $table['cells'][$i][$colA] = $table['cells'][$i][$colB];
-            $table['cells'][$i][$colB] = $temp;
+        for ($i = 0; $i < $gridConfiguration['size']; $i++) {
+            $temp = $grid['cells'][$i][$colA];
+            $grid['cells'][$i][$colA] = $grid['cells'][$i][$colB];
+            $grid['cells'][$i][$colB] = $temp;
         }
 
-        return $table;
+        return $grid;
     }
 }

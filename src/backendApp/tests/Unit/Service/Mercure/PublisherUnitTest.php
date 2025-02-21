@@ -2,8 +2,8 @@
 
 namespace App\Tests\Unit\Service\Mercure;
 
-use App\Service\Mercure\Factory;
-use App\Service\Mercure\Publisher;
+use App\Application\Service\Mercure\Factory;
+use App\Application\Service\Mercure\Publisher;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mercure\Hub;
 use Symfony\Component\Mercure\Update;

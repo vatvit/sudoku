@@ -40,12 +40,12 @@ RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS autoconf linux-headers
 # Create Xdebug configuration
 ENV XDEBUG_CLIENT_HOST="host.docker.internal"
 ENV XDEBUG_MODE=debug
-ENV XDEBUG_START_WITH_REQUEST=yes
+#ENV XDEBUG_START_WITH_REQUEST=yes
 ENV XDEBUG_CLIENT_PORT=9003
 RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.client_host=${XDEBUG_CLIENT_HOST}" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.mode=${XDEBUG_MODE}" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.start_with_request=${XDEBUG_START_WITH_REQUEST}" >> /usr/local/etc/php/conf.d/xdebug.ini \
+#    && echo "xdebug.start_with_request=${XDEBUG_START_WITH_REQUEST}" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.client_port=${XDEBUG_CLIENT_PORT}" >> /usr/local/etc/php/conf.d/xdebug.ini
 
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.alpine.sh' | bash

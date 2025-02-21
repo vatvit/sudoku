@@ -4,6 +4,35 @@ namespace App\Domain\Sudoku\Service;
 
 class GridShuffler
 {
+    public const ACTION_TRANSPOSE = 'transposeTable';
+    public const ACTION_SWITCH_COLS = 'switchCols';
+    public const ACTION_SWITCH_ROWS = 'switchRows';
+    public const ACTION_SWITCH_COLS_GROUP = 'switchColsGroup';
+    public const ACTION_SWITCH_ROWS_GROUP = 'switchRowsGroup';
+
+    private array $availableActions;
+
+    public function __construct(?array $actions = null)
+    {
+        $this->availableActions = $actions ?? [
+            self::ACTION_TRANSPOSE,
+            self::ACTION_SWITCH_COLS,
+            self::ACTION_SWITCH_ROWS,
+            self::ACTION_SWITCH_COLS_GROUP,
+            self::ACTION_SWITCH_ROWS_GROUP,
+        ];
+
+        if (empty($this->availableActions)) {
+            throw new \InvalidArgumentException('At least one shuffle action must be provided');
+        }
+
+        foreach ($this->availableActions as $action) {
+            if (!method_exists($this, $action)) {
+                throw new \InvalidArgumentException(sprintf('Invalid shuffle action: %s', $action));
+            }
+        }
+    }
+
     /**
      * @param array<mixed> $grid // TODO: use DTO
      * @param int $iterations
@@ -13,10 +42,8 @@ class GridShuffler
     {
         $gridConfiguration = $this->getGridConfiguration($grid);
 
-        $actions = ['transposeTable', 'switchCols', 'switchRows', 'switchColsGroup', 'switchRowsGroup'];
-
         for ($i = 0; $i < $iterations; $i++) {
-            $randomAction = $actions[array_rand($actions)];
+            $randomAction = $this->availableActions[array_rand($this->availableActions)];
             $grid = $this->$randomAction($grid, $gridConfiguration);
         }
 
@@ -27,8 +54,11 @@ class GridShuffler
     {
         $size = count($grid['cells']);
 
-        if ($size <= 0 || floor(sqrt($size)) * floor(sqrt($size)) !== $size) {
-            throw new \InvalidArgumentException('Grid size must be a perfect square number');
+        if ($size <= 0 || (int)(floor(sqrt($size)) * floor(sqrt($size))) !== $size) {
+            throw new \InvalidArgumentException(sprintf(
+                'Grid size must be a perfect square number, "%d" provided.' . floor(sqrt($size)) * floor(sqrt($size)),
+                $size
+            ));
         }
 
         $boxSize = (int)sqrt($size);

@@ -8,83 +8,60 @@ use PHPUnit\Framework\TestCase;
 
 class GridShufflerTest extends TestCase
 {
-    private GridShuffler $gridShuffler;
+    private const VALID_ACTIONS = [
+        GridShuffler::ACTION_TRANSPOSE,
+        GridShuffler::ACTION_SWITCH_COLS,
+        GridShuffler::ACTION_SWITCH_ROWS,
+        GridShuffler::ACTION_SWITCH_COLS_GROUP,
+        GridShuffler::ACTION_SWITCH_ROWS_GROUP,
+    ];
 
-    protected function setUp(): void
+    public function testConstructorShouldValidateActions(): void
     {
-        $this->gridShuffler = new GridShuffler();
+        // Invalid action
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid shuffle action: invalidAction');
+        new GridShuffler(['invalidAction']);
     }
 
-    #[DataProvider('gridSizeProvider')]
-    public function testShuffle(int $size): void
+    public function testConstructorShouldRequireAtLeastOneAction(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('At least one shuffle action must be provided');
+        new GridShuffler([]);
+    }
+
+    #[DataProvider('gridSizeAndActionProvider')]
+    public function testEachShuffleActionShouldModifyGrid(int $size, string $action): void
     {
         // Arrange
-        $originalGrid = $this->createValidGrid($size);
+        $grid = $this->createValidGrid($size);
+        $shuffler = new GridShuffler([$action]);
 
         // Act
-        $result = $this->gridShuffler->shuffle($originalGrid);
+        $result = $shuffler->shuffle($grid, 1);
 
         // Assert
-        $this->assertNotEquals($originalGrid, $result);
+        $this->assertNotEquals(
+            $grid,
+            $result,
+            sprintf('Action %s did not modify the grid', $action)
+        );
         $this->assertGridIsValid($result);
     }
 
     #[DataProvider('gridSizeProvider')]
-    public function testTransposeTable(int $size): void
+    public function testMultipleShufflesShouldMaintainValidGrid(int $size): void
     {
         // Arrange
         $grid = $this->createValidGrid($size);
-        
+        $shuffler = new GridShuffler(self::VALID_ACTIONS);
+
         // Act
-        $result = $this->gridShuffler->shuffle($grid, 1); // Ensure at least one transpose
-        
+        $result = $shuffler->shuffle($grid, 5);
+
         // Assert
         $this->assertNotEquals($grid, $result);
-        $this->assertGridIsValid($result);
-    }
-
-    #[DataProvider('gridSizeProvider')]
-    public function testSwitchColsGroup(int $size): void
-    {
-        // Arrange
-        $grid = $this->createValidGrid($size);
-        $originalGrid = $grid;
-
-        // Act
-        $result = $this->gridShuffler->shuffle($grid, 1); // Ensure at least one column group switch
-
-        // Assert
-        $this->assertNotEquals($originalGrid, $result);
-        $this->assertGridIsValid($result);
-    }
-
-    #[DataProvider('gridSizeProvider')]
-    public function testSwitchRowsGroup(int $size): void
-    {
-        // Arrange
-        $grid = $this->createValidGrid($size);
-        $originalGrid = $grid;
-
-        // Act
-        $result = $this->gridShuffler->shuffle($grid, 1); // Ensure at least one row group switch
-
-        // Assert
-        $this->assertNotEquals($originalGrid, $result);
-        $this->assertGridIsValid($result);
-    }
-
-    #[DataProvider('gridSizeProvider')]
-    public function testSwitchRows(int $size): void
-    {
-        // Arrange
-        $grid = $this->createValidGrid($size);
-        $originalGrid = $grid;
-
-        // Act
-        $result = $this->gridShuffler->shuffle($grid, 1); // Ensure at least one row switch
-
-        // Assert
-        $this->assertNotEquals($originalGrid, $result);
         $this->assertGridIsValid($result);
     }
 
@@ -97,7 +74,21 @@ class GridShufflerTest extends TestCase
         ];
     }
 
-    private function createValidGrid(int $size = 9): array
+    public static function gridSizeAndActionProvider(): array
+    {
+        $testCases = [];
+        $sizes = [4, 9, 16];
+        
+        foreach ($sizes as $size) {
+            foreach (self::VALID_ACTIONS as $action) {
+                $testCases[sprintf('%dx%d grid with %s', $size, $size, $action)] = [$size, $action];
+            }
+        }
+        
+        return $testCases;
+    }
+
+    private function createValidGrid(int $size): array
     {
         $grid = ['cells' => []];
         $blockSize = (int)sqrt($size);

@@ -4,6 +4,7 @@ namespace App\Domain\Sudoku\Service;
 
 use App\Application\CQRS\Command\CreateSudokuGridCommand;
 use App\Application\CQRS\Command\CreateSudokuGridHandler;
+use App\Application\CQRS\Trait\HandleMultiplyTrait;
 use App\Domain\Sudoku\Service\Dto\CellDto;
 use App\Domain\Sudoku\Service\Dto\CellGroupDto;
 use App\Domain\Sudoku\Service\Dto\PuzzleStateDto;
@@ -12,28 +13,24 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 
 class PuzzleGenerator
 {
+    use HandleMultiplyTrait;
+
     private const DEFAULT_HIDDEN_CELLS_RATIO = 0.3;
 
     public function __construct(
         readonly private GridGenerator $gridGenerator,
         readonly private GridCellHider $gridCellHider,
-        readonly private MessageBusInterface $messageBus,
+        MessageBusInterface $messageBus,
     ) {
+        $this->messageBus = $messageBus;
     }
 
     public function generate(int $size = 9): PuzzleStateDto
     {
         $grid = $this->gridGenerator->generate($size);
 
-        $envelope = $this->messageBus->dispatch(new CreateSudokuGridCommand($grid));
-        $handledStamps = $envelope->all(HandledStamp::class);
-
-        foreach ($handledStamps as $stamp) {
-            $handlerClassName = strstr($stamp->getHandlerName(), '::', true);
-            if ($handlerClassName === CreateSudokuGridHandler::class) {
-                $gridId = $stamp->getResult();
-            }
-        }
+        $results = $this->handle(new CreateSudokuGridCommand($grid));
+        $gridId = $this->getResultByHandlerName($results, CreateSudokuGridHandler::class);
 
         $hiddenCellsCount = (int)($size * $size * self::DEFAULT_HIDDEN_CELLS_RATIO);
         $puzzleGrid = $this->gridCellHider->hideCells($grid, $hiddenCellsCount);

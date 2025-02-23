@@ -3,7 +3,9 @@
 namespace App\Interface\Controller\Core;
 
 use App\Application\CQRS\Command\CreateUserCommand;
+use App\Application\CQRS\Query\GetUsersHandler;
 use App\Application\CQRS\Query\GetUsersQuery;
+use App\Application\CQRS\Trait\HandleMultiplyTrait;
 use App\Interface\Controller\Core\Dto\ConfigResponseDto;
 use App\Interface\Controller\Core\Mapper\ConfigResponseMapper;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -12,7 +14,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
-use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -20,7 +21,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class ConfigController extends AbstractController
 {
-    use HandleTrait;
+    use HandleMultiplyTrait;
 
     public function __construct(MessageBusInterface $messageBus)
     {
@@ -46,7 +47,8 @@ class ConfigController extends AbstractController
             'John',
             'some-password',
         ));
-        $allUsers = (array)$this->handle(new GetUsersQuery());
+        $results = $this->handle(new GetUsersQuery());
+        $allUsers = $this->getResultByHandlerName($results, GetUsersHandler::class);
 
         // Cache
         $cachedDatetime = (string)$cache->get('cachedDatetime', function (ItemInterface $item) {

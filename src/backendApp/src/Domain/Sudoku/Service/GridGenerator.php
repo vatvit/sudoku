@@ -12,7 +12,7 @@ class GridGenerator
      */
     public function generate(int $size = 9): array
     {
-        if ($size <= 0 || floor(sqrt($size)) * floor(sqrt($size)) !== $size) {
+        if ($size <= 0 || (int)(floor(sqrt($size)) * floor(sqrt($size))) !== $size) {
             throw new \InvalidArgumentException('Grid size must be a perfect square number');
         }
 

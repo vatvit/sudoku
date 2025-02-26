@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Domain\Core\Entity;
+namespace App\Infrastructure\Entity;
 
-use App\Infrastructure\Repository\GamePlayerRepository;
+use App\Infrastructure\Repository\SudokuGridRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: GamePlayerRepository::class)]
-class GamePlayer
+#[ORM\Entity(repositoryClass: SudokuGridRepository::class)]
+class SudokuGrid
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -15,15 +17,14 @@ class GamePlayer
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'gamePlayers')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Player $playerId = null;
+    #[ORM\Column(type: Types::JSON)]
+    private ?string $grid = null;
 
-    #[ORM\ManyToOne(inversedBy: 'gamePlayers')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?GameInstance $gameInstance = null;
+    #[ORM\Column(type: Types::JSON)]
+    private ?array $blocks = null;
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?Uuid
@@ -31,26 +32,26 @@ class GamePlayer
         return $this->id;
     }
 
-    public function getPlayerId(): ?Player
+    public function getGrid(): ?string
     {
-        return $this->playerId;
+        return $this->grid;
     }
 
-    public function setPlayerId(?Player $playerId): static
+    public function setGrid(string $grid): static
     {
-        $this->playerId = $playerId;
+        $this->grid = $grid;
 
         return $this;
     }
 
-    public function getGameInstance(): ?GameInstance
+    public function getBlocks(): ?array
     {
-        return $this->gameInstance;
+        return $this->blocks;
     }
 
-    public function setGameInstance(?GameInstance $gameInstance): static
+    public function setBlocks(array $blocks): static
     {
-        $this->gameInstance = $gameInstance;
+        $this->blocks = $blocks;
 
         return $this;
     }

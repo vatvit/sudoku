@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Domain\Sudoku\Entity;
+namespace App\Infrastructure\Entity;
 
-use App\Domain\Core\Entity\GameInstance;
 use App\Infrastructure\Repository\SudokuGameInstanceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;

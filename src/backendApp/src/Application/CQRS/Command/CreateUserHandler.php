@@ -2,7 +2,7 @@
 
 namespace App\Application\CQRS\Command;
 
-use App\Domain\Core\Entity\User;
+use App\Infrastructure\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

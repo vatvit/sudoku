@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Domain\Core\Entity;
+namespace App\Infrastructure\Entity;
 
-use App\Domain\Sudoku\Entity\SudokuGameInstance;
 use App\Infrastructure\Repository\GameInstanceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

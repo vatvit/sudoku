@@ -16,17 +16,11 @@ doctrine:
         controller_resolver:
             auto_mapping: false # temporary due to deprecation warning. Should be removed later.
         mappings:
-            Core:
+            App:
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Domain/Core/Entity'
-                prefix: 'App\Domain\Core\Entity'
-                alias: Core
-            Sudoku:
-                is_bundle: false
-                dir: '%kernel.project_dir%/src/Domain/Sudoku/Entity'
-                prefix: 'App\Domain\Sudoku\Entity'
-                alias: Sudoku
-
+                dir: '%kernel.project_dir%/src/Infrastructure/Entity'
+                prefix: 'App\Infrastructure\Entity'
+                alias: App
 when@test:
     doctrine:
         dbal:

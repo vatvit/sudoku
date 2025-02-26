@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Domain\Sudoku\Entity;
+namespace App\Infrastructure\Entity;
 
-use App\Infrastructure\Repository\SudokuInitialStateRepository;
-use Doctrine\DBAL\Types\Types;
+use App\Infrastructure\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: SudokuInitialStateRepository::class)]
-class SudokuInitialState
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+class User
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -16,14 +16,14 @@ class SudokuInitialState
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?SudokuGrid $grid = null;
+    #[ORM\Column(length: 255)]
+    private ?string $email = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $hiddenCells = null;
+    #[ORM\Column(length: 255)]
+    private ?string $password = null;
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?Uuid
@@ -31,26 +31,26 @@ class SudokuInitialState
         return $this->id;
     }
 
-    public function getGrid(): ?SudokuGrid
+    public function getEmail(): ?string
     {
-        return $this->grid;
+        return $this->email;
     }
 
-    public function setGrid(?SudokuGrid $grid): static
+    public function setEmail(string $email): static
     {
-        $this->grid = $grid;
+        $this->email = $email;
 
         return $this;
     }
 
-    public function getHiddenCells(): ?string
+    public function getPassword(): ?string
     {
-        return $this->hiddenCells;
+        return $this->password;
     }
 
-    public function setHiddenCells(string $hiddenCells): static
+    public function setPassword(string $password): static
     {
-        $this->hiddenCells = $hiddenCells;
+        $this->password = $password;
 
         return $this;
     }

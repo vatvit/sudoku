@@ -2,7 +2,7 @@
 
 namespace App\Application\CQRS\Command;
 
-use App\Domain\Sudoku\Entity\SudokuGrid;
+use App\Infrastructure\Entity\SudokuGrid;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

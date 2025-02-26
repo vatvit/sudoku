@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Core\Entity;
+namespace App\Infrastructure\Entity;
 
 use App\Infrastructure\Repository\GameInstanceActionRepository;
 use Doctrine\Common\Collections\ArrayCollection;

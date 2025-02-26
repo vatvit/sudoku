@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Domain\Sudoku\Entity;
+namespace App\Infrastructure\Entity;
 
-use App\Infrastructure\Repository\SudokuGridRepository;
+use App\Infrastructure\Repository\SudokuInitialStateRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: SudokuGridRepository::class)]
-class SudokuGrid
+#[ORM\Entity(repositoryClass: SudokuInitialStateRepository::class)]
+class SudokuInitialState
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -17,14 +16,14 @@ class SudokuGrid
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\Column(type: Types::JSON)]
-    private ?string $grid = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?SudokuGrid $grid = null;
 
-    #[ORM\Column(type: Types::JSON)]
-    private ?array $blocks = null;
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $hiddenCells = null;
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
-    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?Uuid
@@ -32,26 +31,26 @@ class SudokuGrid
         return $this->id;
     }
 
-    public function getGrid(): ?string
+    public function getGrid(): ?SudokuGrid
     {
         return $this->grid;
     }
 
-    public function setGrid(string $grid): static
+    public function setGrid(?SudokuGrid $grid): static
     {
         $this->grid = $grid;
 
         return $this;
     }
 
-    public function getBlocks(): ?array
+    public function getHiddenCells(): ?string
     {
-        return $this->blocks;
+        return $this->hiddenCells;
     }
 
-    public function setBlocks(array $blocks): static
+    public function setHiddenCells(string $hiddenCells): static
     {
-        $this->blocks = $blocks;
+        $this->hiddenCells = $hiddenCells;
 
         return $this;
     }

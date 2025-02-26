@@ -82,7 +82,7 @@ function mouseleaveHandler(event: MouseEvent) {
 </script>
 
 <template>
-  <div class="cell" style="border: 1px solid red;"
+  <div class="cell"
        :data-coords="cell.coords"
        :class="getCellClasses(cell)"
        @click="cellClickHandler"
@@ -100,7 +100,9 @@ function mouseleaveHandler(event: MouseEvent) {
 
 <style scoped>
 .cell {
-  height: 100%;
+  height: 50px;
+  width: 50px;
+  font-size: 40px;
 
   &.grey {
     background-color: lightgray;

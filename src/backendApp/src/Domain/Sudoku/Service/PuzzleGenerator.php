@@ -15,7 +15,7 @@ class PuzzleGenerator
 {
     use HandleMultiplyTrait;
 
-    private const DEFAULT_HIDDEN_CELLS_RATIO = 0.3;
+    private const DEFAULT_HIDDEN_CELLS_RATIO = 0.1;
 
     public function __construct(
         readonly private GridGenerator $gridGenerator,
@@ -32,7 +32,7 @@ class PuzzleGenerator
         $results = $this->handle(new CreateSudokuGridCommand($grid));
         $gridId = $this->getResultByHandlerName($results, CreateSudokuGridHandler::class);
 
-        $hiddenCellsCount = (int)($size * $size * self::DEFAULT_HIDDEN_CELLS_RATIO);
+        $hiddenCellsCount = $this->getHiddenCellsCount($size, self::DEFAULT_HIDDEN_CELLS_RATIO);
         $puzzleGrid = $this->gridCellHider->hideCells($grid, $hiddenCellsCount);
 
         $puzzleStateDto = $this->hydratePuzzleStateDto($puzzleGrid);
@@ -119,7 +119,7 @@ class PuzzleGenerator
         $rowIndex = (int)explode(':', $cellDto->coords)[0] - 1;
         $colIndex = (int)explode(':', $cellDto->coords)[1] - 1;
 
-        $squareId = $this->getSquareId($rowIndex, $colIndex);
+        $squareId = $this->getBlockId($rowIndex, $colIndex);
 
         $cellGroupRowDto = ['id' => $rowIndex + 1, 'type' => CellGroupDto::TYPE_ROW, 'cells' => []];
         $cellGroupColDto = ['id' => $colIndex + 1, 'type' => CellGroupDto::TYPE_COLUMN, 'cells' => []];
@@ -132,9 +132,15 @@ class PuzzleGenerator
         ];
     }
 
-    private function getSquareId(int $rowIndex, int $colIndex): int
+    private function getBlockId(int $rowIndex, int $colIndex): int
     {
         $blockSize = (int)sqrt(count($this->gridGenerator->generate()['cells']));
         return (int)((floor($colIndex / $blockSize)) + (floor($rowIndex / $blockSize) * $blockSize) + 1);
+    }
+
+    public function getHiddenCellsCount(int $size, float $ratio): int
+    {
+        $hiddenCellsCount = (int)ceil($size * $size * $ratio);
+        return $hiddenCellsCount;
     }
 }

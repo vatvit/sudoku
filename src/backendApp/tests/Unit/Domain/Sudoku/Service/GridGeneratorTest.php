@@ -96,7 +96,8 @@ class GridGeneratorTest extends TestCase
         foreach ($grid['cells'] as $row) {
             $this->assertCount($size, $row);
             $values = array_column($row, 'value');
-            $this->assertEquals(range(1, $size), array_values(array_unique($values)));
+            sort($values);
+            $this->assertEquals(range(1, $size), array_values($values));
         }
 
         // Check each column
@@ -105,7 +106,9 @@ class GridGeneratorTest extends TestCase
             for ($row = 0; $row < $size; $row++) {
                 $values[] = $grid['cells'][$row][$col]['value'];
             }
-            $this->assertEquals(range(1, $size), array_values(array_unique($values)));
+            $values = array_unique($values);
+            sort($values);
+            $this->assertEquals(range(1, $size), array_values($values));
         }
 
         // Check each box
@@ -117,7 +120,9 @@ class GridGeneratorTest extends TestCase
                         $values[] = $grid['cells'][$row][$col]['value'];
                     }
                 }
-                $this->assertEquals(range(1, $size), array_values(array_unique($values)));
+                $values = array_unique($values);
+                sort($values);
+                $this->assertEquals(range(1, $size), array_values($values));
             }
         }
     }

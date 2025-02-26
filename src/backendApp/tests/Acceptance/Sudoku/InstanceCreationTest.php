@@ -4,9 +4,6 @@ namespace Acceptance\Sudoku;
 
 use Acceptance\AbstractAcceptanceWebTestCase;
 use Acceptance\Sudoku\HelperTrait\InstanceCreator;
-use App\Domain\Sudoku\Service\Dto\PuzzleStateDto;
-use App\Interface\Controller\Sudoku\Dto\InstanceCreateResponseDto;
-use App\Interface\Controller\Sudoku\Dto\InstanceGetResponseDto;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class InstanceCreationTest extends AbstractAcceptanceWebTestCase

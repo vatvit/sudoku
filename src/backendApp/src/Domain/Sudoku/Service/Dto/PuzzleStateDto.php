@@ -10,6 +10,8 @@ final class PuzzleStateDto extends AbstractDto
     #[Assert\NotBlank]
     public string $id;
 
+    public array $header;
+
     #[Assert\All([
         new Assert\Type(type: CellRowCollectionDto::class)
     ])]

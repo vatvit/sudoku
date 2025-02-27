@@ -32,5 +32,5 @@ services:
     app.validator.constraint.sudoku_grid_validator:
         class: 'App\Application\Validator\Constraint\ValidSudokuGridJsonValidator'
         arguments:
-            $gridValidator: '@App\Domain\Sudoku\Service\GridValidator'
+            - '@App\Domain\Sudoku\Service\SudokuSudokuGridStructureStructureValidator'
         tags: ['validator.constraint_validator']

@@ -18,6 +18,9 @@ class GridGenerator
 
         $boxSize = (int)sqrt($size);
         $grid = [
+            'header' => [
+                'size' => $size,
+            ],
             'cells' => [],
         ];
 

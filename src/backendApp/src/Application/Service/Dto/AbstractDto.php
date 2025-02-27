@@ -68,7 +68,8 @@ abstract class AbstractDto
     {
         foreach ($data as $propertyName => $value) {
             if (!property_exists($this, $propertyName)) {
-                throw new \InvalidArgumentException('Invalid property: ' . $propertyName);
+                // Skip unknown property
+                continue;
             }
 
             if (in_array($propertyName, $this->_privateProperties, true)) {

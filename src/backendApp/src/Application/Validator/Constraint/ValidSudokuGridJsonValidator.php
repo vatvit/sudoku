@@ -2,13 +2,13 @@
 
 namespace App\Application\Validator\Constraint;
 
-use App\Domain\Sudoku\Service\Interface\GridValidatorInterface;
+use App\Domain\Sudoku\Service\Interface\SudokuGridStructureValidatorInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 class ValidSudokuGridJsonValidator extends ConstraintValidator
 {
-    public function __construct(private readonly GridValidatorInterface $gridValidator)
+    public function __construct(private readonly SudokuGridStructureValidatorInterface $sudokuGridStructureValidator)
     {
     }
 
@@ -30,7 +30,7 @@ class ValidSudokuGridJsonValidator extends ConstraintValidator
             return;
         }
 
-        $issues = $this->gridValidator->validate($value);
+        $issues = $this->sudokuGridStructureValidator->validate($value);
 
         if (count($issues) > 0) {
             $this->context->buildViolation($constraint->message ?? 'Invalid grid JSON. Issues: {{ issues }}')

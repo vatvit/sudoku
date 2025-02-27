@@ -2,6 +2,7 @@
 
 namespace App\Infrastructure\Entity;
 
+use App\Application\Validator\Constraint\ValidSudokuGridJson;
 use App\Infrastructure\Repository\SudokuGridRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -9,7 +10,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: SudokuGridRepository::class)]
-class SudokuGrid
+#[ORM\HasLifecycleCallbacks]
+class SudokuGrid extends AbstractEntity
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -18,6 +20,7 @@ class SudokuGrid
     private ?Uuid $id = null;
 
     #[ORM\Column(type: Types::JSON)]
+    #[ValidSudokuGridJson]
     private ?string $grid = null;
 
     #[ORM\Column(type: Types::JSON)]

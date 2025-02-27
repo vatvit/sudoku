@@ -2,13 +2,13 @@
 
 namespace App\Infrastructure\Entity;
 
-use App\Infrastructure\Repository\SudokuInitialStateRepository;
+use App\Infrastructure\Repository\SudokuGameInitialStateRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: SudokuInitialStateRepository::class)]
-class SudokuInitialState
+#[ORM\Entity(repositoryClass: SudokuGameInitialStateRepository::class)]
+class SudokuGameInitialState
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]

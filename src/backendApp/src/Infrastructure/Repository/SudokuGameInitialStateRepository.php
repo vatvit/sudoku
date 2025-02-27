@@ -2,18 +2,18 @@
 
 namespace App\Infrastructure\Repository;
 
-use App\Infrastructure\Entity\SudokuInitialState;
+use App\Infrastructure\Entity\SudokuGameInitialState;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<SudokuInitialState>
+ * @extends ServiceEntityRepository<SudokuGameInitialState>
  */
-class SudokuInitialStateRepository extends ServiceEntityRepository
+class SudokuGameInitialStateRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, SudokuInitialState::class);
+        parent::__construct($registry, SudokuGameInitialState::class);
     }
 
     //    /**

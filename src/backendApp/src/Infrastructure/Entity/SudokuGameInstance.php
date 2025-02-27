@@ -23,7 +23,7 @@ class SudokuGameInstance
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?SudokuInitialState $initialState = null;
+    private ?SudokuGameInitialState $initialState = null;
 
     #[ORM\Column]
     private ?bool $solved = null;
@@ -45,12 +45,12 @@ class SudokuGameInstance
         return $this;
     }
 
-    public function getInitialState(): ?SudokuInitialState
+    public function getInitialState(): ?SudokuGameInitialState
     {
         return $this->initialState;
     }
 
-    public function setInitialState(?SudokuInitialState $initialState): static
+    public function setInitialState(?SudokuGameInitialState $initialState): static
     {
         $this->initialState = $initialState;
 

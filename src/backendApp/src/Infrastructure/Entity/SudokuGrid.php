@@ -3,12 +3,13 @@
 namespace App\Infrastructure\Entity;
 
 use App\Infrastructure\Repository\SudokuGridRepository;
-use App\Infrastructure\Validator\Constraint\ValidSudokuGridJson;
+use App\Infrastructure\Validator\Constraint\ValidSudokuGridEntity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Uid\Uuid;
 
+#[ValidSudokuGridEntity]
 #[ORM\Entity(repositoryClass: SudokuGridRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class SudokuGrid extends AbstractEntity
@@ -19,8 +20,10 @@ class SudokuGrid extends AbstractEntity
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    private ?int $size = null;
+
     #[ORM\Column(type: Types::JSON)]
-    #[ValidSudokuGridJson]
     private ?string $grid = null;
 
     #[ORM\Column(type: Types::JSON)]
@@ -33,6 +36,16 @@ class SudokuGrid extends AbstractEntity
     public function getId(): ?Uuid
     {
         return $this->id;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setSize(?int $size): void
+    {
+        $this->size = $size;
     }
 
     public function getGrid(): ?string

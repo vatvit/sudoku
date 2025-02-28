@@ -26,4 +26,4 @@ services:
         tags: [ 'validator.constraint_validator_factory' ]
 
     app.validator.constraint.sudoku_grid_validator:
-        alias: 'App\Infrastructure\Validator\Constraint\ValidSudokuGridJsonValidator'
+        alias: 'App\Infrastructure\Validator\Constraint\SudokuGridValidator'

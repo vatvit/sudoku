@@ -17,6 +17,7 @@ readonly class CreateSudokuGridHandler
     public function __invoke(CreateSudokuGridCommand $command): ?\Symfony\Component\Uid\Uuid
     {
         $entity = $this->entityFactory->create(SudokuGrid::class);
+        $entity->setSize($command->size);
         $entity->setGrid(json_encode($command->grid));
         $entity->setBlocks([]);
 

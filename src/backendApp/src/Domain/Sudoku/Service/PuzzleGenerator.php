@@ -29,7 +29,7 @@ class PuzzleGenerator
     {
         $grid = $this->gridGenerator->generate($size);
 
-        $results = $this->handle(new CreateSudokuGridCommand($grid));
+        $results = $this->handle(new CreateSudokuGridCommand($size, $grid));
         $gridId = $this->getResultByHandlerName($results, CreateSudokuGridHandler::class);
 
         $hiddenCellsCount = $this->getHiddenCellsCount($size, self::DEFAULT_HIDDEN_CELLS_RATIO);

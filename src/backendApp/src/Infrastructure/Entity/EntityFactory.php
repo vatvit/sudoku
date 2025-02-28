@@ -10,9 +10,13 @@ readonly class EntityFactory
 
     public function __construct(private readonly ConstraintServiceValidatorFactory $constraintValidatorFactory)
     {}
-    
 
-    public function create($entityClass): AbstractEntity
+    /**
+     * @template T of AbstractEntity
+     * @param class-string<T> $entityClass
+     * @return T
+     */
+    public function create(string $entityClass): mixed
     {
         $entity = new $entityClass();
         if (!$entity instanceof AbstractEntity) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Sudoku\Service;
+namespace App\Application\Service\Sudoku;
 
 use App\Application\CQRS\Command\CreateSudokuGridCommand;
 use App\Application\CQRS\Command\CreateSudokuGridHandler;
@@ -8,10 +8,11 @@ use App\Application\CQRS\Trait\HandleMultiplyTrait;
 use App\Domain\Sudoku\Service\Dto\CellDto;
 use App\Domain\Sudoku\Service\Dto\CellGroupDto;
 use App\Domain\Sudoku\Service\Dto\PuzzleStateDto;
+use App\Domain\Sudoku\Service\GridCellHider;
+use App\Domain\Sudoku\Service\GridGenerator;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\HandledStamp;
 
-class PuzzleGenerator
+class InstanceCreator
 {
     use HandleMultiplyTrait;
 
@@ -25,7 +26,7 @@ class PuzzleGenerator
         $this->messageBus = $messageBus;
     }
 
-    public function generate(int $size = 9): PuzzleStateDto
+    public function create(int $size = 9): PuzzleStateDto
     {
         $grid = $this->gridGenerator->generate($size);
 

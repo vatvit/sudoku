@@ -2,7 +2,7 @@
 
 namespace App\Interface\Controller\Sudoku;
 
-use App\Domain\Sudoku\Service\PuzzleGenerator;
+use App\Application\Service\Sudoku\InstanceCreator;
 use App\Interface\Controller\Sudoku\Dto\InstanceCreateResponseDto;
 use App\Interface\Controller\Sudoku\Dto\InstanceGetResponseDto;
 use App\Interface\Controller\Sudoku\Mapper\InstanceResponseMapper;
@@ -35,9 +35,9 @@ class InstanceController extends AbstractController
     #[OA\Tag(name: 'game-instances')]
     #[OA\Tag(name: 'game-sudoku')]
     #[OA\Tag(name: 'game-sudoku-instances')]
-    public function create(PuzzleGenerator $puzzleGenerator, CacheInterface $cache): JsonResponse
+    public function create(InstanceCreator $puzzleGenerator, CacheInterface $cache): JsonResponse
     {
-        $puzzleStateDto = $puzzleGenerator->generate();
+        $puzzleStateDto = $puzzleGenerator->create();
 
         $gameCacheKey = $this->getGameCacheKey($puzzleStateDto->id);
 

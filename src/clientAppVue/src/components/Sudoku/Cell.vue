@@ -145,16 +145,16 @@ function mouseleaveHandler(event: MouseEvent) {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
 
-  width: 20px;
-  max-width: 20px;
-  height: 20px;
-  max-height: 20px;
+  width: 50px;
+  max-width: 50px;
+  height: 50px;
+  max-height: 50px;
   font-size: 10px;
 
   padding: 0;
 
   .cell-note {
-    margin-top: -5px;
+    margin-top: 5px;
   }
 
   table.cell-notes-table {

@@ -3,5 +3,5 @@ export function toggleNoteMode() {
 }
 
 export function toggleNoteOnSelectedCell(value) {
-  this.selectedCell.hasNote(key) ? this.selectedCell.deleteNote(key) : this.selectedCell.addNote(key)
+  this.selectedCell.hasNote(value) ? this.selectedCell.deleteNote(value) : this.selectedCell.addNote(value)
 }

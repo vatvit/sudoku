@@ -2,8 +2,8 @@
 
 namespace App\Infrastructure\Entity;
 
-use App\Application\Validator\Constraint\ValidSudokuGridJson;
 use App\Infrastructure\Repository\SudokuGridRepository;
+use App\Infrastructure\Validator\Constraint\ValidSudokuGridJson;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;

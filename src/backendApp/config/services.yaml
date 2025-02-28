@@ -20,13 +20,9 @@ services:
             - '../src/Domain/*/Entity/'
             - '../src/Kernel.php'
 
-    App\Application\Validator\ConstraintValidatorFactory:
+    App\Application\Validator\ConstraintServiceValidatorFactory:
         calls:
-            - [setValidatorsMap,
-                [
-                    app.validator.constraint.sudoku_grid_validator: '@app.validator.constraint.sudoku_grid_validator'
-                ]
-            ]
+            - addServiceValidator: ['@app.validator.constraint.sudoku_grid_validator']
         tags: [ 'validator.constraint_validator_factory' ]
 
     app.validator.constraint.sudoku_grid_validator:

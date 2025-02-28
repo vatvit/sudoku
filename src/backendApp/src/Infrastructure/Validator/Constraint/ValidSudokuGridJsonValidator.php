@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Validator\Constraint;
+namespace App\Infrastructure\Validator\Constraint;
 
 use App\Domain\Sudoku\Service\Interface\SudokuGridStructureValidatorInterface;
 use Symfony\Component\Validator\Constraint;

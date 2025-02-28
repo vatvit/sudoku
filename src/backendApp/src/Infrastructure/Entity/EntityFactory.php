@@ -2,13 +2,13 @@
 
 namespace App\Infrastructure\Entity;
 
-use App\Application\Validator\ConstraintValidatorFactory;
+use App\Application\Validator\ConstraintServiceValidatorFactory;
 use Symfony\Component\Validator\Validation;
 
 readonly class EntityFactory
 {
 
-    public function __construct(private readonly ConstraintValidatorFactory $constraintValidatorFactory)
+    public function __construct(private readonly ConstraintServiceValidatorFactory $constraintValidatorFactory)
     {}
     
 

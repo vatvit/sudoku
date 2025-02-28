@@ -8,7 +8,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class SudokuSudokuGridStructureStructureValidator implements SudokuGridStructureValidatorInterface
+class SudokuGridStructureValidator implements SudokuGridStructureValidatorInterface
 {
     private ValidatorInterface $validator;
 

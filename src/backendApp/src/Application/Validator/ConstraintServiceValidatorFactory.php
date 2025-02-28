@@ -14,9 +14,13 @@ class ConstraintServiceValidatorFactory extends SymfonyConstraintValidatorFactor
      */
     private array $serviceValidatorsMap = [];
 
-    public function addServiceValidator(ConstraintValidatorInterface $serviceValidator): self
+    public function addServiceValidator(string $key, ConstraintValidatorInterface $serviceValidator): self
     {
-        $this->serviceValidatorsMap[] = $serviceValidator;
+        if (isset($this->serviceValidatorsMap[$key])) {
+            throw new \InvalidArgumentException(sprintf('A service validator with the key "%s" already exists.', $key));
+        }
+
+        $this->serviceValidatorsMap[$key] = $serviceValidator;
         return $this;
     }
     public function getInstance(Constraint $constraint): ConstraintValidatorInterface

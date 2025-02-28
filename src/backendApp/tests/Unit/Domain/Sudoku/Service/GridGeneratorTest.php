@@ -23,7 +23,12 @@ class GridGeneratorTest extends TestCase
     {
         // Arrange
         $boxSize = (int)sqrt($size);
-        $expectedGrid = ['cells' => []];
+        $expectedGrid = [
+            'header' => [
+                'size' => $size,
+            ],
+            'cells' => [],
+        ];
         for ($row = 0; $row < $size; $row++) {
             for ($col = 0; $col < $size; $col++) {
                 $expectedGrid['cells'][$row][$col] = [

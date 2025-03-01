@@ -29,18 +29,6 @@ class SudokuGameInstance extends AbstractEntity
         return $this->id;
     }
 
-    public function getGameInstance(): ?GameInstance
-    {
-        return $this->gameInstance;
-    }
-
-    public function setGameInstance(GameInstance $gameInstance): static
-    {
-        $this->gameInstance = $gameInstance;
-
-        return $this;
-    }
-
     public function getSudokuPuzzle(): ?SudokuPuzzle
     {
         return $this->sudokuPuzzle;

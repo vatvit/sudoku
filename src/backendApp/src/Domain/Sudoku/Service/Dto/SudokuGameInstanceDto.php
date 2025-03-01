@@ -5,12 +5,10 @@ namespace App\Domain\Sudoku\Service\Dto;
 use App\Application\Service\Dto\AbstractDto;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class PuzzleStateDto extends AbstractDto
+final class SudokuGameInstanceDto extends AbstractDto
 {
     #[Assert\NotBlank]
     public string $id;
-
-    public array $header;
 
     #[Assert\All([
         new Assert\Type(type: CellRowCollectionDto::class)

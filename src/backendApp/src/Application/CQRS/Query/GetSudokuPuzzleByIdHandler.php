@@ -12,7 +12,7 @@ readonly class GetSudokuPuzzleByIdHandler
     public function __construct(private SudokuPuzzleRepository $repository)
     {
     }
-    public function __invoke(GetSudokuPuzzleByIdQuery $query): SudokuPuzzle
+    public function __invoke(GetSudokuPuzzleByIdQuery $query): ?SudokuPuzzle
     {
         $entity = $this->repository->find($query->id);
 

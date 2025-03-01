@@ -3,7 +3,6 @@
 namespace App\Interface\Controller\Sudoku;
 
 use App\Domain\Sudoku\Service\Dto\ActionDto;
-use App\Domain\Sudoku\Service\Dto\PuzzleStateDto;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -41,7 +40,6 @@ class ActionController extends AbstractController
             throw $this->createNotFoundException();
         }
         $table = $tableCacheItem->get();
-        $puzzleStateDto = new PuzzleStateDto($table);
 
         // TODO: do something
 

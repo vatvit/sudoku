@@ -12,7 +12,7 @@ readonly class GetSudokuGridByIdHandler
     public function __construct(private SudokuGridRepository $repository)
     {
     }
-    public function __invoke(GetSudokuGridByIdQuery $query): SudokuGrid
+    public function __invoke(GetSudokuGridByIdQuery $query): ?SudokuGrid
     {
         $entity = $this->repository->find($query->id);
 

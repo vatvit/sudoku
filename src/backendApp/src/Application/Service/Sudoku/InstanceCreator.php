@@ -8,6 +8,8 @@ use App\Application\CQRS\Command\CreateSudokuGridCommand;
 use App\Application\CQRS\Command\CreateSudokuGridHandler;
 use App\Application\CQRS\Command\CreateSudokuPuzzleCommand;
 use App\Application\CQRS\Command\CreateSudokuPuzzleHandler;
+use App\Application\CQRS\Query\GetSudokuGameInstanceByIdHandler;
+use App\Application\CQRS\Query\GetSudokuGameInstanceByIdQuery;
 use App\Application\CQRS\Query\GetSudokuGridByIdHandler;
 use App\Application\CQRS\Query\GetSudokuGridByIdQuery;
 use App\Application\CQRS\Query\GetSudokuPuzzleByIdHandler;
@@ -15,9 +17,10 @@ use App\Application\CQRS\Query\GetSudokuPuzzleByIdQuery;
 use App\Application\CQRS\Trait\HandleMultiplyTrait;
 use App\Domain\Sudoku\Service\Dto\CellDto;
 use App\Domain\Sudoku\Service\Dto\CellGroupDto;
-use App\Domain\Sudoku\Service\Dto\PuzzleStateDto;
+use App\Domain\Sudoku\Service\Dto\SudokuGameInstanceDto;
 use App\Domain\Sudoku\Service\GridCellHider;
 use App\Domain\Sudoku\Service\GridGenerator;
+use App\Infrastructure\Entity\SudokuGameInstance;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -36,7 +39,7 @@ class InstanceCreator
         $this->messageBus = $messageBus;
     }
 
-    public function create(int $size = 9): PuzzleStateDto
+    public function create(int $size = 9): SudokuGameInstanceDto
     {
         $grid = $this->gridGenerator->generate($size);
 
@@ -63,15 +66,19 @@ class InstanceCreator
             GetSudokuPuzzleByIdHandler::class
         );
 
-        $sudokuGameInstanceEntity = $this->handleAndGetResultByHandlerName(
+        $sudokuGameInstanceEntityId = $this->handleAndGetResultByHandlerName(
             new CreateSudokuGameInstanceCommand($sudokuPuzzleEntity),
             CreateSudokuGameInstanceHandler::class
         );
 
+        $sudokuGameInstanceEntity = $this->handleAndGetResultByHandlerName(
+            new GetSudokuGameInstanceByIdQuery($sudokuGameInstanceEntityId),
+            GetSudokuGameInstanceByIdHandler::class
+        );
+
         $this->entityManager->flush(); // commit unit of work
 
-        $puzzleGrid = $this->applyHiddenCells($grid, $hiddenCells);
-        $puzzleStateDto = $this->hydratePuzzleStateDto($puzzleGrid);
+        $puzzleStateDto = $this->hydratePuzzleStateDto($sudokuGameInstanceEntity);
 
         return $puzzleStateDto;
     }
@@ -89,12 +96,19 @@ class InstanceCreator
         return $grid;
     }
 
-    /**
-     * @param array<mixed> $puzzleGrid // TODO: use DTO
-     * @return PuzzleStateDto
-     */
-    private function hydratePuzzleStateDto(array $puzzleGrid): PuzzleStateDto
+    private function hydratePuzzleStateDto(SudokuGameInstance $sudokuGameInstance): SudokuGameInstanceDto
     {
+        $sudokuGridJson = $sudokuGameInstance->getSudokuPuzzle()->getSudokuGrid()->getGrid();
+
+        try {
+            $sudokuGrid = json_decode($sudokuGridJson, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new \RuntimeException(sprintf('Failed to decode Sudoku grid JSON for Sudoku Game Instance ID: %s. Error: %s', $sudokuGameInstance->getId()->toString() ?? 'unknown', $e->getMessage()), 0, $e);
+        }
+
+        $hiddenCells = $sudokuGameInstance->getSudokuPuzzle()->getHiddenCells();
+        $puzzleGrid = $this->applyHiddenCells($sudokuGrid, $hiddenCells);
+
         $groups = [];
         foreach ($puzzleGrid['cells'] as $rowIndex => $rowArray) {
             foreach ($rowArray as $colIndex => $cell) {
@@ -108,7 +122,7 @@ class InstanceCreator
 
         $puzzleGrid['id'] = $this->generateId($puzzleGrid);
 
-        return PuzzleStateDto::hydrate($puzzleGrid);
+        return SudokuGameInstanceDto::hydrate($puzzleGrid);
     }
 
     /**

@@ -26,6 +26,7 @@ readonly class EntityFactory
             ));
         }
 
+        // TODO: move it to external service. Use the same validator Object in all Entities
         $validator = Validation::createValidatorBuilder()
             ->setConstraintValidatorFactory($this->constraintValidatorFactory)
             ->enableAttributeMapping()

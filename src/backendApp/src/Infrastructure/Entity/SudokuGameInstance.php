@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: SudokuGameInstanceRepository::class)]
-class SudokuGameInstance
+class SudokuGameInstance extends AbstractEntity
 {
     public const TYPE = 'sudoku';
 
@@ -17,16 +17,12 @@ class SudokuGameInstance
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?GameInstance $gameInstance = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?SudokuGameInitialState $initialState = null;
+    private ?SudokuPuzzle $sudokuPuzzle = null;
 
     #[ORM\Column]
-    private ?bool $solved = null;
+    private ?bool $solved = false;
 
     public function getId(): ?Uuid
     {
@@ -45,14 +41,14 @@ class SudokuGameInstance
         return $this;
     }
 
-    public function getInitialState(): ?SudokuGameInitialState
+    public function getSudokuPuzzle(): ?SudokuPuzzle
     {
-        return $this->initialState;
+        return $this->sudokuPuzzle;
     }
 
-    public function setInitialState(?SudokuGameInitialState $initialState): static
+    public function setSudokuPuzzle(SudokuPuzzle $sudokuPuzzle): static
     {
-        $this->initialState = $initialState;
+        $this->sudokuPuzzle = $sudokuPuzzle;
 
         return $this;
     }

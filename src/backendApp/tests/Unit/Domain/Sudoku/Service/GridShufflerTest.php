@@ -58,7 +58,7 @@ class GridShufflerTest extends TestCase
         $shuffler = new GridShuffler(self::VALID_ACTIONS);
 
         // Act
-        $result = $shuffler->shuffle($grid, 5);
+        $result = $shuffler->shuffle($grid, 4);
 
         // Assert
         $this->assertNotEquals($grid, $result);

@@ -77,4 +77,27 @@ trait HandleMultiplyTrait
 
         throw new RuntimeException(sprintf('Handler with name "%s" was not found in the results.', $handlerName));
     }
+
+
+    /**
+     * Combines the functionality of handling a message and retrieving the result by a specific handler name.
+     *
+     * This method dispatches the given message using the `handle` method, retrieves all the handler results,
+     * and then fetches the result for the specified handler by using the `getResultByHandlerName` method.
+     *
+     * @param object $message The message object to be dispatched and handled.
+     * @param string $handlerName The name of the handler whose result is to be retrieved.
+     *
+     * @throws LogicException If the message bus is not initialized, or if the message is not handled as expected.
+     * @throws RuntimeException If the handler name is not found in the results.
+     * @throws ExceptionInterface
+     *
+     * @return mixed The result from the specified handler.
+     */
+    private function handleAndGetResultByHandlerName(object $message, string $handlerName): mixed
+    {
+        $results = $this->handle($message);
+        $result = $this->getResultByHandlerName($results, $handlerName);
+        return $result;
+    }
 }

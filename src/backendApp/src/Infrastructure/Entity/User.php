@@ -8,7 +8,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User extends AbstractEntity
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]

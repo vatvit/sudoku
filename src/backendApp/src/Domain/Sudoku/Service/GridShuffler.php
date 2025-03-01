@@ -34,17 +34,29 @@ class GridShuffler
     }
 
     /**
-     * @param array<mixed> $grid // TODO: use DTO
+     * @param array<mixed> $originalGrid // TODO: use DTO
      * @param int $iterations
      * @return array<mixed> // TODO: use DTO
      */
-    public function shuffle(array $grid, int $iterations = 10): array
+    public function shuffle(array $originalGrid, int $iterations = 10): array
     {
-        $gridConfiguration = $this->getGridConfiguration($grid);
+        $gridConfiguration = $this->getGridConfiguration($originalGrid);
+        $actionsList = [];
+        $grid = $originalGrid;
 
         for ($i = 0; $i < $iterations; $i++) {
-            $randomAction = $this->availableActions[array_rand($this->availableActions)];
+            if (empty($actionsList)) {
+                $actionsList = $this->availableActions;
+                shuffle($actionsList);
+            }
+            $randomAction = array_shift($actionsList);
             $grid = $this->$randomAction($grid, $gridConfiguration);
+        }
+
+        if ($grid === $originalGrid) {
+            // one more extra iteration to produce a different grid
+            error_log('Performing extra shuffle action because the shuffle result is the same as the original grid');
+            $grid = $this->shuffle($grid, 1);
         }
 
         return $grid;

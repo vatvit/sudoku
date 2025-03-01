@@ -10,20 +10,21 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 readonly class CreateSudokuGridHandler
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly EntityFactory $entityFactory)
-    {
-    }
+    public function __construct(
+        private EntityFactory          $entityFactory,
+        private EntityManagerInterface $entityManager,
+    )
+    {}
 
     public function __invoke(CreateSudokuGridCommand $command): ?\Symfony\Component\Uid\Uuid
     {
-        $entity = $this->entityFactory->create(SudokuGrid::class);
-        $entity->setSize($command->size);
-        $entity->setGrid(json_encode($command->grid));
-        $entity->setBlocks([]);
+        $SudokuGridEntity = $this->entityFactory->create(SudokuGrid::class);
+        $SudokuGridEntity->setSize($command->size);
+        $SudokuGridEntity->setGrid(json_encode($command->grid));
+        $SudokuGridEntity->setBlocks([]);
 
-        $this->entityManager->persist($entity);
-        $this->entityManager->flush();
+        $this->entityManager->persist($SudokuGridEntity);
 
-        return $entity->getId();
+        return $SudokuGridEntity->getId();
     }
 }

@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: GameInstanceActionRepository::class)]
-class GameInstanceAction
+class GameInstanceAction extends AbstractEntity
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]

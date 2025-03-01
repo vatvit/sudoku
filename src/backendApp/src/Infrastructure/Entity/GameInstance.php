@@ -6,6 +6,7 @@ use App\Infrastructure\Repository\GameInstanceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: GameInstanceRepository::class)]
@@ -14,7 +15,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\DiscriminatorMap([
     SudokuGameInstance::TYPE => SudokuGameInstance::class,
 ])]
-class GameInstance
+abstract class GameInstance extends AbstractEntity
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -23,7 +24,12 @@ class GameInstance
     private ?Uuid $id = null;
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Gedmo\Timestampable(on: 'update')]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $startedAt = null;
@@ -43,10 +49,17 @@ class GameInstance
     #[ORM\OneToMany(mappedBy: 'gameInstanceAction', targetEntity: GameInstanceAction::class)]
     private Collection $gameInstanceActions;
 
+    /**
+     * @var Collection<int, GameState>
+     */
+    #[ORM\OneToMany(mappedBy: 'gameInstance', targetEntity: GameState::class)]
+    private Collection $gameStates;
+
     public function __construct()
     {
         $this->gamePlayers = new ArrayCollection();
         $this->gameInstanceActions = new ArrayCollection();
+        $this->gameStates = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
@@ -146,6 +159,48 @@ class GameInstance
                 $gameInstanceAction->setGameInstance(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GameState>
+     */
+    public function getGameStates(): Collection
+    {
+        return $this->gameStates;
+    }
+
+    public function addGameState(GameState $gameState): static
+    {
+        if (!$this->gameStates->contains($gameState)) {
+            $this->gameStates->add($gameState);
+            $gameState->setGameInstance($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameState(GameState $gameState): static
+    {
+        if ($this->gameStates->removeElement($gameState)) {
+            // set the owning side to null (unless already changed)
+            if ($gameState->getGameInstance() === $this) {
+                $gameState->setGameInstance(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }

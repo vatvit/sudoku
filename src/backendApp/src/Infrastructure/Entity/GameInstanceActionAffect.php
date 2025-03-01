@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: GameInstanceActionAffectRepository::class)]
-class GameInstanceActionAffect
+class GameInstanceActionAffect extends AbstractEntity
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]

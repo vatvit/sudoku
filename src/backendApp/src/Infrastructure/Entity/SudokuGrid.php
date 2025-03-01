@@ -23,10 +23,10 @@ class SudokuGrid extends AbstractEntity
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private ?int $size = null;
 
-    #[ORM\Column(type: Types::JSON)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?string $grid = null;
 
-    #[ORM\Column(type: Types::JSON)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $blocks = null;
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]

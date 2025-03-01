@@ -2,12 +2,13 @@
 
 namespace App\Infrastructure\Entity;
 
-use App\Infrastructure\Repository\GamePlayerRepository;
+use App\Infrastructure\Repository\SudokuPuzzleRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: GamePlayerRepository::class)]
-class GamePlayer extends AbstractEntity
+#[ORM\Entity(repositoryClass: SudokuPuzzleRepository::class)]
+class SudokuPuzzle extends AbstractEntity
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -15,15 +16,15 @@ class GamePlayer extends AbstractEntity
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'gamePlayers')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Player $playerId = null;
+    private ?SudokuGrid $sudokuGrid = null;
 
-    #[ORM\ManyToOne(inversedBy: 'gamePlayers')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?GameInstance $gameInstance = null;
+    #[ORM\Column]
+    private array $hiddenCells = [];
 
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?Uuid
@@ -31,26 +32,26 @@ class GamePlayer extends AbstractEntity
         return $this->id;
     }
 
-    public function getPlayerId(): ?Player
+    public function getSudokuGrid(): ?SudokuGrid
     {
-        return $this->playerId;
+        return $this->sudokuGrid;
     }
 
-    public function setPlayerId(?Player $playerId): static
+    public function setSudokuGrid(?SudokuGrid $sudokuGrid): static
     {
-        $this->playerId = $playerId;
+        $this->sudokuGrid = $sudokuGrid;
 
         return $this;
     }
 
-    public function getGameInstance(): ?GameInstance
+    public function getHiddenCells(): array
     {
-        return $this->gameInstance;
+        return $this->hiddenCells;
     }
 
-    public function setGameInstance(?GameInstance $gameInstance): static
+    public function setHiddenCells(array $hiddenCells): static
     {
-        $this->gameInstance = $gameInstance;
+        $this->hiddenCells = $hiddenCells;
 
         return $this;
     }

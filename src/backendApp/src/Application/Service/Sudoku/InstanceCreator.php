@@ -2,14 +2,23 @@
 
 namespace App\Application\Service\Sudoku;
 
+use App\Application\CQRS\Command\CreateSudokuGameInstanceCommand;
+use App\Application\CQRS\Command\CreateSudokuGameInstanceHandler;
 use App\Application\CQRS\Command\CreateSudokuGridCommand;
 use App\Application\CQRS\Command\CreateSudokuGridHandler;
+use App\Application\CQRS\Command\CreateSudokuPuzzleCommand;
+use App\Application\CQRS\Command\CreateSudokuPuzzleHandler;
+use App\Application\CQRS\Query\GetSudokuGridByIdHandler;
+use App\Application\CQRS\Query\GetSudokuGridByIdQuery;
+use App\Application\CQRS\Query\GetSudokuPuzzleByIdHandler;
+use App\Application\CQRS\Query\GetSudokuPuzzleByIdQuery;
 use App\Application\CQRS\Trait\HandleMultiplyTrait;
 use App\Domain\Sudoku\Service\Dto\CellDto;
 use App\Domain\Sudoku\Service\Dto\CellGroupDto;
 use App\Domain\Sudoku\Service\Dto\PuzzleStateDto;
 use App\Domain\Sudoku\Service\GridCellHider;
 use App\Domain\Sudoku\Service\GridGenerator;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class InstanceCreator
@@ -19,9 +28,10 @@ class InstanceCreator
     private const DEFAULT_HIDDEN_CELLS_RATIO = 0.1;
 
     public function __construct(
-        readonly private GridGenerator $gridGenerator,
-        readonly private GridCellHider $gridCellHider,
-        MessageBusInterface $messageBus,
+        private readonly GridGenerator          $gridGenerator,
+        private readonly GridCellHider          $gridCellHider,
+        private readonly EntityManagerInterface $entityManager,
+        MessageBusInterface            $messageBus,
     ) {
         $this->messageBus = $messageBus;
     }
@@ -30,15 +40,53 @@ class InstanceCreator
     {
         $grid = $this->gridGenerator->generate($size);
 
-        $results = $this->handle(new CreateSudokuGridCommand($size, $grid));
-        $gridId = $this->getResultByHandlerName($results, CreateSudokuGridHandler::class);
+        $sudokuGridEntityId = $this->handleAndGetResultByHandlerName(
+            new CreateSudokuGridCommand($size, $grid),
+            CreateSudokuGridHandler::class
+        );
+
+        $sudokuGridEntity = $this->handleAndGetResultByHandlerName(
+            new GetSudokuGridByIdQuery($sudokuGridEntityId),
+            GetSudokuGridByIdHandler::class
+        );
 
         $hiddenCellsCount = $this->getHiddenCellsCount($size, self::DEFAULT_HIDDEN_CELLS_RATIO);
-        $puzzleGrid = $this->gridCellHider->hideCells($grid, $hiddenCellsCount);
+        $hiddenCells = $this->gridCellHider->generateHiddenCells($grid, $hiddenCellsCount);
 
+        $sudokuPuzzleEntityId = $this->handleAndGetResultByHandlerName(
+            new CreateSudokuPuzzleCommand($sudokuGridEntity, $hiddenCells),
+            CreateSudokuPuzzleHandler::class
+        );
+
+        $sudokuPuzzleEntity = $this->handleAndGetResultByHandlerName(
+            new GetSudokuPuzzleByIdQuery($sudokuPuzzleEntityId),
+            GetSudokuPuzzleByIdHandler::class
+        );
+
+        $sudokuGameInstanceEntity = $this->handleAndGetResultByHandlerName(
+            new CreateSudokuGameInstanceCommand($sudokuPuzzleEntity),
+            CreateSudokuGameInstanceHandler::class
+        );
+
+        $this->entityManager->flush(); // commit unit of work
+
+        $puzzleGrid = $this->applyHiddenCells($grid, $hiddenCells);
         $puzzleStateDto = $this->hydratePuzzleStateDto($puzzleGrid);
 
         return $puzzleStateDto;
+    }
+
+    private function applyHiddenCells(array $grid, array $hiddenCells): array
+    {
+        foreach ($hiddenCells as $hiddenCell) {
+            [$rowIndex, $colIndex] = explode(':', $hiddenCell);
+
+            if (isset($grid['cells'][$rowIndex][$colIndex])) {
+                $grid['cells'][$rowIndex][$colIndex]['value'] = 0;
+            }
+        }
+
+        return $grid;
     }
 
     /**

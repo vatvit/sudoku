@@ -10,8 +10,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 readonly class GetSudokuGameInstanceByIdHandler
 {
     public function __construct(private SudokuGameInstanceRepository $repository)
-    {
-    }
+    {}
+
     public function __invoke(GetSudokuGameInstanceByIdQuery $query): ?SudokuGameInstance
     {
         $entity = $this->repository->find($query->id);

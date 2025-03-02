@@ -2,6 +2,9 @@
 
 namespace App\Interface\Controller\Sudoku;
 
+use App\Application\CQRS\Query\GetSudokuGameInstanceByIdHandler;
+use App\Application\CQRS\Query\GetSudokuGameInstanceByIdQuery;
+use App\Application\CQRS\Trait\HandleMultiplyTrait;
 use App\Application\Service\Sudoku\InstanceCreator;
 use App\Interface\Controller\Sudoku\Dto\InstanceCreateResponseDto;
 use App\Interface\Controller\Sudoku\Dto\InstanceGetResponseDto;
@@ -11,14 +14,23 @@ use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 class InstanceController extends AbstractController
 {
-    public function __construct(private readonly InstanceResponseMapper $responseMapper)
-    {}
+    use HandleMultiplyTrait;
+
+    public function __construct(
+        private readonly InstanceResponseMapper $responseMapper,
+        MessageBusInterface                     $messageBus
+    )
+    {
+        $this->messageBus = $messageBus;
+    }
 
     #[Route(
         '/api/games/sudoku/instances',
@@ -35,17 +47,9 @@ class InstanceController extends AbstractController
     #[OA\Tag(name: 'game-instances')]
     #[OA\Tag(name: 'game-sudoku')]
     #[OA\Tag(name: 'game-sudoku-instances')]
-    public function create(InstanceCreator $puzzleGenerator, CacheInterface $cache): JsonResponse
+    public function create(InstanceCreator $puzzleGenerator): JsonResponse
     {
         $puzzleStateDto = $puzzleGenerator->create();
-
-        $gameCacheKey = $this->getGameCacheKey($puzzleStateDto->id);
-
-        $cache->get($gameCacheKey, function (ItemInterface $item) use ($puzzleStateDto) {
-            $item->expiresAfter(3600);
-
-            return $puzzleStateDto->toArray();
-        });
 
         $responseDto = $this->responseMapper->mapCreate($puzzleStateDto->id);
         return $this->json($responseDto);
@@ -72,22 +76,17 @@ class InstanceController extends AbstractController
     #[OA\Tag(name: 'game-instances')]
     #[OA\Tag(name: 'game-sudoku')]
     #[OA\Tag(name: 'game-sudoku-instances')]
-    public function get(string $gameId, CacheInterface $cache): JsonResponse
+    public function get(string $gameId): JsonResponse
     {
-        /** @var TagAwareAdapter $cache */
-        $cacheKey = $this->getGameCacheKey($gameId);
-        $tableCacheItem = $cache->getItem($cacheKey);
-        if (!$tableCacheItem->isHit()) {
-            throw $this->createNotFoundException();
-        }
-        $table = $tableCacheItem->get();
+        // Fetch the Sudoku game instance using the CQRS query
+        $query = new GetSudokuGameInstanceByIdQuery(Uuid::fromString($gameId));
+        $table = $this->handleAndGetResultByHandlerName($query, GetSudokuGameInstanceByIdHandler::class);
 
+        // Check if the table was returned
+        if (!$table) {
+            return $this->json(['error' => 'Game instance not found'], 404);
+        }
         $responseDto = $this->responseMapper->mapGet($table);
         return $this->json($responseDto);
-    }
-
-    private function getGameCacheKey(string $gameId): string
-    {
-        return 'game-sudoku-' . $gameId;
     }
 }

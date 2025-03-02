@@ -16,7 +16,7 @@ class SudokuPuzzle extends AbstractEntity
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(fetch: 'EAGER')]
     #[ORM\JoinColumn(nullable: false)]
     private ?SudokuGrid $sudokuGrid = null;
 

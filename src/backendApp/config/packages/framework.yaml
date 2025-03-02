@@ -5,11 +5,6 @@ framework:
     http_method_override: false
     handle_all_throwables: true
 
-    cache:
-        prefix_seed: sudoku
-        app: cache.adapter.redis
-        default_redis_provider: 'redis://%env(CACHE_HOST)%:%env(CACHE_PORT)%'
-
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
     session:

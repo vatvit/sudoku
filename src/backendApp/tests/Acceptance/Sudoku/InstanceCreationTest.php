@@ -38,9 +38,11 @@ class InstanceCreationTest extends AbstractAcceptanceWebTestCase
         } catch (\Exception $e) {
             // Assert
             $this->assertInstanceOf(NotFoundHttpException::class, $e);
+            return;
+        } finally {
+            $this->client->catchExceptions(true);
         }
 
-        // revert configuration
-        $this->client->catchExceptions(true);
+        $this->fail('Expected NotFoundHttpException not thrown.');
     }
 }

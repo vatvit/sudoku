@@ -4,6 +4,7 @@ namespace App\Interface\Controller\Sudoku;
 
 use App\Domain\Sudoku\Service\Dto\ActionDto;
 use OpenApi\Attributes as OA;
+use Psr\Cache\CacheItemInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,18 +34,19 @@ class ActionController extends AbstractController
         #[MapRequestPayload] ActionDto $actionDto,
         CacheInterface $cache
     ): JsonResponse {
-        /** @var TagAwareAdapter $cache */
-        $cacheKey = $this->getGameCacheKey($gameId);
-        $tableCacheItem = $cache->getItem($cacheKey);
-        if (!$tableCacheItem->isHit()) {
+        // TODO: extract it
+        $cacheKey = 'game|instance|sudoku|' . $gameId;
+        /** @var CacheItemInterface $cacheItem */
+        $cacheItem = $cache->getItem($cacheKey);
+        if (!$cacheItem->isHit()) {
             throw $this->createNotFoundException();
         }
-        $table = $tableCacheItem->get();
+        $table = $cacheItem->get();
 
         // TODO: do something
 
-        $tableCacheItem->set($table);
-        $cache->save($tableCacheItem);
+        $cacheItem->set($table);
+        $cache->save($cacheItem);
 
         /*
          * TODO: Write Application/API tests

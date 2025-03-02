@@ -19,7 +19,7 @@ class ActionControllerTest extends AbstractAcceptanceWebTestCase
         $this->assertNotNull($gameId, "Failed to create a game instance during test setup.");
 
         $action = [
-            'id' => 'some-action-id',
+            'id' => $gameId,
             'timeDiff' => 123456,
             'effects' => [
                 'id' => 2345,
@@ -61,10 +61,13 @@ class ActionControllerTest extends AbstractAcceptanceWebTestCase
         } catch (\Exception $e) {
             // Assert
             $this->assertInstanceOf(NotFoundHttpException::class, $e);
+            return;
+        } finally {
+            // revert configuration
+            $this->client->catchExceptions(true);
         }
 
-        // revert configuration
-        $this->client->catchExceptions(true);
+        $this->fail('Expected NotFoundHttpException not thrown.');
     }
 
 }

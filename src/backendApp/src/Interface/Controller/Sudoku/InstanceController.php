@@ -78,14 +78,19 @@ class InstanceController extends AbstractController
     #[OA\Tag(name: 'game-sudoku-instances')]
     public function get(string $gameId): JsonResponse
     {
-        // Fetch the Sudoku game instance using the CQRS query
-        $query = new GetSudokuGameInstanceByIdQuery(Uuid::fromString($gameId));
+        try {
+            $gameId = Uuid::fromString($gameId);
+        } catch (\InvalidArgumentException $e) {
+            throw $this->createNotFoundException();
+        }
+        $query = new GetSudokuGameInstanceByIdQuery($gameId);
         $table = $this->handleAndGetResultByHandlerName($query, GetSudokuGameInstanceByIdHandler::class);
 
         // Check if the table was returned
         if (!$table) {
-            return $this->json(['error' => 'Game instance not found'], 404);
+            throw $this->createNotFoundException();
         }
+
         $responseDto = $this->responseMapper->mapGet($table);
         return $this->json($responseDto);
     }

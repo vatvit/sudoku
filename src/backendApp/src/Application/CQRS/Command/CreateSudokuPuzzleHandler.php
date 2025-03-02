@@ -4,10 +4,8 @@ namespace App\Application\CQRS\Command;
 
 use App\Infrastructure\Entity\EntityFactory;
 use App\Infrastructure\Entity\SudokuPuzzle;
-use App\Infrastructure\Repository\SudokuPuzzleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Uid\Uuid;
 
 #[AsMessageHandler]
 readonly class CreateSudokuPuzzleHandler
@@ -18,7 +16,7 @@ readonly class CreateSudokuPuzzleHandler
     )
     {}
 
-    public function __invoke(CreateSudokuPuzzleCommand $command): Uuid
+    public function __invoke(CreateSudokuPuzzleCommand $command): SudokuPuzzle
     {
         $sudokuPuzzleEntity = $this->entityFactory->create(SudokuPuzzle::class);
         $sudokuPuzzleEntity->setSudokuGrid($command->sudokuGridEntity);
@@ -26,6 +24,6 @@ readonly class CreateSudokuPuzzleHandler
 
         $this->entityManager->persist($sudokuPuzzleEntity);
 
-        return $sudokuPuzzleEntity->getId();
+        return $sudokuPuzzleEntity;
     }
 }

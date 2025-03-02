@@ -5,10 +5,8 @@ namespace App\Application\CQRS\Command;
 use App\Infrastructure\Entity\EntityFactory;
 use App\Infrastructure\Entity\GameState;
 use App\Infrastructure\Entity\SudokuGameState;
-use App\Infrastructure\Repository\GameStateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Uid\Uuid;
 
 #[AsMessageHandler]
 readonly class CreateSudokuGameStateHandler
@@ -19,7 +17,7 @@ readonly class CreateSudokuGameStateHandler
     )
     {}
 
-    public function __invoke(CreateSudokuGameStateCommand $command): Uuid
+    public function __invoke(CreateSudokuGameStateCommand $command): SudokuGameState
     {
         $gameStateEntity = new GameState();
         $gameStateEntity->setGameInstance($command->gameInstanceEntity);
@@ -35,6 +33,6 @@ readonly class CreateSudokuGameStateHandler
 
         $this->entityManager->persist($sudokuGameStateEntity);
 
-        return $sudokuGameStateEntity->getId();
+        return $sudokuGameStateEntity;
     }
 }

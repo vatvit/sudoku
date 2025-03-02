@@ -8,12 +8,6 @@ use App\Application\CQRS\Command\CreateSudokuGridCommand;
 use App\Application\CQRS\Command\CreateSudokuGridHandler;
 use App\Application\CQRS\Command\CreateSudokuPuzzleCommand;
 use App\Application\CQRS\Command\CreateSudokuPuzzleHandler;
-use App\Application\CQRS\Query\GetSudokuGameInstanceByIdHandler;
-use App\Application\CQRS\Query\GetSudokuGameInstanceByIdQuery;
-use App\Application\CQRS\Query\GetSudokuGridByIdHandler;
-use App\Application\CQRS\Query\GetSudokuGridByIdQuery;
-use App\Application\CQRS\Query\GetSudokuPuzzleByIdHandler;
-use App\Application\CQRS\Query\GetSudokuPuzzleByIdQuery;
 use App\Application\CQRS\Trait\HandleMultiplyTrait;
 use App\Domain\Sudoku\Service\Dto\CellDto;
 use App\Domain\Sudoku\Service\Dto\CellGroupDto;
@@ -23,8 +17,8 @@ use App\Domain\Sudoku\Service\GridGenerator;
 use App\Infrastructure\Entity\SudokuGameInstance;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemInterface;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class InstanceCreator
@@ -37,9 +31,11 @@ class InstanceCreator
         private readonly GridGenerator          $gridGenerator,
         private readonly GridCellHider          $gridCellHider,
         private readonly EntityManagerInterface $entityManager,
+        private readonly SerializerInterface    $serializer,
         private readonly CacheInterface         $cache,
-        MessageBusInterface            $messageBus,
-    ) {
+        MessageBusInterface                     $messageBus,
+    )
+    {
         $this->messageBus = $messageBus;
     }
 
@@ -170,46 +166,26 @@ class InstanceCreator
         return $hiddenCellsCount;
     }
 
-    /**
-     * @param int $size
-     * @return mixed
-     * @throws \Symfony\Component\Messenger\Exception\ExceptionInterface
-     */
-    private function createSudokuGameInstanceEntity(int $size): mixed
+    private function createSudokuGameInstanceEntity(int $size): SudokuGameInstance
     {
         $grid = $this->gridGenerator->generate($size);
 
-        $sudokuGridEntityId = $this->handleAndGetResultByHandlerName(
+        $sudokuGridEntity = $this->handleAndGetResultByHandlerName(
             new CreateSudokuGridCommand($size, $grid),
             CreateSudokuGridHandler::class
-        );
-
-        $sudokuGridEntity = $this->handleAndGetResultByHandlerName(
-            new GetSudokuGridByIdQuery($sudokuGridEntityId),
-            GetSudokuGridByIdHandler::class
         );
 
         $hiddenCellsCount = $this->getHiddenCellsCount($size, self::DEFAULT_HIDDEN_CELLS_RATIO);
         $hiddenCells = $this->gridCellHider->generateHiddenCells($grid, $hiddenCellsCount);
 
-        $sudokuPuzzleEntityId = $this->handleAndGetResultByHandlerName(
+        $sudokuPuzzleEntity = $this->handleAndGetResultByHandlerName(
             new CreateSudokuPuzzleCommand($sudokuGridEntity, $hiddenCells),
             CreateSudokuPuzzleHandler::class
         );
 
-        $sudokuPuzzleEntity = $this->handleAndGetResultByHandlerName(
-            new GetSudokuPuzzleByIdQuery($sudokuPuzzleEntityId),
-            GetSudokuPuzzleByIdHandler::class
-        );
-
-        $sudokuGameInstanceEntityId = $this->handleAndGetResultByHandlerName(
+        $sudokuGameInstanceEntity = $this->handleAndGetResultByHandlerName(
             new CreateSudokuGameInstanceCommand($sudokuPuzzleEntity),
             CreateSudokuGameInstanceHandler::class
-        );
-
-        $sudokuGameInstanceEntity = $this->handleAndGetResultByHandlerName(
-            new GetSudokuGameInstanceByIdQuery($sudokuGameInstanceEntityId),
-            GetSudokuGameInstanceByIdHandler::class
         );
 
         $this->entityManager->flush();
@@ -217,11 +193,12 @@ class InstanceCreator
     }
 
     /**
-     * @param mixed $sudokuGameInstanceEntity
+     * @param SudokuGameInstance $sudokuGameInstanceEntity
      * @return void
      */
-    public function cacheTheEntity(mixed $sudokuGameInstanceEntity): void
+    public function cacheTheEntity(SudokuGameInstance $sudokuGameInstanceEntity): void
     {
+        // TODO: Extract it
         $cacheKey = 'game|instance|sudoku|' . $sudokuGameInstanceEntity->getId()->toString();
 
         /** @var CacheItemInterface $cacheItem */
@@ -229,6 +206,10 @@ class InstanceCreator
         if ($cacheItem->isHit()) {
             throw new \RuntimeException(sprintf('Cache key "%s" must be unique. Duplicate detected.', $cacheKey));
         }
+
+        $cacheItem->set($this->serializer->serialize($sudokuGameInstanceEntity, 'json', [
+            'groups' => ['entity'],
+        ]));
 
         $cacheItem->expiresAfter(3600);
         $this->cache->save($cacheItem);

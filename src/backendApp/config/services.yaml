@@ -27,3 +27,9 @@ services:
 
     app.validator.constraint.sudoku_grid_validator:
         alias: 'App\Infrastructure\Validator\Constraint\SudokuGridValidator'
+
+    App\Infrastructure\Serializer\EntityNormalizer:
+        arguments:
+            $normalizer: '@serializer.normalizer.object'
+            $entityManager: '@doctrine.orm.entity_manager'
+        tags: ['serializer.normalizer']

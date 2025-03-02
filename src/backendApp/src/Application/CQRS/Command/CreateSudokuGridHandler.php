@@ -16,7 +16,7 @@ readonly class CreateSudokuGridHandler
     )
     {}
 
-    public function __invoke(CreateSudokuGridCommand $command): ?\Symfony\Component\Uid\Uuid
+    public function __invoke(CreateSudokuGridCommand $command): SudokuGrid
     {
         $SudokuGridEntity = $this->entityFactory->create(SudokuGrid::class);
         $SudokuGridEntity->setSize($command->size);
@@ -25,6 +25,6 @@ readonly class CreateSudokuGridHandler
 
         $this->entityManager->persist($SudokuGridEntity);
 
-        return $SudokuGridEntity->getId();
+        return $SudokuGridEntity;
     }
 }

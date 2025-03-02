@@ -14,5 +14,10 @@ resource "docker_container" "cache" {
   networks_advanced {
     name = "sudoku_network"
   }
+
+  ports {
+    internal = 6379
+    external = 6379
+  }
 }
 

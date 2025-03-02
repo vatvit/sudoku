@@ -222,7 +222,7 @@ class InstanceCreator
      */
     public function cacheTheEntity(mixed $sudokuGameInstanceEntity): void
     {
-        $cacheKey = 'game|instance|sudoku|' . $sudokuGameInstanceEntity->id;
+        $cacheKey = 'game|instance|sudoku|' . $sudokuGameInstanceEntity->getId()->toString();
 
         /** @var CacheItemInterface $cacheItem */
         $cacheItem = $this->cache->getItem($cacheKey);

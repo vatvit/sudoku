@@ -72,8 +72,14 @@ export class Puzzle {
   private setState(puzzleStateDto: PuzzleStateDto): void {
     puzzleStateDto.groups.forEach((cellGroupDto: CellGroupDto) => {
       const groupCells: Map<string, Cell> = new Map<string, Cell>()
-      cellGroupDto.cells.forEach((cellDto: CellDto) => {
-        const [rowIndex, colIndex] = this.getRowColIndexesByCoords(cellDto.coords)
+      cellGroupDto.cells.forEach((coords: string) => {
+        const [rowIndex, colIndex] = this.getRowColIndexesByCoords(coords)
+        const cellDto = {
+          coords: coords,
+          value: puzzleStateDto.cells[rowIndex][colIndex].value,
+          protected: puzzleStateDto.cells[rowIndex][colIndex].value > 0 || false,
+          notes: [],
+        } as CellDto // TODO: fix it.
 
         if (typeof this._cells[rowIndex] === 'undefined') {
           this._cells[rowIndex] = []

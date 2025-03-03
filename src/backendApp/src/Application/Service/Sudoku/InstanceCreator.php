@@ -74,19 +74,21 @@ class InstanceCreator
             throw new \RuntimeException(sprintf('Failed to decode Sudoku grid JSON for Sudoku Game Instance ID: %s. Error: %s', $sudokuGameInstance->getId()->toString() ?? 'unknown', $e->getMessage()), 0, $e);
         }
 
+        $sudokuGrid['cells'] = $sudokuGrid; // TODO: fix it
+
         $hiddenCells = $sudokuGameInstance->getSudokuPuzzle()->getHiddenCells();
         $puzzleGrid = $this->applyHiddenCells($sudokuGrid, $hiddenCells);
 
-        $groups = [];
+        $cellGroups = [];
         foreach ($puzzleGrid['cells'] as $rowIndex => $rowArray) {
             foreach ($rowArray as $colIndex => $cell) {
                 $cellDto = $this->hydrateCellDto($rowIndex, $colIndex, $cell);
                 $puzzleGrid['cells'][$rowIndex][$colIndex] = $cellDto;
 
-                $groups = $this->hydrateCellGroups($groups, $cellDto, $size);
+                $cellGroups = $this->hydrateCellGroups($cellGroups, $cellDto, $size);
             }
         }
-        $puzzleGrid['groups'] = array_values($groups);
+        $puzzleGrid['cellGroups'] = array_values($cellGroups);
 
         $puzzleGrid['id'] = $sudokuGameInstance->getId()->toString();
 
@@ -122,7 +124,7 @@ class InstanceCreator
             if (!isset($groups[$groupId])) {
                 $groups[$groupId] = $group;
             }
-            $groups[$groupId]['cells'][$cellDto->coords] = $cellDto;
+            $groups[$groupId]['cells'][(string)$cellDto->coords] = $cellDto;
         }
         return $groups;
     }
@@ -171,7 +173,7 @@ class InstanceCreator
         $grid = $this->gridGenerator->generate($size);
 
         $sudokuGridEntity = $this->handleAndGetResultByHandlerName(
-            new CreateSudokuGridCommand($size, $grid),
+            new CreateSudokuGridCommand($size, $grid['cells'], $grid['cellGroups']),
             CreateSudokuGridHandler::class
         );
 
@@ -207,9 +209,7 @@ class InstanceCreator
             throw new \RuntimeException(sprintf('Cache key "%s" must be unique. Duplicate detected.', $cacheKey));
         }
 
-        $cacheItem->set($this->serializer->serialize($sudokuGameInstanceEntity, 'json', [
-            'groups' => ['entity'],
-        ]));
+        $cacheItem->set($this->serializer->serialize($sudokuGameInstanceEntity, 'json'));
 
         $cacheItem->expiresAfter(3600);
         $this->cache->save($cacheItem);

@@ -5,29 +5,24 @@ namespace App\Infrastructure\Entity;
 use App\Infrastructure\Repository\SudokuPuzzleRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: SudokuPuzzleRepository::class)]
 class SudokuPuzzle extends AbstractEntity
 {
-    #[Groups(['entity'])]
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[Groups(['entity'])]
     #[ORM\ManyToOne(fetch: 'EAGER')]
     #[ORM\JoinColumn(nullable: false)]
     private ?SudokuGrid $sudokuGrid = null;
 
-    #[Groups(['entity'])]
     #[ORM\Column]
     private array $hiddenCells = [];
 
-    #[Groups(['entity'])]
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
     #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;

@@ -25,10 +25,7 @@ class SudokuGridStructureValidator implements SudokuGridStructureValidatorInterf
 
     public function validateStructure(array $gridCells, int $size): ConstraintViolationListInterface
     {
-        $constraints = new Assert\Collection([
-            'fields' => [
-                'cells' => [
-                    new Assert\Required([
+        $constraints = new Assert\Required([
                         new Assert\Type('array'),
                         new Assert\Count($size),
                         new Assert\All([
@@ -46,11 +43,6 @@ class SudokuGridStructureValidator implements SudokuGridStructureValidatorInterf
                                 ]),
                             ]),
                         ]),
-                    ])
-                ],
-            ],
-            'allowExtraFields' => false,
-            'allowMissingFields' => false,
         ]);
         $errors = $this->validator->validate($gridCells, $constraints);
         return $errors;

@@ -46,7 +46,7 @@ abstract class GameInstance extends AbstractEntity
     /**
      * @var Collection<int, GameInstanceAction>
      */
-    #[ORM\OneToMany(mappedBy: 'gameInstanceAction', targetEntity: GameInstanceAction::class)]
+    #[ORM\OneToMany(mappedBy: 'gameInstance', targetEntity: GameInstanceAction::class)]
     private Collection $gameInstanceActions;
 
     /**

@@ -8,21 +8,19 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 trait WithValidator
 {
-    protected ?ValidatorInterface $validator = null;
+    protected ?ValidatorInterface $_validator = null; // @phpcs:ignore
 
     protected function getValidator(): ValidatorInterface
     {
-        if ($this->validator === null) {
-            $this->validator = Validation::createValidatorBuilder()
-                ->enableAttributeMapping()
-                ->getValidator();
+        if ($this->_validator === null) {
+            $this->_validator = $this->getDefaultValidator();
         }
-        return $this->validator;
+        return $this->_validator;
     }
 
     public function setValidator(ValidatorInterface $validator): void
     {
-        $this->validator = $validator;
+        $this->_validator = $validator;
     }
 
     public function getValidationViolations(): ConstraintViolationListInterface
@@ -43,6 +41,17 @@ trait WithValidator
         }
 
         return true;
+    }
+
+    protected function getDefaultValidator(): ValidatorInterface
+    {
+        static $validator;
+        if ($validator === null) {
+            $validator = Validation::createValidatorBuilder()
+                ->enableAttributeMapping()
+                ->getValidator();
+        }
+        return $validator;
     }
 
 }

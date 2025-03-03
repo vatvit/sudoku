@@ -18,13 +18,13 @@ readonly class CreateSudokuGridHandler
 
     public function __invoke(CreateSudokuGridCommand $command): SudokuGrid
     {
-        $SudokuGridEntity = $this->entityFactory->create(SudokuGrid::class);
-        $SudokuGridEntity->setSize($command->size);
-        $SudokuGridEntity->setGrid(json_encode($command->grid));
-        $SudokuGridEntity->setBlocks([]);
+        $sudokuGridEntity = $this->entityFactory->create(SudokuGrid::class);
+        $sudokuGridEntity->setSize($command->size);
+        $sudokuGridEntity->setGrid(json_encode($command->grid));
+        $sudokuGridEntity->setCellGroups(json_encode($command->cellGroups));
 
-        $this->entityManager->persist($SudokuGridEntity);
+        $this->entityManager->persist($sudokuGridEntity);
 
-        return $SudokuGridEntity;
+        return $sudokuGridEntity;
     }
 }

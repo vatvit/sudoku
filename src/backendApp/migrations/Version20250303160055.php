@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250303101233 extends AbstractMigration
+final class Version20250303160055 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -28,7 +28,7 @@ final class Version20250303101233 extends AbstractMigration
         $this->addSql('CREATE TABLE player (id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', user_id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', display_name VARCHAR(255) NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', UNIQUE INDEX UNIQ_98197A65A76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE sudoku_game_instance (id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', sudoku_puzzle_id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', solved TINYINT(1) NOT NULL, INDEX IDX_B1206F72321EB00E (sudoku_puzzle_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE sudoku_game_state (id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', game_state_id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', filled_cells JSON NOT NULL, noted_cells JSON NOT NULL, UNIQUE INDEX UNIQ_854A68E3AE9CC3E7 (game_state_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE sudoku_grid (id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', size INT NOT NULL, grid JSON NOT NULL, blocks JSON NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE sudoku_grid (id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', size INT NOT NULL, grid JSON NOT NULL, cell_groups JSON NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE sudoku_puzzle (id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', sudoku_grid_id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', hidden_cells JSON NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', INDEX IDX_83D7DC4A6BE3ADB (sudoku_grid_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user (id BINARY(16) NOT NULL COMMENT \'(DC2Type:uuid)\', email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE game_instance_action ADD CONSTRAINT FK_7B193C0EE404301F FOREIGN KEY (game_instance_id) REFERENCES game_instance (id)');

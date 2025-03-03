@@ -2,13 +2,14 @@
 
 namespace App\Application\Service\Dto;
 
-use Symfony\Component\Validator\Validation;
+use App\Application\Traits\WithValidator;
+use App\Domain\ValueObject\ValueObjectInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /** @phpstan-consistent-constructor */
 abstract class AbstractDto
 {
-    private ValidatorInterface $_validator; // @phpcs:ignore
+    use WithValidator;
 
     /**
      * @var array<string>
@@ -21,10 +22,9 @@ abstract class AbstractDto
      */
     public function __construct(?array $data = [], ?ValidatorInterface $validator = null)
     {
-        if ($validator === null) {
-            $validator = $this->getDefaultValidator();
+        if ($validator !== null) {
+            $this->setValidator($validator);
         }
-        $this->_validator = $validator;
 
         if (isset($data)) {
             self::hydrate($data, $this);
@@ -55,7 +55,7 @@ abstract class AbstractDto
 
         $dto->hydrateData($data);
 
-        $dto->validate();
+        $dto->assertValid();
 
         return $dto;
     }
@@ -79,49 +79,37 @@ abstract class AbstractDto
             $reflection = new \ReflectionProperty($this, $propertyName);
             $type = $reflection->getType();
 
-            if (!$type) {
-                throw new \RuntimeException('Undefined type for property: ' . $propertyName);
-            }
-
-            if (!$type instanceof \ReflectionNamedType) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'Invalid type for property: %s. Expected type but got: %s.',
-                        $propertyName,
-                        get_debug_type($type)
-                    )
-                );
-            }
+            $this->checkPropertyType($type, $propertyName);
 
             $expectedPropertyType = $type->getName();
 
             if ($expectedPropertyType === 'self' || is_subclass_of($expectedPropertyType, AbstractDto::class)) {
-                if (!is_a($value, AbstractDto::class)) {
-                    if (!is_array($value)) {
-                        throw new \InvalidArgumentException(
-                            sprintf(
-                                'Expected property "%s" to be an array, %s given.',
-                                $propertyName,
-                                gettype($value)
-                            )
-                        );
-                    }
-                    $value = $expectedPropertyType::hydrate($value);
-                }
+                $this->$propertyName = $this->hydrateDto($value, $expectedPropertyType, $propertyName);
+                continue;
+            }
+
+            if (is_subclass_of($expectedPropertyType, ValueObjectInterface::class)) {
+                $this->$propertyName = $this->hydrateValueObject($value, $expectedPropertyType);
+                continue;
             }
 
             if ($expectedPropertyType === 'array') {
-                $arrayDtoConstName = 'PROP_' . mb_strtoupper($propertyName) . '_TYPE';
-                $fullStaticConstName = 'static::' . $arrayDtoConstName;
-                $arrayDtoConstValue = defined($fullStaticConstName) ? constant($fullStaticConstName) : '';
+                $snakeCasedPropertyName = preg_replace('/([a-z])([A-Z])/', '$1_$2', $propertyName);
+                $fullStaticConstName = 'static::PROP_' . mb_strtoupper($snakeCasedPropertyName) . '_TYPE';
+                $arrayItemType = defined($fullStaticConstName) ? constant($fullStaticConstName) : '';
 
-                if (is_subclass_of($arrayDtoConstValue, AbstractDto::class)) {
-                    foreach ($value as &$item) {
-                        if (!is_a($item, AbstractDto::class)) {
-                            $item = $arrayDtoConstValue::hydrate($item);
-                        }
+                foreach ($value as &$item) {
+                    if (is_subclass_of($arrayItemType, AbstractDto::class)) {
+                        $item = $this->hydrateDto($item, $arrayItemType, $propertyName);
+                    }
+
+                    if (is_subclass_of($arrayItemType, ValueObjectInterface::class)) {
+                        $item = $this->hydrateValueObject($item, $arrayItemType);
                     }
                 }
+
+                $this->$propertyName = $value;
+                continue;
             }
 
             $this->$propertyName = $value;
@@ -146,6 +134,8 @@ abstract class AbstractDto
                 $array[$property] = array_map(function ($item) {
                     if ($item instanceof self) {
                         return $item->toArray();
+                    } else {
+                        return $item;
                     }
                 }, $value);
             } else {
@@ -156,32 +146,75 @@ abstract class AbstractDto
         return $array;
     }
 
-    /**
-     * @return bool
-     * @throws \InvalidArgumentException
-     */
-    public function validate(): bool
+    public function checkPropertyType(mixed $type, string $propertyName): void
     {
-        $violations = $this->_validator->validate($this);
-
-        if (count($violations) > 0) {
-            $messages = [];
-            foreach ($violations as $violation) {
-                $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-            }
-            throw new \InvalidArgumentException(implode('; ', $messages));
+        if (!$type) {
+            throw new \RuntimeException('Undefined type for property: ' . $propertyName);
         }
 
-        return true;
+        if (!$type instanceof \ReflectionNamedType) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Invalid type for property: %s. Expected type but got: %s.',
+                    $propertyName,
+                    get_debug_type($type)
+                )
+            );
+        }
+    }
+
+    public function hydrateDto(mixed $value, string|AbstractDto $expectedDtoType, int|string $propertyName): AbstractDto
+    {
+        if (is_a($value, $expectedDtoType)) {
+            return $value;
+        }
+
+        if (!is_array($value)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Expected property "%s" to be an array, %s given.',
+                    $propertyName,
+                    gettype($value)
+                )
+            );
+        }
+
+        $value = $expectedDtoType::hydrate($value);
+
+        if (!$value instanceof $expectedDtoType) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Expected each item in the array to be an instance of %s, got %s.',
+                    $expectedDtoType,
+                    is_object($value) ? get_class($value) : gettype($value)
+                )
+            );
+        }
+
+        return $value;
     }
 
     /**
-     * @return ValidatorInterface
+     * @param array<array|AbstractDto> $value
+     * @param string $arrayItemDtoClass
+     * @return array<AbstractDto>
      */
-    private function getDefaultValidator(): ValidatorInterface
+    public function hydrateArrayOfDto(mixed $value, string $arrayItemDtoClass): mixed
     {
-        return Validation::createValidatorBuilder()
-            ->enableAttributeMapping()
-            ->getValidator();
+        /** @var AbstractDto::class $arrayItemDtoClass */
+        foreach ($value as &$item) {
+            if (!is_a($item, $arrayItemDtoClass)) {
+                $item = $arrayItemDtoClass::hydrate($item);
+            }
+
+        }
+        return $value;
+    }
+
+    public function hydrateValueObject(string $value, string $expectedPropertyType)
+    {
+        /** @var ValueObjectInterface::class $expectedPropertyType */
+        $value = $expectedPropertyType::fromString($value);
+        return $value;
     }
 }

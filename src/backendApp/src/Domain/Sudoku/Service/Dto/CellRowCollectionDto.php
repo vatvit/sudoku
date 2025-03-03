@@ -14,7 +14,7 @@ final class CellRowCollectionDto extends AbstractCollectionDto
         new Assert\Type(type: CellDto::class)
     ])]
     /**
-     * @var CellDto[] $collection
+     * @var array<CellDto> $collection
      */
     protected array $collection;
 

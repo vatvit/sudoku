@@ -8,7 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 abstract class AbstractEntity
 {
-
     use WithValidator;
 
     #[ORM\PrePersist]

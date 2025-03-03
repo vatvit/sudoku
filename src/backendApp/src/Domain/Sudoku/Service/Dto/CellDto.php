@@ -3,12 +3,12 @@
 namespace App\Domain\Sudoku\Service\Dto;
 
 use App\Application\Service\Dto\AbstractDto;
+use App\Domain\Sudoku\ValueObject\CellCoords;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class CellDto extends AbstractDto
 {
-    #[Assert\NotBlank]
-    public string $coords;
+    public CellCoords $coords;
 
     #[Assert\Range(min: 0, max: 9)]
     public int $value;

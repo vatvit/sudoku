@@ -7,7 +7,6 @@ use App\Infrastructure\Validator\Constraint\ValidSudokuGridEntity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
 #[ValidSudokuGridEntity]
@@ -15,26 +14,21 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\HasLifecycleCallbacks]
 class SudokuGrid extends AbstractEntity
 {
-    #[Groups(['entity'])]
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private ?Uuid $id = null;
 
-    #[Groups(['entity'])]
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private ?int $size = null;
 
-    #[Groups(['entity'])]
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?string $grid = null;
 
-    #[Groups(['entity'])]
     #[ORM\Column(type: Types::JSON, nullable: false)]
-    private ?array $blocks = null;
+    private ?string $cellGroups = null;
 
-    #[Groups(['entity'])]
     #[ORM\Column(options: ["default" => "CURRENT_TIMESTAMP"])]
     #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeImmutable $createdAt = null;
@@ -66,14 +60,14 @@ class SudokuGrid extends AbstractEntity
         return $this;
     }
 
-    public function getBlocks(): ?array
+    public function getCellGroups(): ?string
     {
-        return $this->blocks;
+        return $this->cellGroups;
     }
 
-    public function setBlocks(array $blocks): static
+    public function setCellGroups(string $cellGroups): static
     {
-        $this->blocks = $blocks;
+        $this->cellGroups = $cellGroups;
 
         return $this;
     }

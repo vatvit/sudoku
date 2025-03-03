@@ -33,3 +33,7 @@ services:
             $normalizer: '@serializer.normalizer.object'
             $entityManager: '@doctrine.orm.entity_manager'
         tags: ['serializer.normalizer']
+
+    App\Infrastructure\EntityEventListener\PostLoadListener:
+        tags:
+            - { name: doctrine.event_listener, event: postLoad }

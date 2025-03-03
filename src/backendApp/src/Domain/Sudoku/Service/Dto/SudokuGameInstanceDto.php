@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class SudokuGameInstanceDto extends AbstractDto
 {
     #[Assert\NotBlank]
+    #[Assert\Type(type: 'string')]
     public string $id;
 
     #[Assert\All([
@@ -24,9 +25,9 @@ final class SudokuGameInstanceDto extends AbstractDto
         new Assert\Type(type: CellGroupDto::class)
     ])]
     /**
-     * @var array<CellGroupDto> $groups
+     * @var array<CellGroupDto> $cellGroups
      */
     // @phpstan-ignore-next-line missingType.iterableValue
-    public array $groups;
-    protected const PROP_GROUPS_TYPE = CellGroupDto::class;
+    public array $cellGroups;
+    protected const PROP_CELL_GROUPS_TYPE = CellGroupDto::class;
 }

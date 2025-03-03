@@ -3,6 +3,7 @@
 namespace App\Domain\Sudoku\Service\Dto;
 
 use App\Application\Service\Dto\AbstractDto;
+use App\Domain\Sudoku\ValueObject\CellCoords;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class CellGroupDto extends AbstractDto
@@ -23,12 +24,12 @@ final class CellGroupDto extends AbstractDto
 
     #[Assert\NotBlank]
     #[Assert\All([
-        new Assert\Type(type: CellDto::class)
+        new Assert\Type(type: CellCoords::class)
     ])]
     /**
-     * @var array<CellDto> $cells
+     * @var array<CellCoords> $cells
      */
     // @phpstan-ignore-next-line missingType.iterableValue
     public array $cells;
-    protected const PROP_CELLS_TYPE = CellDto::class;
+    protected const PROP_CELLS_TYPE = CellCoords::class;
 }

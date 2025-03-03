@@ -16,7 +16,7 @@ export interface CellDto {
 export interface CellGroupDto {
   id: number
   type: CellGroupTypes
-  cells: Map<string, CellDto>
+  cells: Set<string>
 }
 
 export interface MistakeDto {

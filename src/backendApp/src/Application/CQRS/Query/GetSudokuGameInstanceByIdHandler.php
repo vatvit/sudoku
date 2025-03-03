@@ -31,9 +31,7 @@ readonly class GetSudokuGameInstanceByIdHandler
                 return null;
             }
 
-            $entityJson = $this->serializer->serialize($entity, 'json', [
-                'groups' => ['entity'],
-            ]);
+            $entityJson = $this->serializer->serialize($entity, 'json');
 
             return $entityJson;
         });
@@ -42,9 +40,7 @@ readonly class GetSudokuGameInstanceByIdHandler
             return null;
         }
 
-        $entity = $this->serializer->deserialize($entityJson, SudokuGameInstance::class, 'json', [
-            'groups' => ['entity'],
-        ]);
+        $entity = $this->serializer->deserialize($entityJson, SudokuGameInstance::class, 'json');
 
         return $entity;
     }

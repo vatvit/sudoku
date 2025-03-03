@@ -2,35 +2,56 @@
 
 namespace App\Interface\Controller\Sudoku\Mapper;
 
+use App\Application\Service\Sudoku\Dto\SudokuGameInstanceDto;
 use App\Domain\Sudoku\Service\Dto\CellDto;
 use App\Domain\Sudoku\Service\Dto\CellGroupDto;
+use App\Domain\Sudoku\Service\Dto\CellRowCollectionDto;
 use App\Infrastructure\Entity\SudokuGameInstance;
 use App\Interface\Controller\Sudoku\Dto\InstanceCreateResponseDto;
 use App\Interface\Controller\Sudoku\Dto\InstanceGetResponseDto;
 
 class InstanceResponseMapper
 {
-    public function mapCreate(string $instanceId): InstanceCreateResponseDto
+    public function mapCreateResponse(string $instanceId): InstanceCreateResponseDto
     {
         return InstanceCreateResponseDto::hydrate([
             'id' => $instanceId,
         ]);
     }
 
-    public function mapGet(array|SudokuGameInstance $table): InstanceGetResponseDto // TODO: remove Entity
+    public function mapGetResponse(SudokuGameInstanceDto $sudokuGameInstanceDto): InstanceGetResponseDto
     {
-        $table = $table instanceof SudokuGameInstance ? $this->hydratePuzzleStateDto($table) : $table;
-        return $table;
-//        return InstanceGetResponseDto::hydrate($table);
+        $sudokuGameInstanceArray = $sudokuGameInstanceDto->toArray();
+        $puzzle = $this->applyHiddenCells($sudokuGameInstanceArray['grid'], $sudokuGameInstanceArray['hiddenCells']);
+        $data = [
+            'id' => $sudokuGameInstanceArray['id'],
+            'cells' => $puzzle,
+            'groups' => $sudokuGameInstanceArray['cellGroups'],
+        ];
+        $sudokuGameInstanceDto = InstanceGetResponseDto::hydrate($data);
+        return $sudokuGameInstanceDto;
+    }
+
+    /**
+     * @param array<CellRowCollectionDto> $cellRowCollectionDtos
+     * @return array<array<int>>
+     */
+    private function gridCollectionToArray(array $cellRowCollectionDtos): array
+    {
+        $gridArray = [];
+        foreach ($cellRowCollectionDtos as $cellRowCollectionDto) {
+            $gridArray[] = $cellRowCollectionDto->toArray();
+        }
+        return $gridArray;
     }
 
     private function applyHiddenCells(array $grid, array $hiddenCells): array
     {
         foreach ($hiddenCells as $hiddenCell) {
-            [$rowIndex, $colIndex] = explode(':', $hiddenCell);
+            [$rowIndex, $colIndex] = $hiddenCell->getCoords();
 
-            if (isset($grid['cells'][$rowIndex][$colIndex])) {
-                $grid['cells'][$rowIndex][$colIndex]['value'] = 0;
+            if (isset($grid[$rowIndex][$colIndex])) {
+                $grid[$rowIndex][$colIndex]['value'] = 0;
             }
         }
 
@@ -51,16 +72,16 @@ class InstanceResponseMapper
         $hiddenCells = $sudokuGameInstance->getSudokuPuzzle()->getHiddenCells();
         $puzzleGrid = $this->applyHiddenCells($sudokuGrid, $hiddenCells);
 
-        $groups = [];
+        $cellGroups = [];
         foreach ($puzzleGrid['cells'] as $rowIndex => $rowArray) {
             foreach ($rowArray as $colIndex => $cell) {
                 $cellDto = $this->hydrateCellDto($rowIndex, $colIndex, $cell);
                 $puzzleGrid['cells'][$rowIndex][$colIndex] = $cellDto;
 
-                $groups = $this->hydrateCellGroups($groups, $cellDto, $size);
+                $cellGroups = $this->hydrateCellGroups($cellGroups, $cellDto, $size);
             }
         }
-        $puzzleGrid['groups'] = array_values($groups);
+        $puzzleGrid['cellGroups'] = array_values($cellGroups);
 
         $puzzleGrid['id'] = $sudokuGameInstance->getId()->toString();
 

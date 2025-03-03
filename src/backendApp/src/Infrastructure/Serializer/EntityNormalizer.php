@@ -8,7 +8,6 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Uid\Uuid;
 
 readonly class EntityNormalizer implements DenormalizerInterface
 {
@@ -38,14 +37,27 @@ readonly class EntityNormalizer implements DenormalizerInterface
         ]));
 
         // Special handling for the `id` field because no setter
-        if (!empty($data['id']) && property_exists($entity, 'id')) {
-            $reflection = new \ReflectionProperty($entity, 'id');
-            $reflection->setAccessible(true);
+        if (!empty($data['id'])) {
+            $reflectionClass = new \ReflectionClass($entity);
 
-            $idType = $reflection->getType()->getName();
-            $data['id'] = $this->normalizer->denormalize(['uuid' => $data['id']], $idType, $format);
+            while ($reflectionClass && !$reflectionClass->hasProperty('id')) {
+                $reflectionClass = $reflectionClass->getParentClass();
+            }
 
-            $reflection->setValue($entity, $data['id']);
+            if (!$reflectionClass) {
+                throw new UnexpectedValueException(sprintf(
+                    'Property "id" does not exist in class hierarchy of "%s".',
+                    $type
+                ));
+            }
+
+            $reflectionProperty = $reflectionClass->getProperty('id');
+            $reflectionProperty->setAccessible(true);
+            $idType = $reflectionProperty->getType()->getName();
+
+            $id = $this->normalizer->denormalize(['uuid' => $data['id']], $idType, $format);
+
+            $reflectionProperty->setValue($entity, $id);
         }
         return $result;
     }

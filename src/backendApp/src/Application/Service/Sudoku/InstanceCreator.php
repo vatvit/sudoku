@@ -55,8 +55,8 @@ class InstanceCreator
         foreach ($hiddenCells as $hiddenCell) {
             [$rowIndex, $colIndex] = explode(':', $hiddenCell);
 
-            if (isset($grid['cells'][$rowIndex][$colIndex])) {
-                $grid['cells'][$rowIndex][$colIndex]['value'] = 0;
+            if (isset($grid[$rowIndex][$colIndex])) {
+                $grid[$rowIndex][$colIndex]['value'] = 0;
             }
         }
 
@@ -65,30 +65,25 @@ class InstanceCreator
 
     private function hydratePuzzleStateDto(SudokuGameInstance $sudokuGameInstance): SudokuGameInstanceDto
     {
-        $sudokuGridJson = $sudokuGameInstance->getSudokuPuzzle()->getSudokuGrid()->getGrid();
-        $size = $sudokuGameInstance->getSudokuPuzzle()->getSudokuGrid()->getSize();
+        $puzzleGrid = [];
 
+        $sudokuGridJson = $sudokuGameInstance->getSudokuPuzzle()->getSudokuGrid()->getGrid();
         try {
             $sudokuGrid = json_decode($sudokuGridJson, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new \RuntimeException(sprintf('Failed to decode Sudoku grid JSON for Sudoku Game Instance ID: %s. Error: %s', $sudokuGameInstance->getId()->toString() ?? 'unknown', $e->getMessage()), 0, $e);
         }
 
-        $sudokuGrid['cells'] = $sudokuGrid; // TODO: fix it
-
         $hiddenCells = $sudokuGameInstance->getSudokuPuzzle()->getHiddenCells();
-        $puzzleGrid = $this->applyHiddenCells($sudokuGrid, $hiddenCells);
+        $puzzleGrid['cells'] = $this->applyHiddenCells($sudokuGrid, $hiddenCells);
 
-        $cellGroups = [];
-        foreach ($puzzleGrid['cells'] as $rowIndex => $rowArray) {
-            foreach ($rowArray as $colIndex => $cell) {
-                $cellDto = $this->hydrateCellDto($rowIndex, $colIndex, $cell);
-                $puzzleGrid['cells'][$rowIndex][$colIndex] = $cellDto;
-
-                $cellGroups = $this->hydrateCellGroups($cellGroups, $cellDto, $size);
-            }
+        $sudokuCellGroupsJson = $sudokuGameInstance->getSudokuPuzzle()->getSudokuGrid()->getCellGroups();
+        try {
+            $sudokuCellGroups = json_decode($sudokuCellGroupsJson, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new \RuntimeException(sprintf('Failed to decode Sudoku Cell Groups JSON for Sudoku Game Instance ID: %s. Error: %s', $sudokuGameInstance->getId()->toString() ?? 'unknown', $e->getMessage()), 0, $e);
         }
-        $puzzleGrid['cellGroups'] = array_values($cellGroups);
+        $puzzleGrid['cellGroups'] = $sudokuCellGroups;
 
         $puzzleGrid['id'] = $sudokuGameInstance->getId()->toString();
 

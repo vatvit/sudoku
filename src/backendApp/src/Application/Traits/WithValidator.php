@@ -2,14 +2,17 @@
 
 namespace App\Application\Traits;
 
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 trait WithValidator
 {
+    #[Ignore]
     protected ?ValidatorInterface $_validator = null; // @phpcs:ignore
 
+    #[Ignore]
     protected function getValidator(): ValidatorInterface
     {
         if ($this->_validator === null) {
@@ -23,6 +26,7 @@ trait WithValidator
         $this->_validator = $validator;
     }
 
+    #[Ignore]
     public function getValidationViolations(): ConstraintViolationListInterface
     {
         return $this->getValidator()->validate($this);
@@ -43,6 +47,7 @@ trait WithValidator
         return true;
     }
 
+    #[Ignore]
     protected function getDefaultValidator(): ValidatorInterface
     {
         static $validator;

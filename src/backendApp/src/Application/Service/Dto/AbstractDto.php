@@ -4,6 +4,7 @@ namespace App\Application\Service\Dto;
 
 use App\Application\Traits\WithValidator;
 use App\Domain\ValueObject\ValueObjectInterface;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /** @phpstan-consistent-constructor */
@@ -11,6 +12,7 @@ abstract class AbstractDto
 {
     use WithValidator;
 
+    #[Ignore]
     /**
      * @var array<string>
      */
@@ -191,23 +193,6 @@ abstract class AbstractDto
             );
         }
 
-        return $value;
-    }
-
-    /**
-     * @param array<array|AbstractDto> $value
-     * @param string $arrayItemDtoClass
-     * @return array<AbstractDto>
-     */
-    public function hydrateArrayOfDto(mixed $value, string $arrayItemDtoClass): mixed
-    {
-        /** @var AbstractDto::class $arrayItemDtoClass */
-        foreach ($value as &$item) {
-            if (!is_a($item, $arrayItemDtoClass)) {
-                $item = $arrayItemDtoClass::hydrate($item);
-            }
-
-        }
         return $value;
     }
 

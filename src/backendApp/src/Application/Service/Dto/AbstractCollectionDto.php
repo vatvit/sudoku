@@ -2,6 +2,7 @@
 
 namespace App\Application\Service\Dto;
 
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Traversable;
 use function App\Service\Dto\gettype;
 
@@ -25,6 +26,7 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
      *
      * @var string
      */
+    #[Ignore]
     protected static string $itemClass;
 
     /**
@@ -89,6 +91,7 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
         throw new CollectionDtoWrongValueException('Wrong value type "' . gettype($value) . '" for ' . (gettype($this))); // phpcs:ignore Generic.Files.LineLength.TooLong -- The following line exceeds the maximum length allowed by PHPCS, but it's a log string and it is more readable this way.
     }
 
+    #[Ignore]
     public function getIterator(): Traversable
     {
         return new \ArrayIterator($this->collection);

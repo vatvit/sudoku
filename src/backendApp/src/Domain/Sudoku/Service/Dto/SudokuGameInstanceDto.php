@@ -3,6 +3,8 @@
 namespace App\Domain\Sudoku\Service\Dto;
 
 use App\Application\Service\Dto\AbstractDto;
+use App\Application\Service\Dto\Attribute\ArrayItemType;
+use App\Domain\Sudoku\ValueObject\CellCoords;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class SudokuGameInstanceDto extends AbstractDto
@@ -14,20 +16,18 @@ final class SudokuGameInstanceDto extends AbstractDto
     #[Assert\All([
         new Assert\Type(type: CellRowCollectionDto::class)
     ])]
+    #[ArrayItemType(CellRowCollectionDto::class)]
     /**
      * @var array<CellRowCollectionDto> $cells
      */
-    // @phpstan-ignore-next-line missingType.iterableValue
     public array $cells;
-    protected const PROP_CELLS_TYPE = CellRowCollectionDto::class;
 
     #[Assert\All([
         new Assert\Type(type: CellGroupDto::class)
     ])]
+    #[ArrayItemType(CellGroupDto::class)]
     /**
      * @var array<CellGroupDto> $cellGroups
      */
-    // @phpstan-ignore-next-line missingType.iterableValue
     public array $cellGroups;
-    protected const PROP_CELL_GROUPS_TYPE = CellGroupDto::class;
 }

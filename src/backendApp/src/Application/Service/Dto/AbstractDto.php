@@ -2,6 +2,7 @@
 
 namespace App\Application\Service\Dto;
 
+use App\Application\Service\Dto\Attribute\ArrayItemType;
 use App\Application\Traits\WithValidator;
 use App\Domain\ValueObject\ValueObjectInterface;
 use Symfony\Component\Serializer\Attribute\Ignore;
@@ -78,8 +79,8 @@ abstract class AbstractDto
                 throw new \InvalidArgumentException('The property "' . $propertyName . '" is private and cannot be populated.'); // phpcs:ignore Generic.Files.LineLength.TooLong -- The following line exceeds the maximum length allowed by PHPCS, but it's a log string and it is more readable this way.
             }
 
-            $reflection = new \ReflectionProperty($this, $propertyName);
-            $type = $reflection->getType();
+            $reflectionProperty = new \ReflectionProperty($this, $propertyName);
+            $type = $reflectionProperty->getType();
 
             $this->checkPropertyType($type, $propertyName);
 
@@ -96,17 +97,20 @@ abstract class AbstractDto
             }
 
             if ($expectedPropertyType === 'array') {
-                $snakeCasedPropertyName = preg_replace('/([a-z])([A-Z])/', '$1_$2', $propertyName);
-                $fullStaticConstName = 'static::PROP_' . mb_strtoupper($snakeCasedPropertyName) . '_TYPE';
-                $arrayItemType = defined($fullStaticConstName) ? constant($fullStaticConstName) : '';
+                $attribute = $reflectionProperty->getAttributes(ArrayItemType::class)[0] ?? null;
+                if ($attribute) {
+                    /** @var ArrayItemType $attributeInstance */
+                    $attributeInstance = $attribute->newInstance();
+                    $arrayItemType = $attributeInstance->type;
 
-                foreach ($value as &$item) {
-                    if (is_subclass_of($arrayItemType, AbstractDto::class)) {
-                        $item = $this->hydrateDto($item, $arrayItemType, $propertyName);
-                    }
+                    foreach ($value as &$item) {
+                        if (is_subclass_of($arrayItemType, AbstractDto::class)) {
+                            $item = $this->hydrateDto($item, $arrayItemType, $propertyName);
+                        }
 
-                    if (is_subclass_of($arrayItemType, ValueObjectInterface::class)) {
-                        $item = $this->hydrateValueObject($item, $arrayItemType);
+                        if (is_subclass_of($arrayItemType, ValueObjectInterface::class)) {
+                            $item = $this->hydrateValueObject($item, $arrayItemType);
+                        }
                     }
                 }
 
@@ -148,7 +152,7 @@ abstract class AbstractDto
         return $array;
     }
 
-    public function checkPropertyType(mixed $type, string $propertyName): void
+    private function checkPropertyType(mixed $type, string $propertyName): void
     {
         if (!$type) {
             throw new \RuntimeException('Undefined type for property: ' . $propertyName);
@@ -165,7 +169,7 @@ abstract class AbstractDto
         }
     }
 
-    public function hydrateDto(mixed $value, string|AbstractDto $expectedDtoType, int|string $propertyName): AbstractDto
+    private function hydrateDto(mixed $value, string|AbstractDto $expectedDtoType, int|string $propertyName): AbstractDto
     {
         if (is_a($value, $expectedDtoType)) {
             return $value;
@@ -196,7 +200,7 @@ abstract class AbstractDto
         return $value;
     }
 
-    public function hydrateValueObject(string $value, string $expectedPropertyType)
+    private function hydrateValueObject(string $value, string $expectedPropertyType)
     {
         /** @var ValueObjectInterface::class $expectedPropertyType */
         $value = $expectedPropertyType::fromString($value);

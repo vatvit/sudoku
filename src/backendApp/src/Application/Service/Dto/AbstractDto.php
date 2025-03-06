@@ -13,10 +13,10 @@ abstract class AbstractDto
 {
     use WithValidator;
 
-    #[Ignore]
     /**
      * @var array<string> $_privateProperties
      */
+    #[Ignore]
     private array $_privateProperties = ['_privateProperties', '_validator']; // @phpcs:ignore
 
     /**

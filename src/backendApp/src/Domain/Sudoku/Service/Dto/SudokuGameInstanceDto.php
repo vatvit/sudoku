@@ -13,21 +13,21 @@ final class SudokuGameInstanceDto extends AbstractDto
     #[Assert\Type(type: 'string')]
     public string $id;
 
+    /**
+     * @var array<CellRowCollectionDto> $cells
+     */
     #[Assert\All([
         new Assert\Type(type: CellRowCollectionDto::class)
     ])]
     #[ArrayItemType(CellRowCollectionDto::class)]
-    /**
-     * @var array<CellRowCollectionDto> $cells
-     */
     public array $cells;
 
+    /**
+     * @var array<CellGroupDto> $cellGroups
+     */
     #[Assert\All([
         new Assert\Type(type: CellGroupDto::class)
     ])]
     #[ArrayItemType(CellGroupDto::class)]
-    /**
-     * @var array<CellGroupDto> $cellGroups
-     */
     public array $cellGroups;
 }

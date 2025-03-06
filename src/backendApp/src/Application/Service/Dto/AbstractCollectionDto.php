@@ -4,7 +4,6 @@ namespace App\Application\Service\Dto;
 
 use Symfony\Component\Serializer\Attribute\Ignore;
 use Traversable;
-use function App\Service\Dto\gettype;
 
 /**
  * @template TValue

@@ -15,7 +15,7 @@ abstract class AbstractDto
 
     #[Ignore]
     /**
-     * @var array<string>
+     * @var array<string> $_privateProperties
      */
     private array $_privateProperties = ['_privateProperties', '_validator']; // @phpcs:ignore
 

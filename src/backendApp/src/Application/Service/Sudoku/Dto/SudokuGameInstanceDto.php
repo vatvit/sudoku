@@ -2,7 +2,6 @@
 
 namespace App\Application\Service\Sudoku\Dto;
 
-use App\Application\Service\Dto\AbstractActionEffectDto;
 use App\Application\Service\Dto\AbstractDto;
 use App\Application\Service\Dto\Attribute\ArrayItemType;
 use App\Domain\Sudoku\Service\Dto\CellGroupDto;
@@ -16,31 +15,31 @@ class SudokuGameInstanceDto extends AbstractDto
     #[Assert\Type(type: 'string')]
     public string $id;
 
+    /**
+     * @var array<CellRowCollectionDto> $grid
+     */
     #[Assert\All([
         new Assert\Type(type: CellRowCollectionDto::class)
     ])]
     #[ArrayItemType(CellRowCollectionDto::class)]
-    /**
-     * @var array<CellRowCollectionDto> $grid
-     */
     public array $grid;
 
+    /**
+     * @var array<CellGroupDto> $cellGroups
+     */
     #[Assert\All([
         new Assert\Type(type: CellGroupDto::class)
     ])]
     #[ArrayItemType(CellGroupDto::class)]
-    /**
-     * @var array<CellGroupDto> $cellGroups
-     */
     public array $cellGroups;
 
+    /**
+     * @var array<CellCoords> $hiddenCells
+     */
     #[Assert\All([
         new Assert\Type(type: CellCoords::class)
     ])]
     #[ArrayItemType(CellCoords::class)]
-    /**
-     * @var array<CellCoords> $hiddenCells
-     */
     public array $hiddenCells;
 
     public bool $isSolved;

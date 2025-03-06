@@ -10,12 +10,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class CellRowCollectionDto extends AbstractCollectionDto
 {
-    #[Assert\All([
-        new Assert\Type(type: CellDto::class)
-    ])]
     /**
      * @var array<CellDto> $collection
      */
+    #[Assert\All([
+        new Assert\Type(type: CellDto::class)
+    ])]
     protected array $collection;
 
     protected static string $itemClass = CellDto::class;

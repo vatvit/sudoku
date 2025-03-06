@@ -23,13 +23,13 @@ final class CellGroupDto extends AbstractDto
     ])]
     public string $type;
 
+    /**
+     * @var array<CellCoords> $cells
+     */
     #[Assert\NotBlank]
     #[Assert\All([
         new Assert\Type(type: CellCoords::class)
     ])]
     #[ArrayItemType(CellCoords::class)]
-    /**
-     * @var array<CellCoords> $cells
-     */
     public array $cells;
 }

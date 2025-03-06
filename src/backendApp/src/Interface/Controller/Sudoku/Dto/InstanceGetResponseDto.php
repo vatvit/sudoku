@@ -13,21 +13,21 @@ class InstanceGetResponseDto extends AbstractDto
     #[Assert\NotBlank]
     public string $id;
 
+    /**
+     * @var array<CellRowCollectionDto> $cells
+     */
     #[Assert\All([
         new Assert\Type(type: CellRowCollectionDto::class)
     ])]
     #[ArrayItemType(CellRowCollectionDto::class)]
-    /**
-     * @var array<CellRowCollectionDto> $cells
-     */
     public array $cells;
 
+    /**
+     * @var array<CellGroupDto> $groups
+     */
     #[Assert\All([
         new Assert\Type(type: CellGroupDto::class)
     ])]
     #[ArrayItemType(CellGroupDto::class)]
-    /**
-     * @var array<CellGroupDto> $groups
-     */
     public array $groups;
 }

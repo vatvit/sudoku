@@ -48,8 +48,7 @@ RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)"
 #    && echo "xdebug.start_with_request=${XDEBUG_START_WITH_REQUEST}" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.client_port=${XDEBUG_CLIENT_PORT}" >> /usr/local/etc/php/conf.d/xdebug.ini
 
-RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.alpine.sh' | bash
-RUN apk add symfony-cli
+RUN curl -sS https://get.symfony.com/cli/installer | bash
 
 RUN apk -UvX https://dl-4.alpinelinux.org/alpine/edge/main add -u npm
 

@@ -1,26 +1,25 @@
 <script setup lang="ts">
 import {ref, watch} from 'vue'
-import type {CellGroupDto, PuzzleStateDto} from "./Dto.ts";
+import type {PuzzleStateDto, CellDto, CellGroupDto} from "./Dto.ts";
+import PuzzleCell from "@/components/Sudoku/Cell.vue";
 import {Puzzle} from "./Puzzle.ts";
 import storeFactory from "./Store"
-import PuzzleCell from "@/components/Sudoku/Cell.vue";
 
 const props = withDefaults(defineProps<{
   stateDto: PuzzleStateDto,
 }>(), {
-  stateDto: () => ({id: '', cells: [], groups: [] as CellGroupDto[]})
+  stateDto: () => ({id: '', puzzle: [], groups: [] as CellGroupDto[], cellValues: {}, notes: {}})
 });
 
 const puzzle = ref(new Puzzle(props.stateDto))
-
-const store = storeFactory(puzzle)
+const store = storeFactory(puzzle.value)
 
 watch(() => props.stateDto, (newVal) => {
   puzzle.value = new Puzzle(newVal)
   store.resetSelectedCell()
   store.resetHighlightValue()
   store.findMistakes()
-});
+}, {deep: true})
 
 function handleKeyupHandler(event: KeyboardEvent) {
   const value = +event.key
@@ -43,13 +42,10 @@ function handleKeyupHandler(event: KeyboardEvent) {
     store.highlightValue(value)
   }
 }
-
 </script>
 
 <template>
-  <div class="sudoku-puzzle"
-       @keyup="handleKeyupHandler"
-  >
+  <div class="sudoku-puzzle" @keyup="handleKeyupHandler">
     <div v-if="puzzle.isSolved">
       SOLVED!
     </div>
@@ -88,6 +84,5 @@ function handleKeyupHandler(event: KeyboardEvent) {
       vertical-align: middle;
     }
   }
-
 }
 </style>

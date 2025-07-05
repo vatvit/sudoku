@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {ref, onMounted, defineAsyncComponent} from 'vue'
-import {CellDto, CellGroupDto, PuzzleStateDto as SudokuTableStateDTO} from "./components/Sudoku/Dto.ts";
+import type {CellDto, CellGroupDto, PuzzleStateDto as SudokuTableStateDTO} from "./Dto.ts";
 import {useRoute, useRouter} from "vue-router";
 import SudokuNewGameButton from "@/components/SudokuNewGameButton.vue";
 import {Api} from "@/generated/Api.ts";
 
 const api = new Api().api;
 
-const sudokuTableStateDTO = ref<SudokuTableStateDTO>({id: '', cells: [], groups: [] as CellGroupDto[]})
+const sudokuTableStateDTO = ref<SudokuTableStateDTO>({id: '', puzzle: [], groups: [] as CellGroupDto[], cellValues: {}, notes: {}})
 
 const route = useRoute()
 const router = useRouter()
@@ -25,10 +25,36 @@ async function NewGameEventHandler(puzzleId: string) {
 
 async function loadSudokuTable(id: string) {
   const response = await api.getGetGameSudokuInstance(id)
-  const sudokuTableState = response.data as SudokuTableStateDTO
-  for (const key in sudokuTableState.groups) {
-    sudokuTableState.groups[key].cells = new Map<string, CellDto>(Object.entries(sudokuTableState.groups[key].cells))
+  const responseData = response.data as any
+  
+  // Create puzzle grid from puzzle property (contains hidden cells)
+  const puzzle: CellDto[][] = []
+  for (let row = 0; row < 9; row++) {
+    puzzle[row] = []
+    for (let col = 0; col < 9; col++) {
+      const coords = `${row}:${col}`
+      const puzzleValue = responseData.puzzle?.[coords] || 0
+      puzzle[row][col] = {
+        coords: coords,
+        value: puzzleValue,
+        notes: responseData.notes?.[coords] || []
+      }
+    }
   }
+  
+  // Map backend response to frontend DTO
+  const sudokuTableState: SudokuTableStateDTO = {
+    id: responseData.id,
+    puzzle: puzzle,
+    groups: responseData.groups.map((group: any) => ({
+      id: group.id,
+      type: group.type,
+      cells: new Set(group.cells)
+    })),
+    cellValues: responseData.cellValues || {},
+    notes: responseData.notes || {}
+  }
+  
   sudokuTableStateDTO.value = sudokuTableState
 }
 </script>

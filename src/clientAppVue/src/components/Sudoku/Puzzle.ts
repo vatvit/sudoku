@@ -18,7 +18,7 @@ export class Puzzle {
     this._cells = []
     this._solved = false
 
-    if (state?.cells.length > 0) {
+    if (state?.puzzle.length > 0) {
       this.initialise(state)
     }
   }
@@ -76,10 +76,10 @@ export class Puzzle {
         const [rowIndex, colIndex] = this.getRowColIndexesByCoords(coords)
         const cellDto = {
           coords: coords,
-          value: puzzleStateDto.cells[rowIndex][colIndex].value,
-          protected: puzzleStateDto.cells[rowIndex][colIndex].value > 0 || false,
-          notes: [],
-        } as CellDto // TODO: fix it.
+          value: puzzleStateDto.puzzle[rowIndex][colIndex].value,
+          protected: puzzleStateDto.puzzle[rowIndex][colIndex].value > 0 || false,
+          notes: puzzleStateDto.notes?.[coords] || [],
+        } as CellDto
 
         if (typeof this._cells[rowIndex] === 'undefined') {
           this._cells[rowIndex] = []
@@ -94,7 +94,7 @@ export class Puzzle {
     })
   }
 
-  async setCellValue(coords: string, value: number): void {
+  async setCellValue(coords: string, value: number): Promise<void> {
     const cell: Cell = this.getCellByCoords(coords)
     cell.value = value
 

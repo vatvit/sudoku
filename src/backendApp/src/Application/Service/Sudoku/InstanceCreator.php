@@ -9,9 +9,11 @@ use App\Application\CQRS\Command\CreateSudokuGridHandler;
 use App\Application\CQRS\Command\CreateSudokuPuzzleCommand;
 use App\Application\CQRS\Command\CreateSudokuPuzzleHandler;
 use App\Application\CQRS\Trait\HandleMultiplyTrait;
+use App\Application\Service\Converter\JsonStringToArrayConverter;
+use App\Application\Service\Sudoku\Dto\SudokuGameInstanceDto;
+use App\Application\Service\Sudoku\Mapper\SudokuGameInstanceEntityToDtoMapper;
 use App\Domain\Sudoku\Service\Dto\CellDto;
 use App\Domain\Sudoku\Service\Dto\CellGroupDto;
-use App\Domain\Sudoku\Service\Dto\SudokuGameInstanceDto;
 use App\Domain\Sudoku\Service\GridCellHider;
 use App\Domain\Sudoku\Service\GridGenerator;
 use App\Infrastructure\Entity\SudokuGameInstance;
@@ -28,12 +30,13 @@ class InstanceCreator
     private const DEFAULT_HIDDEN_CELLS_RATIO = 0.1;
 
     public function __construct(
-        private readonly GridGenerator          $gridGenerator,
-        private readonly GridCellHider          $gridCellHider,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly SerializerInterface    $serializer,
-        private readonly CacheInterface         $cache,
-        MessageBusInterface                     $messageBus,
+        private readonly GridGenerator                       $gridGenerator,
+        private readonly GridCellHider                       $gridCellHider,
+        private readonly EntityManagerInterface              $entityManager,
+        private readonly SerializerInterface                 $serializer,
+        private readonly CacheInterface                      $cache,
+        private readonly SudokuGameInstanceEntityToDtoMapper $sudokuGameInstanceEntityToDtoMapper,
+        MessageBusInterface                                  $messageBus,
     )
     {
         $this->messageBus = $messageBus;
@@ -45,122 +48,9 @@ class InstanceCreator
 
         $this->cacheTheEntity($sudokuGameInstanceEntity);
 
-        $puzzleStateDto = $this->hydratePuzzleStateDto($sudokuGameInstanceEntity);
+        $puzzleStateDto = $this->sudokuGameInstanceEntityToDtoMapper->map($sudokuGameInstanceEntity);
 
         return $puzzleStateDto;
-    }
-
-    private function applyHiddenCells(array $grid, array $hiddenCells): array
-    {
-        foreach ($hiddenCells as $hiddenCell) {
-            [$rowIndex, $colIndex] = explode(':', $hiddenCell);
-
-            if (isset($grid[$rowIndex][$colIndex])) {
-                $grid[$rowIndex][$colIndex]['value'] = 0;
-            }
-        }
-
-        return $grid;
-    }
-
-    private function hydratePuzzleStateDto(SudokuGameInstance $sudokuGameInstance): SudokuGameInstanceDto
-    {
-        $puzzleGrid = [];
-
-        $sudokuGridJson = $sudokuGameInstance->getSudokuPuzzle()->getSudokuGrid()->getGrid();
-        try {
-            $sudokuGrid = json_decode($sudokuGridJson, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            throw new \RuntimeException(sprintf('Failed to decode Sudoku grid JSON for Sudoku Game Instance ID: %s. Error: %s', $sudokuGameInstance->getId()->toString() ?? 'unknown', $e->getMessage()), 0, $e);
-        }
-
-        $hiddenCells = $sudokuGameInstance->getSudokuPuzzle()->getHiddenCells();
-        $puzzleGrid['cells'] = $this->applyHiddenCells($sudokuGrid, $hiddenCells);
-
-        $sudokuCellGroupsJson = $sudokuGameInstance->getSudokuPuzzle()->getSudokuGrid()->getCellGroups();
-        try {
-            $sudokuCellGroups = json_decode($sudokuCellGroupsJson, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            throw new \RuntimeException(sprintf('Failed to decode Sudoku Cell Groups JSON for Sudoku Game Instance ID: %s. Error: %s', $sudokuGameInstance->getId()->toString() ?? 'unknown', $e->getMessage()), 0, $e);
-        }
-        $puzzleGrid['cellGroups'] = $sudokuCellGroups;
-
-        $puzzleGrid['id'] = $sudokuGameInstance->getId()->toString();
-
-        return SudokuGameInstanceDto::hydrate($puzzleGrid);
-    }
-
-    /**
-     * @param int $rowIndex
-     * @param int $colIndex
-     * @param array<mixed> $cell // TODO: use DTO
-     * @return CellDto
-     */
-    private function hydrateCellDto(int $rowIndex, int $colIndex, array $cell): CellDto
-    {
-        $cell['coords'] = $this->getCellCoords($rowIndex, $colIndex);
-        $cell['protected'] = (bool)$cell['value'];
-
-        $cellDto = CellDto::hydrate($cell);
-        return $cellDto;
-    }
-
-    /**
-     * @param array<int, array{id: int, type: string, cells: array<string, CellDto>}> $groups // TODO: use DTO
-     * @param CellDto $cellDto
-     * @return array<int, array{id: int, type: string, cells: array<string, CellDto>}> // TODO: use DTO
-     */
-    private function hydrateCellGroups(array $groups, CellDto $cellDto, int $size): array
-    {
-        $cellGroups = $this->getCellGroups($cellDto, $size);
-
-        foreach ($cellGroups as $group) {
-            $groupId = $group['id'] . ':' . $group['type'];
-            if (!isset($groups[$groupId])) {
-                $groups[$groupId] = $group;
-            }
-            $groups[$groupId]['cells'][(string)$cellDto->coords] = $cellDto;
-        }
-        return $groups;
-    }
-
-    private function getCellCoords(int $rowIndex, int $colIndex): string
-    {
-        return ($rowIndex + 1) . ':' . ($colIndex + 1);
-    }
-
-    /**
-     * @param CellDto $cellDto
-     * @return array<int, array{id: int, type: string, cells: array{}}> // TODO: use DTO
-     */
-    private function getCellGroups(CellDto $cellDto, int $size): array
-    {
-        $rowIndex = (int)explode(':', $cellDto->coords)[0] - 1;
-        $colIndex = (int)explode(':', $cellDto->coords)[1] - 1;
-
-        $squareId = $this->getBlockId($rowIndex, $colIndex, $size);
-
-        $cellGroupRowDto = ['id' => $rowIndex + 1, 'type' => CellGroupDto::TYPE_ROW, 'cells' => []];
-        $cellGroupColDto = ['id' => $colIndex + 1, 'type' => CellGroupDto::TYPE_COLUMN, 'cells' => []];
-        $cellGroupSqrDto = ['id' => $squareId, 'type' => CellGroupDto::TYPE_BLOCK, 'cells' => []];
-
-        return [
-            $cellGroupRowDto,
-            $cellGroupColDto,
-            $cellGroupSqrDto,
-        ];
-    }
-
-    private function getBlockId(int $rowIndex, int $colIndex, int $size): int
-    {
-        $blockSize = (int)sqrt($size);
-        return (int)((floor($colIndex / $blockSize)) + (floor($rowIndex / $blockSize) * $blockSize) + 1);
-    }
-
-    public function getHiddenCellsCount(int $size, float $ratio): int
-    {
-        $hiddenCellsCount = (int)ceil($size * $size * $ratio);
-        return $hiddenCellsCount;
     }
 
     private function createSudokuGameInstanceEntity(int $size): SudokuGameInstance
@@ -187,6 +77,12 @@ class InstanceCreator
 
         $this->entityManager->flush();
         return $sudokuGameInstanceEntity; // commit unit of work
+    }
+
+    private function getHiddenCellsCount(int $size, float $ratio): int
+    {
+        $hiddenCellsCount = (int)ceil($size * $size * $ratio);
+        return $hiddenCellsCount;
     }
 
     /**

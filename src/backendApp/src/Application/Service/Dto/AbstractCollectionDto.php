@@ -14,11 +14,11 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
 {
     /**
      * Represents a collection.
-     * Overwrite the PHPDoc to specify type of elements accordingly to validateValueType method logic
+     * Overwrite the PHPDoc to specify a type of elements accordingly to validateValueType method logic
      *
      * @var array<mixed> $collection
      */
-    protected array $collection = [];
+    protected array $collection;
 
     /**
      * The $itemClass variable represents the class name of the DTO item.
@@ -28,49 +28,55 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
     #[Ignore]
     protected static string $itemClass;
 
+    public function __construct(?array $data = [])
+    {
+        $this->initCollection();
+        parent::__construct($data);
+    }
+
+    protected function initCollection(): void
+    {
+        $this->collection = [];
+    }
+
+    /**
+     * @param mixed $item
+     * @return AbstractDto|mixed
+     */
+    protected function normalizeItem(mixed $item): mixed
+    {
+        $itemDtoClass = static::$itemClass;
+        if (is_subclass_of($itemDtoClass, AbstractDto::class)) {
+            if (!is_a($item, $itemDtoClass)) {
+                $item = $itemDtoClass::hydrate($item);
+            }
+        }
+        return $item;
+    }
+
     /**
      * @param array<mixed> $data
      * @return void
      */
     protected function hydrateData(array $data): void
     {
-        $this->collection = [];
-
         foreach ($data as $item) {
-            if (!is_a($item, AbstractDto::class)) {
-                $itemDtoClass = static::$itemClass;
-                if (is_subclass_of($itemDtoClass, AbstractDto::class)) {
-                    $item = $itemDtoClass::hydrate($item);
-                } else {
-                    throw new \InvalidArgumentException(
-                        sprintf(
-                            'Invalid item class: %s provided. Expected subclass of %s.',
-                            $itemDtoClass,
-                            AbstractDto::class
-                        )
-                    );
-                }
-            }
-
+            $item = $this->normalizeItem($item);
             $this->collection[] = $item;
         }
     }
-
 
     /**
      * @return array<mixed>
      */
     public function toArray(): array
     {
-        $array = [];
-
-        foreach ($this->collection as $key => $item) {
-            $array[$key] = $item->toArray();
-        }
+        $array = array_map(function ($item) {
+            return $item->toArray();
+        }, $this->collection);
 
         return $array;
     }
-
 
     /**
      * Validates the value for a collection DTO.
@@ -82,7 +88,7 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
      * @return void
      * @throws CollectionDtoWrongValueException If the value type is incorrect.
      */
-    protected function validateValue(mixed $value): void
+    protected function assertValidType(mixed $value): void
     {
         if (is_a($value, static::$itemClass)) {
             return;
@@ -108,7 +114,7 @@ abstract class AbstractCollectionDto extends AbstractDto implements \ArrayAccess
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->validateValue($value);
+        $this->assertValidType($value);
         $this->collection[$offset] = $value;
     }
 

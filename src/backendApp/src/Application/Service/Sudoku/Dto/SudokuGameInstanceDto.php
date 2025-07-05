@@ -24,6 +24,16 @@ class SudokuGameInstanceDto extends AbstractDto
     #[ArrayItemType(CellRowCollectionDto::class)]
     public array $grid;
 
+//    /**
+//     * @var array<CellRowCollectionDto> $puzzle
+//     */
+//    #[Assert\All([
+//        new Assert\Type(type: CellRowCollectionDto::class)
+//    ])]
+//    #[ArrayItemType(CellRowCollectionDto::class)]
+    /** @var array<string, int> $puzzle */
+    public array $puzzle;
+
     /**
      * @var array<CellGroupDto> $cellGroups
      */

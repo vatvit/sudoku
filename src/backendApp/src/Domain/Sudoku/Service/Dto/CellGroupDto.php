@@ -14,7 +14,7 @@ final class CellGroupDto extends AbstractDto
     public const TYPE_BLOCK = 'BLC';
 
     #[Assert\NotBlank]
-    public int $id; // TODO: remove because it is a DTO
+    public int $id; // TODO: remove OR rename because it is a DTO
 
     #[Assert\Choice([
         CellGroupDto::TYPE_ROW,

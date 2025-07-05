@@ -10,6 +10,8 @@ final class CellDto extends AbstractDto
 {
     public CellCoords $coords;
 
+    // TODO: WHAT IS CELL??? should it contain Value and Notes?
+
     #[Assert\Range(min: 0, max: 9)]
     public int $value;
 

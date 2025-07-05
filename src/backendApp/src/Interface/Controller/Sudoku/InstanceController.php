@@ -41,7 +41,7 @@ class InstanceController extends AbstractController
     {
         $puzzleStateDto = $instanceCreator->create();
 
-        $responseDto = $this->responseMapper->mapCreateResponse($puzzleStateDto->id);
+        $responseDto = $this->responseMapper->mapCreateResponse($puzzleStateDto);
         return $this->json($responseDto);
     }
 

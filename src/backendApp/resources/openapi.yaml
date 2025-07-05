@@ -136,19 +136,31 @@ components:
     InstanceGetResponseDto:
       required:
         - id
-        - cells
+        - puzzle
         - groups
+        - cellValues
+        - notes
       properties:
         id:
           type: string
-        cells:
-          type: array
-          items:
-            $ref: '#/components/schemas/CellRowCollectionDto'
+        puzzle:
+          type: object
+          additionalProperties:
+            type: integer
         groups:
           type: array
           items:
             $ref: '#/components/schemas/CellGroupDto'
+        cellValues:
+          type: object
+          additionalProperties:
+            type: integer
+        notes:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: integer
       type: object
     CellRowCollectionDto:
       required:

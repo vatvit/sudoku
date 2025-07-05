@@ -2,15 +2,21 @@ import {CellGroupTypes} from "./CellGroup.ts";
 
 export interface PuzzleStateDto {
   id: string
-  cells: CellDto[][]
+  puzzle: CellDto[][]
   groups: CellGroupDto[]
+  cellValues: Record<string, number>
+  notes: Record<string, number[]>
 }
 
 export interface CellDto {
   coords: string
-  value: number | undefined
-  protected: boolean
+  value: number
   notes: number[]
+}
+
+export interface Coords {
+  row: number
+  col: number
 }
 
 export interface CellGroupDto {

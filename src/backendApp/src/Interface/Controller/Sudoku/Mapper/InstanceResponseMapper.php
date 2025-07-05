@@ -8,36 +8,37 @@ use App\Interface\Controller\Sudoku\Dto\InstanceGetResponseDto;
 
 class InstanceResponseMapper
 {
-    public function mapCreateResponse(string $instanceId): InstanceCreateResponseDto
+    public function mapCreateResponse(SudokuGameInstanceDto $sudokuGameInstanceDto): InstanceCreateResponseDto
     {
         return InstanceCreateResponseDto::hydrate([
-            'id' => $instanceId,
+            'id' => $sudokuGameInstanceDto->id,
         ]);
     }
 
     public function mapGetResponse(SudokuGameInstanceDto $sudokuGameInstanceDto): InstanceGetResponseDto
     {
-        $sudokuGameInstanceArray = $sudokuGameInstanceDto->toArray();
-        $puzzle = $this->applyHiddenCells($sudokuGameInstanceArray['grid'], $sudokuGameInstanceArray['hiddenCells']);
         $data = [
-            'id' => $sudokuGameInstanceArray['id'],
-            'cells' => $puzzle,
-            'groups' => $sudokuGameInstanceArray['cellGroups'],
+            'id' => $sudokuGameInstanceDto->id,
+            'puzzle' => $sudokuGameInstanceDto->puzzle,
+            'groups' => $sudokuGameInstanceDto->cellGroups,
+            'cellValues' => $this->extractCellValues($sudokuGameInstanceDto),
+            'notes' => $this->extractNotes($sudokuGameInstanceDto),
         ];
         $sudokuGameInstanceDto = InstanceGetResponseDto::hydrate($data);
         return $sudokuGameInstanceDto;
     }
 
-    private function applyHiddenCells(array $grid, array $hiddenCells): array
+    private function extractCellValues(SudokuGameInstanceDto $dto): array
     {
-        foreach ($hiddenCells as $hiddenCell) {
-            [$rowIndex, $colIndex] = $hiddenCell->getCoords();
+        // TODO: Return player actions when they are stored
+        // Currently returns empty array since player actions are not persisted yet
+        return [];
+    }
 
-            if (isset($grid[$rowIndex][$colIndex])) {
-                $grid[$rowIndex][$colIndex]['value'] = 0;
-            }
-        }
-
-        return $grid;
+    private function extractNotes(SudokuGameInstanceDto $dto): array
+    {
+        // TODO: Return player notes when they are stored
+        // Currently returns empty array since player notes are not persisted yet
+        return [];
     }
 }

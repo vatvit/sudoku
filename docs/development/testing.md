@@ -79,10 +79,11 @@ docker exec -ti sudoku_php bash -c "cd /app/backendApp && ./bin/phpunit --covera
 ```
 clientAppVue/
 ├── e2e/                        # Playwright E2E tests
-│   ├── vue.spec.ts            # Basic app functionality
-│   ├── sudoku-game.spec.ts    # Game mechanics
-│   ├── api-integration.spec.ts # API error handling
-│   └── helpers/test-helpers.ts # Reusable utilities
+│   ├── vue.spec.ts            # Basic Sudoku app functionality
+│   ├── helpers/               # Directory for test helpers (empty)
+│   ├── tsconfig.json          # TypeScript config for e2e tests
+│   ├── playwright.config.ts   # Main Playwright configuration
+│   └── playwright.config.docker.ts # Alternative config for Docker
 └── src/components/            # Components (unit tests TBD)
 ```
 
@@ -100,33 +101,62 @@ docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:unit"
 **E2E Tests (Playwright)**:
 ```bash
 # Local (recommended for E2E tests)
-npm run test:e2e                    # All e2e tests
+npm run test:e2e                    # All e2e tests (auto-starts dev server)
 npx playwright test --headed        # With browser UI
 npx playwright test --debug         # Debug mode
 npx playwright show-report          # View results
 
-# Docker (may have issues with web server startup)
-docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:e2e"
+# Docker (REQUIRES BROWSER INSTALLATION FIRST)
+# Install browsers in Docker container:
+docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npx playwright install"
+docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npx playwright install-deps"
+
+# Then run tests (non-blocking):
+npm run test:e2e:docker             # Uses alternative config, non-blocking
+# Note: Requires dev server to be running separately on localhost:5173
+
+# Docker (FAILS with default config - web server startup issues)
+# docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:e2e"
+# Error: Process from config.webServer exited early
 ```
 
 **Configuration**: [`playwright.config.ts`](../src/clientAppVue/playwright.config.ts) - Chrome/Firefox/Safari, auto dev server
 
+
 ## Reports & Debugging
 
-**Coverage Reports**:
+**Test Reports**:
+
+*Backend Coverage Reports*:
 ```bash
-# Backend HTML coverage (Local)
-./bin/phpunit --coverage-html coverage/ && open coverage/index.html
+# Generate and view HTML coverage (Local)
+cd src/backendApp
+./bin/phpunit --coverage-html coverage/
+open coverage/index.html
 
-# Backend HTML coverage (Docker)
+# Generate HTML coverage (Docker)
 docker exec -ti sudoku_php bash -c "cd /app/backendApp && ./bin/phpunit --coverage-html coverage/"
+# Then open: src/backendApp/coverage/index.html in your browser
+```
 
-# Frontend E2E reports (Local)
+*Frontend E2E Reports*:
+```bash
+# View latest HTML report (Local)
+cd src/clientAppVue
 npx playwright show-report
 
-# Frontend E2E reports (Docker)
+# View HTML report (Docker)
 docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npx playwright show-report"
+
+# Generate new report after running tests
+npm run test:e2e                    # Automatically generates report
+npx playwright show-report          # View the generated report
 ```
+
+*Report Locations*:
+- Backend coverage: `src/backendApp/coverage/index.html`
+- E2E test reports: `src/clientAppVue/playwright-report/index.html`
+- E2E test results: `src/clientAppVue/test-results/` (screenshots, videos, traces)
 
 **Debugging**:
 ```bash
@@ -152,6 +182,8 @@ npx playwright test --trace on       # Trace failures
 **Known Issues**:
 - npm warnings about deprecated config options (non-critical)
 - E2E tests may fail due to web server startup issues in Docker
+- E2E tests require Playwright browsers to be installed in Docker container
+- HTML report server may conflict with nginx on random ports (9323, 33887, etc.)
 - Xdebug "already loaded" warning (non-critical)
 
 **Recommendations**:

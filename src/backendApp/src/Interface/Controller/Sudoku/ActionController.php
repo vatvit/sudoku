@@ -2,8 +2,8 @@
 
 namespace App\Interface\Controller\Sudoku;
 
-use App\Domain\Sudoku\Exception\GameNotFoundException;
 use App\Domain\Sudoku\Service\Dto\ActionDto;
+use App\Interface\Controller\Sudoku\Handler\ExceptionHandler;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Psr\Cache\CacheItemInterface;
@@ -38,14 +38,15 @@ class ActionController extends AbstractController
     public function action(
         string $gameId,
         #[MapRequestPayload] ActionDto $actionDto,
-        CacheInterface $cache
+        CacheInterface $cache,
+        ExceptionHandler $exceptionHandler
     ): JsonResponse {
         // TODO: extract it
         $cacheKey = 'game|instance|sudoku|' . $gameId;
         /** @var CacheItemInterface $cacheItem */
         $cacheItem = $cache->getItem($cacheKey);
         if (!$cacheItem->isHit()) {
-            throw new GameNotFoundException($gameId);
+            $exceptionHandler->handleGameCacheMiss($gameId);
         }
         $table = $cacheItem->get();
 

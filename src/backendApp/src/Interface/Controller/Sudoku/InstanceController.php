@@ -2,13 +2,15 @@
 
 namespace App\Interface\Controller\Sudoku;
 
-use App\Application\Service\Sudoku\InstanceCreator;
-use App\Application\Service\Sudoku\InstanceGetter;
-use App\Domain\Sudoku\Exception\GameNotFoundException;
+use App\Application\UseCase\Sudoku\CreateInstanceUseCase;
+use App\Application\UseCase\Sudoku\GetInstanceUseCase;
 use App\Interface\Controller\Sudoku\Dto\CreateInstanceRequestDto;
+use App\Interface\Controller\Sudoku\Dto\GetInstanceRequestDto;
 use App\Interface\Controller\Sudoku\Dto\InstanceCreateResponseDto;
 use App\Interface\Controller\Sudoku\Dto\InstanceGetResponseDto;
+use App\Interface\Controller\Sudoku\Handler\ExceptionHandler;
 use App\Interface\Controller\Sudoku\Mapper\InstanceResponseMapper;
+use App\Interface\Controller\Sudoku\Mapper\RequestToUseCaseMapper;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,6 +23,10 @@ class InstanceController extends AbstractController
 {
     public function __construct(
         private readonly InstanceResponseMapper $responseMapper,
+        private readonly RequestToUseCaseMapper $requestToUseCaseMapper,
+        private readonly CreateInstanceUseCase $createInstanceUseCase,
+        private readonly GetInstanceUseCase $getInstanceUseCase,
+        private readonly ExceptionHandler $exceptionHandler,
     )
     {
     }
@@ -45,12 +51,12 @@ class InstanceController extends AbstractController
     #[OA\Tag(name: 'game-sudoku')]
     #[OA\Tag(name: 'game-sudoku-instances')]
     public function create(
-        #[MapRequestPayload] CreateInstanceRequestDto $requestDto,
-        InstanceCreator $instanceCreator
+        #[MapRequestPayload] CreateInstanceRequestDto $requestDto
     ): JsonResponse {
-        $puzzleStateDto = $instanceCreator->create($requestDto->size);
+        $inputDto = $this->requestToUseCaseMapper->mapToCreateInstanceInput($requestDto);
+        $outputDto = $this->createInstanceUseCase->execute($inputDto);
 
-        $responseDto = $this->responseMapper->mapCreateResponse($puzzleStateDto);
+        $responseDto = $this->responseMapper->mapCreateResponse($outputDto->instance);
         return $this->json($responseDto);
     }
 
@@ -61,7 +67,7 @@ class InstanceController extends AbstractController
         methods: ['GET']
     )]
     #[OA\Parameter(
-        name: 'gameId',
+        name: 'instanceId',
         description: 'Unique identifier for the Sudoku game instance',
         in: 'path',
         schema: new OA\Schema(type: 'string')
@@ -75,21 +81,15 @@ class InstanceController extends AbstractController
     #[OA\Tag(name: 'game-instances')]
     #[OA\Tag(name: 'game-sudoku')]
     #[OA\Tag(name: 'game-sudoku-instances')]
-    public function get(string $instanceId, InstanceGetter $instanceGetter): JsonResponse
-    {
-        try {
-            $instanceUuid = Uuid::fromString($instanceId);
-        } catch (\InvalidArgumentException $e) {
-            throw new GameNotFoundException($instanceId);
-        }
+    public function get(
+        #[MapRequestPayload] GetInstanceRequestDto $requestDto
+    ): JsonResponse {
+        $inputDto = $this->requestToUseCaseMapper->mapToGetInstanceInput($requestDto->instanceId);
+        $outputDto = $this->getInstanceUseCase->execute($inputDto);
 
-        $sudokuGameInstanceDto = $instanceGetter->getById($instanceUuid);
+        $this->exceptionHandler->handleInstanceNotFound($requestDto->instanceId, $outputDto);
 
-        if (!$sudokuGameInstanceDto) {
-            throw new GameNotFoundException($instanceId);
-        }
-
-        $responseDto = $this->responseMapper->mapGetResponse($sudokuGameInstanceDto);
+        $responseDto = $this->responseMapper->mapGetResponse($outputDto->instance);
         return $this->json($responseDto);
     }
 }

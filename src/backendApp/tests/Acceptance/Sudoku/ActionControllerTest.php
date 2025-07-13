@@ -41,9 +41,6 @@ class ActionControllerTest extends AbstractAcceptanceWebTestCase
 
     public function testAction_InstanceNotExists(): void
     {
-        // Configuration
-        $this->client->catchExceptions(false);
-
         $action = [
             'id' => 'action-' . uniqid(),
             'timeDiff' => time(),
@@ -56,18 +53,25 @@ class ActionControllerTest extends AbstractAcceptanceWebTestCase
         ];
 
         // Act
-        try {
-            $this->client->jsonRequest('POST', '/api/games/sudoku/instances/nonexistent-game/actions', $action);
-        } catch (\Exception $e) {
-            // Assert
-            $this->assertInstanceOf(NotFoundHttpException::class, $e);
-            return;
-        } finally {
-            // revert configuration
-            $this->client->catchExceptions(true);
-        }
+        $this->client->jsonRequest('POST', '/api/games/sudoku/instances/nonexistent-game/actions', $action);
 
-        $this->fail('Expected NotFoundHttpException not thrown.');
+        // Assert
+        $this->assertResponseStatusCodeSame(404);
+
+        $responseContent = json_decode($this->client->getResponse()->getContent(), true);
+
+        // Verify error response structure includes error code
+        $this->assertArrayHasKey('code', $responseContent, 'Error response should include error code');
+        $this->assertArrayHasKey('type', $responseContent, 'Error response should include type');
+        $this->assertArrayHasKey('title', $responseContent, 'Error response should include title');
+        $this->assertArrayHasKey('status', $responseContent, 'Error response should include status');
+        $this->assertArrayHasKey('detail', $responseContent, 'Error response should include detail');
+
+        // Verify specific error code for game not found
+        $this->assertEquals('GAME_NOT_FOUND', $responseContent['code']);
+        $this->assertEquals(404, $responseContent['status']);
+        $this->assertEquals('Game Not Found', $responseContent['title']);
+        $this->assertStringContainsString('nonexistent-game', $responseContent['detail']);
     }
 
 }

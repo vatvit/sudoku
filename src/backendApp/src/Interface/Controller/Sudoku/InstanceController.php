@@ -4,6 +4,7 @@ namespace App\Interface\Controller\Sudoku;
 
 use App\Application\Service\Sudoku\InstanceCreator;
 use App\Application\Service\Sudoku\InstanceGetter;
+use App\Domain\Sudoku\Exception\GameNotFoundException;
 use App\Interface\Controller\Sudoku\Dto\InstanceCreateResponseDto;
 use App\Interface\Controller\Sudoku\Dto\InstanceGetResponseDto;
 use App\Interface\Controller\Sudoku\Mapper\InstanceResponseMapper;
@@ -69,15 +70,15 @@ class InstanceController extends AbstractController
     public function get(string $instanceId, InstanceGetter $instanceGetter): JsonResponse
     {
         try {
-            $instanceId = Uuid::fromString($instanceId);
+            $instanceUuid = Uuid::fromString($instanceId);
         } catch (\InvalidArgumentException $e) {
-            throw $this->createNotFoundException();
+            throw new GameNotFoundException($instanceId);
         }
 
-        $sudokuGameInstanceDto = $instanceGetter->getById($instanceId);
+        $sudokuGameInstanceDto = $instanceGetter->getById($instanceUuid);
 
         if (!$sudokuGameInstanceDto) {
-            throw $this->createNotFoundException();
+            throw new GameNotFoundException($instanceId);
         }
 
         $responseDto = $this->responseMapper->mapGetResponse($sudokuGameInstanceDto);

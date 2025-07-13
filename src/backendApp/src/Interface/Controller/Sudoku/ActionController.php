@@ -2,6 +2,7 @@
 
 namespace App\Interface\Controller\Sudoku;
 
+use App\Domain\Sudoku\Exception\GameNotFoundException;
 use App\Domain\Sudoku\Service\Dto\ActionDto;
 use OpenApi\Attributes as OA;
 use Psr\Cache\CacheItemInterface;
@@ -39,7 +40,7 @@ class ActionController extends AbstractController
         /** @var CacheItemInterface $cacheItem */
         $cacheItem = $cache->getItem($cacheKey);
         if (!$cacheItem->isHit()) {
-            throw $this->createNotFoundException();
+            throw new GameNotFoundException($gameId);
         }
         $table = $cacheItem->get();
 

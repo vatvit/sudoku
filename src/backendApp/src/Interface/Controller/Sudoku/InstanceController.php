@@ -5,6 +5,7 @@ namespace App\Interface\Controller\Sudoku;
 use App\Application\Service\Sudoku\InstanceCreator;
 use App\Application\Service\Sudoku\InstanceGetter;
 use App\Domain\Sudoku\Exception\GameNotFoundException;
+use App\Interface\Controller\Sudoku\Dto\CreateInstanceRequestDto;
 use App\Interface\Controller\Sudoku\Dto\InstanceCreateResponseDto;
 use App\Interface\Controller\Sudoku\Dto\InstanceGetResponseDto;
 use App\Interface\Controller\Sudoku\Mapper\InstanceResponseMapper;
@@ -12,6 +13,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
@@ -29,6 +31,10 @@ class InstanceController extends AbstractController
         options: ['cache' => false],
         methods: ['POST']
     )]
+    #[OA\RequestBody(
+        description: 'Sudoku instance creation parameters',
+        content: new Model(type: CreateInstanceRequestDto::class)
+    )]
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -38,9 +44,11 @@ class InstanceController extends AbstractController
     #[OA\Tag(name: 'game-instances')]
     #[OA\Tag(name: 'game-sudoku')]
     #[OA\Tag(name: 'game-sudoku-instances')]
-    public function create(InstanceCreator $instanceCreator): JsonResponse
-    {
-        $puzzleStateDto = $instanceCreator->create();
+    public function create(
+        #[MapRequestPayload] CreateInstanceRequestDto $requestDto,
+        InstanceCreator $instanceCreator
+    ): JsonResponse {
+        $puzzleStateDto = $instanceCreator->create($requestDto->size);
 
         $responseDto = $this->responseMapper->mapCreateResponse($puzzleStateDto);
         return $this->json($responseDto);

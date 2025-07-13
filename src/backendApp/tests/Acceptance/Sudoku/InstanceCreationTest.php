@@ -27,6 +27,43 @@ class InstanceCreationTest extends AbstractAcceptanceWebTestCase
         $this->assertArrayHasKey('id', $responseContent);
     }
 
+    public function testCreateInstanceWithCustomSize(): void
+    {
+        // Arrange
+        $requestData = [
+            'size' => 16
+        ];
+
+        // Act
+        $this->client->jsonRequest('POST', '/api/games/sudoku/instances', $requestData);
+
+        // Assert
+        $this->assertResponseIsSuccessful();
+
+        $responseContent = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertIsArray($responseContent);
+        $this->assertArrayHasKey('id', $responseContent);
+
+        // Verify the instance was created (by trying to get it)
+        $gameId = $responseContent['id'];
+        $this->client->request('GET', sprintf('/api/games/sudoku/instances/%s', $gameId));
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testCreateInstanceWithInvalidSize(): void
+    {
+        // Arrange
+        $requestData = [
+            'size' => 20 // Invalid size (out of range 4-16)
+        ];
+
+        // Act
+        $this->client->jsonRequest('POST', '/api/games/sudoku/instances', $requestData);
+
+        // Assert
+        $this->assertResponseStatusCodeSame(422); // Validation error
+    }
+
     public function testGetInstance_NotFound(): void
     {
         // Act

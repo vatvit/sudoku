@@ -4,6 +4,7 @@ namespace App\Interface\Controller\Sudoku;
 
 use App\Domain\Sudoku\Exception\GameNotFoundException;
 use App\Domain\Sudoku\Service\Dto\ActionDto;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Psr\Cache\CacheItemInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,10 +22,14 @@ class ActionController extends AbstractController
         options: ['cache' => false],
         methods: ['POST']
     )]
+    #[OA\RequestBody(
+        description: 'Game action data',
+        content: new Model(type: ActionDto::class)
+    )]
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-//        content: new Model(type: InstanceCreateResponseDto::class)
+        content: new Model(type: ActionDto::class)
     )]
     #[OA\Tag(name: 'post-data')]
     #[OA\Tag(name: 'game-instance-actions')]

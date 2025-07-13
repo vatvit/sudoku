@@ -4,8 +4,6 @@
 
 **For AI Assistants**: This file provides comprehensive information about testing in the Sudoku project. Use this when you need to understand the testing architecture, run tests, write new tests, or troubleshoot testing issues. This covers backend PHP tests, frontend unit tests, and end-to-end tests.
 
-**⚠️ AI INSTRUCTION**: DO NOT run `npm run test:unit` without the `--run` flag as it will start in watch mode and block indefinitely waiting for file changes. Always use `npm run test:unit -- --run` for non-blocking execution.
-
 **For Developers**: This document contains all the information needed to understand, run, and write tests for the project. Use it to get familiar with the testing setup, run different types of tests, and follow testing best practices.
 
 **How to Use**:
@@ -30,19 +28,19 @@ The Sudoku project uses a comprehensive testing strategy with multiple testing f
 ```bash
 # Local (if PHP/Node installed)
 cd src/backendApp && ./bin/phpunit
-cd src/clientAppVue && npm run test:unit -- --run    # Non-blocking execution
+cd src/clientAppVue && npm run test:unit
 cd src/clientAppVue && npm run test:e2e
 
 # Docker (Recommended for development)
 cd ./infra/local && ./docker_exec_php.sh
 # Inside container:
 cd /app/backendApp && ./bin/phpunit
-cd /app/clientAppVue && npm run test:unit -- --run   # Non-blocking execution
-# Note: E2E tests fail in Docker due to web server startup issues
+cd /app/clientAppVue && npm run test:unit
+# Note: E2E tests may have issues in Docker environment
 
 # Docker one-liners (from project root)
 docker exec -ti sudoku_php bash -c "cd /app/backendApp && ./bin/phpunit"
-docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:unit -- --run"
+docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:unit"
 ```
 
 ## Backend Tests (PHPUnit)
@@ -91,15 +89,13 @@ clientAppVue/
 **Unit Tests (Vitest)**:
 ```bash
 # Local
-npm run test:unit -- --run          # All unit tests (non-blocking)
-npm run test:unit                    # Watch mode (blocks waiting for changes)
-npm run test:unit -- --run --coverage # With coverage (non-blocking)
+npm run test:unit                    # All unit tests
+npm run test:unit -- --watch        # Watch mode
+npm run test:unit -- --coverage     # With coverage
 
 # Docker (from project root)
-docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:unit -- --run"
+docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:unit"
 ```
-
-**⚠️ Important**: By default, `npm run test:unit` runs in watch mode and will block indefinitely waiting for file changes. Always use `-- --run` flag for one-time execution.
 
 **E2E Tests (Playwright)**:
 ```bash
@@ -109,15 +105,9 @@ npx playwright test --headed        # With browser UI
 npx playwright test --debug         # Debug mode
 npx playwright show-report          # View results
 
-# Docker (FAILS - web server startup issues)
-# docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:e2e"
-# Error: Process from config.webServer exited early
+# Docker (may have issues with web server startup)
+docker exec -ti sudoku_php bash -c "cd /app/clientAppVue && npm run test:e2e"
 ```
-
-**⚠️ E2E Test Issues**: 
-- **Docker**: E2E tests fail in Docker due to web server startup problems. Playwright cannot start the dev server properly in the container environment.
-- **Recommendation**: Run E2E tests locally outside Docker for reliable execution.
-- **Error**: If attempted in Docker, you'll see "Process from config.webServer exited early" and the command will hang.
 
 **Configuration**: [`playwright.config.ts`](../src/clientAppVue/playwright.config.ts) - Chrome/Firefox/Safari, auto dev server
 
@@ -159,21 +149,15 @@ npx playwright test --trace on       # Trace failures
 - All project files are mounted at `/app/` in container
 - Container name: `sudoku_php`
 
-**What Works in Docker**:
-- ✅ Backend PHPUnit tests (works perfectly)
-- ✅ Frontend unit tests with `--run` flag (works well)
-- ❌ E2E tests (fail due to web server startup issues)
-
 **Known Issues**:
 - npm warnings about deprecated config options (non-critical)
-- E2E tests fail with "Process from config.webServer exited early" error
+- E2E tests may fail due to web server startup issues in Docker
 - Xdebug "already loaded" warning (non-critical)
-- Unit tests without `--run` flag will block in watch mode
 
 **Recommendations**:
-- Use Docker for backend PHPUnit tests (reliable)
-- Use Docker for frontend unit tests with `-- --run` flag (reliable)
-- Use local environment for E2E tests (Docker E2E tests are not functional)
+- Use Docker for backend PHPUnit tests (works perfectly)
+- Use Docker for frontend unit tests (works well)
+- Use local environment for E2E tests (more reliable)
 
 ## Current Coverage & Guidelines
 

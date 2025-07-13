@@ -79,7 +79,7 @@ public function testGenerateWithDifferentSizes(int $size, bool $shouldSucceed): 
     }
 
     $result = $this->gridGenerator->generate($size);
-    
+
     if ($shouldSucceed) {
         $this->assertIsArray($result);
         $this->assertArrayHasKey('cells', $result);
@@ -109,10 +109,10 @@ public function testCommandHandlerWithMockedServices(): void
     $gameInstanceService = $this->createMock(GameInstanceService::class);
     $cache = $this->createMock(CacheInterface::class);
     $messageBus = $this->createMock(MessageBusInterface::class);
-    
+
     $command = new CreateGameInstanceCommand(size: 9, difficulty: 'medium');
     $expectedDto = new SudokuGameInstanceDto(/* ... */);
-    
+
     $gameInstanceService->expects($this->once())
         ->method('createInstance')
         ->with($command->size, $command->difficulty)
@@ -139,14 +139,14 @@ public function testServiceWithPartialMocking(): void
     $service = $this->getMockBuilder(GameInstanceService::class)
         ->onlyMethods(['validateGameState'])
         ->getMock();
-    
+
     $service->expects($this->once())
         ->method('validateGameState')
         ->willReturn(true);
-    
+
     // Test the actual method while mocking dependencies
     $result = $service->processGameAction($actionDto);
-    
+
     $this->assertTrue($result);
 }
 ```
@@ -191,7 +191,7 @@ class InstanceControllerTest extends WebTestCase
         // Assert
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $this->assertResponseHeaderSame('Content-Type', 'application/json');
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('gameId', $responseData);
         $this->assertArrayHasKey('grid', $responseData);
@@ -218,7 +218,7 @@ class InstanceControllerTest extends WebTestCase
 
         // Assert
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('violations', $responseData);
     }
@@ -344,6 +344,22 @@ src/clientAppVue/
 
 ### Unit Testing with Vitest
 
+**⚠️ CRITICAL AI INSTRUCTION - DO NOT RUN BLOCKING COMMANDS:**
+
+**DO NOT** run `npm run test:unit` without the `--run` flag as it starts in watch mode and will block indefinitely waiting for file changes.
+
+**ALWAYS USE:** `npm run test:unit -- --run` for non-blocking execution.
+
+**Commands:**
+```bash
+# ❌ NEVER USE (blocks indefinitely in watch mode)
+npm run test:unit
+
+# ✅ ALWAYS USE (non-blocking, runs once and exits)
+npm run test:unit -- --run
+npm run test:unit -- --run --coverage
+```
+
 **Component Testing Pattern:**
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest'
@@ -360,7 +376,7 @@ describe('Cell Component', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     store = useGameStore()
-    
+
     mockCell = {
       coords: '1:1',
       value: 5,
@@ -408,14 +424,14 @@ describe('Cell Component', () => {
     })
 
     await wrapper.find('.cell').trigger('click')
-    
+
     expect(store.selectedCell?.coords).toBe('1:1')
   })
 
   it('should apply correct CSS classes based on state', () => {
     store.setSelectedCell('1:1')
     store.addMistake('1:1')
-    
+
     const wrapper = mount(CellComponent, {
       props: {
         cell: mockCell,
@@ -454,7 +470,7 @@ describe('Game Store', () => {
 
   it('should initialize with default state', () => {
     const store = useGameStore()
-    
+
     expect(store.selectedCell).toBeNull()
     expect(store.mistakes.size).toBe(0)
     expect(store.highlightedValue).toBeNull()
@@ -463,23 +479,23 @@ describe('Game Store', () => {
   it('should set selected cell correctly', () => {
     const store = useGameStore()
     const mockCell = { coords: '1:1', value: 5, protected: false, notes: [] }
-    
+
     store.setSelectedCell('1:1')
-    
+
     expect(store.selectedCell?.coords).toBe('1:1')
     expect(store.hasSelectedCell).toBe(true)
   })
 
   it('should manage mistakes correctly', () => {
     const store = useGameStore()
-    
+
     store.addMistake('1:1')
     store.addMistake('2:2')
-    
+
     expect(store.mistakes.size).toBe(2)
     expect(store.mistakes.has('1:1')).toBe(true)
     expect(store.mistakeCount).toBe(2)
-    
+
     store.clearMistakes()
     expect(store.mistakes.size).toBe(0)
   })
@@ -554,7 +570,7 @@ test.describe('Sudoku Game', () => {
     await page.click('[data-testid="new-game-button"]')
     await page.selectOption('[data-testid="difficulty-select"]', 'medium')
     await page.click('[data-testid="start-game-button"]')
-    
+
     await expect(page.locator('.sudoku-grid')).toBeVisible()
     await expect(page.locator('.cell')).toHaveCount(81) // 9x9 grid
   })
@@ -562,13 +578,13 @@ test.describe('Sudoku Game', () => {
   test('should allow cell selection and value input', async ({ page }) => {
     await page.click('[data-testid="new-game-button"]')
     await page.click('[data-testid="start-game-button"]')
-    
+
     // Click on an empty cell
     const emptyCell = page.locator('.cell:not(.protected)').first()
     await emptyCell.click()
-    
+
     await expect(emptyCell).toHaveClass(/selected/)
-    
+
     // Input a value
     await page.keyboard.press('5')
     await expect(emptyCell.locator('.cell-value')).toHaveText('5')
@@ -577,10 +593,10 @@ test.describe('Sudoku Game', () => {
   test('should highlight related cells on hover', async ({ page }) => {
     await page.click('[data-testid="new-game-button"]')
     await page.click('[data-testid="start-game-button"]')
-    
+
     const cell = page.locator('[data-coords="1:1"]')
     await cell.hover()
-    
+
     // Check that related cells in the same row, column, and block are highlighted
     await expect(page.locator('.cell.hovered')).toHaveCount.greaterThan(1)
   })
@@ -588,17 +604,17 @@ test.describe('Sudoku Game', () => {
   test('should detect and show mistakes', async ({ page }) => {
     await page.click('[data-testid="new-game-button"]')
     await page.click('[data-testid="start-game-button"]')
-    
+
     // Make an invalid move (this would need specific game state setup)
     const cell1 = page.locator('[data-coords="1:1"]')
     const cell2 = page.locator('[data-coords="1:2"]')
-    
+
     await cell1.click()
     await page.keyboard.press('5')
-    
+
     await cell2.click()
     await page.keyboard.press('5') // Same value in same row
-    
+
     await expect(cell2).toHaveClass(/mistake/)
   })
 })
@@ -676,14 +692,14 @@ const mockApiService: Partial<GameApiService> = {
     cellGroups: [],
     status: 'active'
   }),
-  
+
   getGameInstance: vi.fn().mockResolvedValue({
     gameId: 'test-game-id',
     grid: { cells: [] },
     cellGroups: [],
     status: 'active'
   }),
-  
+
   submitAction: vi.fn().mockResolvedValue({
     success: true,
     updatedGrid: { cells: [] }
@@ -696,7 +712,7 @@ it('should create game instance', async () => {
     size: 9,
     difficulty: 'medium'
   })
-  
+
   expect(result.gameId).toBe('test-game-id')
   expect(mockApiService.createGameInstance).toHaveBeenCalledWith({
     size: 9,

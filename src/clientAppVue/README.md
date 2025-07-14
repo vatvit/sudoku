@@ -30,39 +30,6 @@ Run unit tests with [Vitest](https://vitest.dev/):
 npm run test:unit
 ```
 
-## End-to-End Tests
-
-Run end-to-end (E2E) tests with [Playwright](https://playwright.dev/):
-
-Install Playwright browsers (if not already installed):
-```sh
-   npx playwright install
-```
-
-Run the E2E tests:
-```sh
-   npm run test:e2e
-```
-
-### Additional Playwright Testing Options:
-
-- **Run tests only on Chromium:**
-
-```sh
-  npm run test:e2e -- --project=chromium
-```
-
-- **Run tests for a specific file:**
-
-```sh
-  npm run test:e2e -- tests/example.spec.ts
-```
-
-- **Debug mode:**
-
-```sh
-  npm run test:e2e -- --debug
-```
 
 ## Code Quality
 
